@@ -1,0 +1,99 @@
+:root {
+    --bg-dark: #0a0b10;
+    --neon-blue: #00d2ff;
+    --neon-red: #ff0040;
+    --arg-blue: #74acdf;
+    --text-white: #f0f0f0;
+    --glass: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+header {
+    background: rgba(10, 11, 16, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--neon-blue);
+    padding: 1rem 5%;
+    position: fixed;
+    width: 90%;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: var(--arg-blue);
+    text-shadow: 0 0 10px var(--arg-blue);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: var(--neon-blue);
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.hero {
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(0,210,255,0.1));
+}
+
+.section-title {
+    border-left: 4px solid var(--neon-red);
+    padding-left: 15px;
+    margin-top: 50px;
+}
+
+.tier-card {
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.tier-card.kage:hover {
+    border-color: var(--neon-red);
+    box-shadow: 0 0 15px var(--neon-red);
+}
+
+.video-responsive {
+    aspect-ratio: 16/9;
+    background: black;
+    border: 2px solid var(--neon-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
