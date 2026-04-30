@@ -15,17 +15,17 @@ body {
     overflow-x: hidden;
 }
 
-/* --- FONDO NINJA (IMAGEN ACTUALIZADA) --- */
+/* --- FONDO NINJA PERSONALIZADO --- */
 .dynamic-bg {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* He cambiado el link por uno de alta calidad y más estable */
-    background-image: url('https://wallpapercave.com/wp/wp8353380.jpg'); 
+    /* USAMOS LA IMAGEN QUE CREAMOS RECIÉN */
+    background-image: url('http://googleusercontent.com/image_generation_content/0'); 
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    filter: brightness(0.5) saturate(1.2); 
+    filter: brightness(0.6) saturate(1.1); /* Brillo justo para que se vean los personajes */
     z-index: -2;
 }
 
@@ -33,8 +33,8 @@ body {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Efecto de sombra para que resalte el texto */
-    background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(5,5,5,0.9) 100%);
+    /* Radial para oscurecer los bordes y que resalte el centro */
+    background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.85) 100%);
     z-index: -1;
 }
 
@@ -45,7 +45,7 @@ body {
     align-items: center;
     padding: 1rem 5%;
     background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px); 
+    backdrop-filter: blur(10px); 
     border-bottom: 2px solid var(--rasengan-blue);
     position: fixed; width: 100%; top: 0; z-index: 1000;
 }
@@ -79,6 +79,7 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
+    padding: 0 20px;
 }
 
 .shippuden-text {
@@ -86,7 +87,7 @@ body {
     font-weight: 900;
     text-transform: uppercase;
     color: white;
-    text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 10px rgba(255,255,255,0.2);
+    text-shadow: 0 0 30px rgba(0,0,0,1), 2px 2px 0px var(--rasengan-blue);
 }
 
 /* --- BOTONES --- */
