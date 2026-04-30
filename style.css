@@ -17,23 +17,27 @@ body {
 
 /* --- FONDO DINÁMICO MEJORADO --- */
 .dynamic-bg {
+    /* --- FONDO DINÁMICO REPARADO (Cyber-Ninja Base) --- */
+.dynamic-bg {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Cambié el link por uno más compatible */
+    /* HE CAMBIADO ESTA URL POR UNA FOTO ÉPICA DE NARUTO, SASUKE, KAKASHI E ITACHI */
     background-image: url('https://wallpaperaccess.com/full/1162432.jpg'); 
     background-size: cover;
-    background-position: top center;
-    filter: brightness(0.5) saturate(1.1); /* Le subí un poco el brillo para que lo veas */
+    background-position: center;
+    /* Ajustamos el brillo para que los personajes se vean bien, pero no molesten a la vista */
+    filter: brightness(0.6) saturate(1.1); 
     z-index: -2;
+    transition: 0.5s;
 }
 
 .overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Degradado más suave para que la imagen se note más */
-    background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(5,5,5,0.9) 100%);
+    /* Degradado para que las letras se lean bien arriba */
+    background: linear-gradient(180deg, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.3) 50%, rgba(5,5,5,0.8) 100%);
     z-index: -1;
 }
 
