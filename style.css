@@ -15,12 +15,13 @@ body {
     overflow-x: hidden;
 }
 
-/* --- FONDO NINJA DESDE TU GITHUB --- */
+/* --- FONDO NINJA CON LINK DIRECTO A TU GITHUB --- */
 .dynamic-bg {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-image: url('fondo.jpg.png'); 
+    /* AQUÍ ESTÁ LA MAGIA: El enlace directo a tu foto */
+    background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/fondo.jpg.png'); 
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
