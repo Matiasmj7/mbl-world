@@ -3,69 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MBL Arg | Mobile Legends Argentina</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>MBL Arg | El Camino del Ninja</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="cyber-ninja-theme">
-    <header>
+<body>
+
+    <div class="dynamic-bg"></div>
+    <div class="overlay"></div>
+
+    <header class="navbar">
+        <div class="logo">MBL <span class="highlight">ARG</span></div>
         <nav>
-            <div class="logo">MBL <span>Arg</span></div>
-            <ul>
-                <li><a href="#home">Inicio</a></li>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#bingo">Libro Bingo</a></li>
-                <li><a href="#fichajes">Fichajes</a></li>
-                <li><a href="#admin">Admin</a></li>
+                <li><a href="#abismo">Abismo</a></li>
+                <li><a href="#planes">Suscripciones</a></li>
+                <li><a href="#admin">Kage Admin</a></li>
             </ul>
-            <div id="user-status" class="user-badge">Invitado</div>
         </nav>
+        <button class="btn-login" onclick="toggleLogin()">Ingresar</button>
     </header>
 
     <main>
-        <section id="home" class="hero">
+        <section id="inicio" class="hero">
             <div class="hero-content">
-                <h1>DOMINA EL ABISMO</h1>
-                <p>La élite de Mobile Legends Argentina. Únete al Libro Bingo.</p>
-                <div class="hero-buttons">
-                    <button class="btn-primary">Ver Torneos</button>
-                    <button class="btn-secondary">Inscribirse</button>
+                <h1 class="shippuden-text">DOMINA EL ABISMO</h1>
+                <p>Bienvenido al Libro Bingo, <span class="user-name">Ninja</span>. Aquí comienza tu leyenda.</p>
+                <div class="cta-buttons">
+                    <button class="btn-rasengan">Ver Torneos</button>
+                    <button class="btn-chidori">Unirse al Clan</button>
                 </div>
-            </div>
-        </section>
-
-        <section id="stream" class="container">
-            <h2 class="section-title"><i class="fas fa-video"></i> Transmisión En Vivo</h2>
-            <div id="live-stream-container" class="video-responsive">
-                <div class="placeholder-stream">Esperando señal de combate...</div>
-            </div>
-        </section>
-
-        <section id="torneos" class="container">
-            <h2 class="section-title"><i class="fas fa-trophy"></i> Torneos Oficiales</h2>
-            <div class="tiers-grid">
-                <div class="tier-card genin"><h3>Copa Genin</h3><p>Rango Bajo/Medio</p></div>
-                <div class="tier-card chunin"><h3>Copa Chunin</h3><p>Rango Leyenda</p></div>
-                <div class="tier-card kage"><h3>Copa Kage</h3><p>Mítico+</p></div>
-            </div>
-        </section>
-
-        <section id="beats" class="container">
-            <h2 class="section-title"><i class="fas fa-music"></i> Battle Beats</h2>
-            <div class="jukebox">
-                <div id="current-song">Reproduciendo: Ninguna</div>
-                <input type="text" id="yt-link" placeholder="Enlace de YouTube...">
-                <button onclick="requestSong()">Pedir Canción ($200 ARS)</button>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 MBL Arg - Proyecto Cyber-Ninja | <i class="fas fa-shield-alt"></i> SSL Seguro</p>
-    </footer>
-
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
