@@ -15,15 +15,16 @@ body {
     overflow-x: hidden;
 }
 
-/* --- FONDO NINJA --- */
+/* --- FONDO NINJA (IMAGEN ACTUALIZADA) --- */
 .dynamic-bg {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Imagen épica de los 4 personajes */
-    background-image: url('https://images3.alphacoders.com/210/210543.jpg'); 
+    /* He cambiado el link por uno de alta calidad y más estable */
+    background-image: url('https://wallpapercave.com/wp/wp8353380.jpg'); 
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
     filter: brightness(0.5) saturate(1.2); 
     z-index: -2;
 }
@@ -32,6 +33,7 @@ body {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
+    /* Efecto de sombra para que resalte el texto */
     background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(5,5,5,0.9) 100%);
     z-index: -1;
 }
@@ -63,10 +65,9 @@ body {
 }
 .nav-links a:hover { color: var(--rasengan-blue); text-shadow: 0 0 10px var(--rasengan-blue); }
 
-/* --- BOTÓN INGRESAR --- */
 .btn-login {
     background: transparent;
-    border: 1px solid var(--neon-blue);
+    border: 1px solid var(--rasengan-blue);
     color: white; padding: 8px 15px; border-radius: 4px;
     cursor: pointer; font-weight: bold;
 }
@@ -85,7 +86,7 @@ body {
     font-weight: 900;
     text-transform: uppercase;
     color: white;
-    text-shadow: 0 0 20px rgba(0,0,0,1);
+    text-shadow: 0 0 20px rgba(0,0,0,1), 0 0 10px rgba(255,255,255,0.2);
 }
 
 /* --- BOTONES --- */
