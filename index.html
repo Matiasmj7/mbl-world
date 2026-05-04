@@ -17,10 +17,11 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#planes">Suscripciones</a></li>
-                <li><a href="#admin">Kage Admin</a></li>
+                <li><a href="#admin">Admin</a></li>
             </ul>
         </nav>
         <button class="btn-login">Ingresar</button>
@@ -34,6 +35,56 @@
                 <div class="cta-buttons">
                     <a href="#torneos" class="btn-rasengan">Ver Torneos</a>
                     <a href="#bingo" class="btn-chidori">Libro Bingo</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="torneos" class="section-container">
+            <h2 class="section-title"><i class="fas fa-khanda"></i> La Arena de Combate</h2>
+            
+            <div class="torneos-filters">
+                <button class="filter-btn active">Todos</button>
+                <button class="filter-btn">1v1</button>
+                <button class="filter-btn">2v2</button>
+                <button class="filter-btn">3v3</button>
+                <button class="filter-btn">5v5</button>
+            </div>
+
+            <div class="torneos-grid">
+                <div class="torneo-card">
+                    <div class="torneo-badge open">Inscripciones Abiertas</div>
+                    <div class="torneo-formato format-1v1">1 VS 1</div>
+                    <h3>Copa Genin Solitario</h3>
+                    <div class="torneo-info">
+                        <p><i class="fas fa-calendar-alt"></i> Sábado, 15:00 hs</p>
+                        <p><i class="fas fa-users"></i> Cupos: 12/16</p>
+                        <p><i class="fas fa-trophy"></i> Premio: Pase Semanal</p>
+                    </div>
+                    <button class="btn-submit btn-torneo">Anotarse al Bracket</button>
+                </div>
+
+                <div class="torneo-card">
+                    <div class="torneo-badge full">En Curso</div>
+                    <div class="torneo-formato format-5v5">5 VS 5</div>
+                    <h3>Liga Kage de Escuadrones</h3>
+                    <div class="torneo-info">
+                        <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
+                        <p><i class="fas fa-users"></i> Cupos: 8/8</p>
+                        <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
+                    </div>
+                    <button class="btn-chidori btn-torneo">Ver Llaves</button>
+                </div>
+                
+                <div class="torneo-card">
+                    <div class="torneo-badge upcoming">Próximamente</div>
+                    <div class="torneo-formato format-2v2">2 VS 2</div>
+                    <h3>Dúo Dinámico</h3>
+                    <div class="torneo-info">
+                        <p><i class="fas fa-calendar-alt"></i> Por definirse</p>
+                        <p><i class="fas fa-users"></i> Cupos: 0/16</p>
+                        <p><i class="fas fa-trophy"></i> Premio: Diamantes</p>
+                    </div>
+                    <button class="btn-submit btn-torneo" disabled style="opacity: 0.5; cursor: not-allowed;">Pronto</button>
                 </div>
             </div>
         </section>
@@ -100,7 +151,6 @@
 
         <section id="abismo" class="section-container">
             <h2 class="section-title"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            
             <div class="form-card upload-zone">
                 <h3>Sube tu mejor jugada o stats</h3>
                 <form id="upload-media">
@@ -131,7 +181,6 @@
                         <button class="btn-like"><i class="fas fa-fire"></i> 142</button>
                     </div>
                 </div>
-                
                 <div class="media-card">
                     <div class="media-placeholder stats-bg">
                         <i class="fas fa-image"></i>
