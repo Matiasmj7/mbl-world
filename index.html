@@ -19,6 +19,7 @@
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#stream" style="color: #ff0040;"><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle;"></i> En Vivo</a></li>
                 <li><a href="#torneos">Torneos</a></li>
+                <li><a href="#planes">Planes</a></li>
                 <li><a href="#bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#admin" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
@@ -34,7 +35,7 @@
                 <p>Bienvenido al Libro Bingo, <span class="user-name">Matías</span>. Aquí comienza tu leyenda.</p>
                 <div class="cta-buttons">
                     <a href="#stream" class="btn-susanoo">Ver Transmisión</a>
-                    <a href="#torneos" class="btn-rasengan">Torneos</a>
+                    <a href="#planes" class="btn-rasengan">Crear Torneos</a>
                 </div>
             </div>
         </section>
@@ -89,6 +90,50 @@
                         <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
                     </div>
                     <button class="btn-chidori btn-torneo">Ver Llaves</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="planes" class="section-container">
+            <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería de la Aldea (Planes)</h2>
+            <p style="text-align: center; margin-bottom: 40px; color: #ccc;">Alquila el poder de la arena. Gestiona tus propios torneos y cobra las inscripciones.</p>
+            
+            <div class="planes-grid">
+                <div class="plan-card aliado-card">
+                    <div class="plan-header">
+                        <h3>PLAN ALIADO</h3>
+                        <div class="price">$4.000 ARS <span>/ 2 Horas</span></div>
+                        <p class="extra-time">+1 Hora extra por $2.000 ARS</p>
+                    </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Permiso para crear Torneos</li>
+                            <li><i class="fas fa-check"></i> Gestionar inscripciones</li>
+                            <li><i class="fas fa-check"></i> Formatos habilitados: <strong>1v1 y 2v2</strong></li>
+                            <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
+                            <li><i class="fas fa-user-shield"></i> Habilitación manual por Admin</li>
+                        </ul>
+                    </div>
+                    <a href="#modal-pago" class="btn-submit btn-plan" style="display: block; text-align: center;">Contratar Aliado</a>
+                </div>
+
+                <div class="plan-card kage-card">
+                    <div class="plan-badge">MÁXIMO PODER</div>
+                    <div class="plan-header">
+                        <h3>KAGE ELITE</h3>
+                        <div class="price">$10.000 ARS <span>/ 4 Horas</span></div>
+                        <p class="extra-time">+2 Horas extra por $4.000 ARS</p>
+                    </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Permiso Supremo de Torneos</li>
+                            <li><i class="fas fa-check"></i> Gestionar inscripciones</li>
+                            <li><i class="fas fa-check"></i> Formatos: <strong>1v1, 2v2, 3v3 y 5v5</strong></li>
+                            <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
+                            <li><i class="fas fa-user-shield"></i> Habilitación manual por Admin</li>
+                        </ul>
+                    </div>
+                    <a href="#modal-pago" class="btn-susanoo btn-plan" style="display: block; text-align: center;">Convertirme en Kage</a>
                 </div>
             </div>
         </section>
@@ -181,16 +226,6 @@
                         <h4>Savage con Gusion</h4>
                         <p class="author">Por: NinjaAsesino</p>
                         <button class="btn-like"><i class="fas fa-fire"></i> 142</button>
-                    </div>
-                </div>
-                <div class="media-card">
-                    <div class="media-placeholder stats-bg">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="media-info">
-                        <h4>Llegando a Mítico</h4>
-                        <p class="author">Por: SakuraHealer</p>
-                        <button class="btn-like"><i class="fas fa-fire"></i> 89</button>
                     </div>
                 </div>
             </div>
@@ -286,6 +321,33 @@
             </div>
         </section>
     </main>
+
+    <div id="modal-pago" class="modal-overlay">
+        <div class="modal-content">
+            <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
+            <h3><i class="fas fa-wallet"></i> Bóveda de Pago</h3>
+            <p>Transfiere el monto a cualquiera de estas cuentas y envía el comprobante por WhatsApp para que el Admin active tus permisos de torneo.</p>
+            
+            <div class="payment-methods">
+                <div class="pay-option">
+                    <span><i class="fas fa-money-bill-wave" style="color: var(--arg-blue);"></i> Pesos Argentinos (ARS)</span>
+                    <strong>Alias: matias.mj7</strong>
+                </div>
+                <div class="pay-option">
+                    <span><i class="fas fa-dollar-sign" style="color: #00ffa3;"></i> Dólares (USD)</span>
+                    <strong>Alias: incubar.soja.salida</strong>
+                </div>
+                <div class="pay-option crypto">
+                    <span><i class="fab fa-bitcoin" style="color: #f7931a;"></i> USDT (Red BEP20)</span>
+                    <strong style="font-size: 0.75rem; word-break: break-all;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
+                </div>
+            </div>
+
+            <a href="https://wa.me/5491100000000?text=Hola%20Matías,%20acabo%20de%20realizar%20el%20pago%20por%20un%20plan%20para%20crear%20torneos.%20Te%20env%C3%ADo%20el%20comprobante%20y%20mi%20Nick%20del%20juego:" target="_blank" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Enviar Comprobante
+            </a>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
