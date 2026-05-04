@@ -79,7 +79,7 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .torneo-info i { width: 20px; color: var(--rasengan-blue); }
 .btn-torneo { width: 100%; margin-top: 20px; padding: 12px; display: block; border-radius: 5px; }
 
-/* --- SUSCRIPCIONES Y PLANES (NUEVO) --- */
+/* --- SUSCRIPCIONES Y PLANES --- */
 .planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 20px; }
 .plan-card { background: var(--card-bg); border-radius: 15px; padding: 30px; position: relative; border: 1px solid #333; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
 .plan-card:hover { transform: translateY(-10px); }
