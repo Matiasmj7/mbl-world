@@ -9,7 +9,11 @@
 </head>
 <body>
 
-    <div class="dynamic-bg"></div>
+    <video autoplay muted loop playsinline class="dynamic-bg">
+        <source src="https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4" type="video/mp4">
+        Tu navegador no soporta videos de fondo.
+    </video>
+    
     <div class="overlay"></div>
 
     <header class="navbar">
@@ -91,24 +95,11 @@
                     </div>
                     <button class="btn-submit btn-torneo">Anotarse al Bracket</button>
                 </div>
-                <div class="torneo-card">
-                    <div class="torneo-badge full">En Curso</div>
-                    <div class="torneo-formato format-5v5">5 VS 5</div>
-                    <h3>Liga Kage de Escuadrones</h3>
-                    <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
-                        <p><i class="fas fa-users"></i> Cupos: 8/8</p>
-                        <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
-                    </div>
-                    <button class="btn-chidori btn-torneo">Ver Llaves</button>
-                </div>
             </div>
         </section>
 
         <section id="planes" class="section-container">
             <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería de la Aldea (Planes)</h2>
-            <p style="text-align: center; margin-bottom: 40px; color: #ccc;">Alquila el poder de la arena. Gestiona tus propios torneos y cobra las inscripciones.</p>
-            
             <div class="planes-grid">
                 <div class="plan-card aliado-card">
                     <div class="plan-header">
@@ -118,16 +109,12 @@
                     </div>
                     <div class="plan-body">
                         <ul>
-                            <li><i class="fas fa-check"></i> Permiso para crear Torneos</li>
-                            <li><i class="fas fa-check"></i> Gestionar inscripciones</li>
-                            <li><i class="fas fa-check"></i> Formatos habilitados: <strong>1v1 y 2v2</strong></li>
+                            <li><i class="fas fa-check"></i> Crear Torneos 1v1 y 2v2</li>
                             <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
-                            <li><i class="fas fa-user-shield"></i> Habilitación manual por Admin</li>
                         </ul>
                     </div>
                     <a href="#modal-pago" class="btn-submit btn-plan" style="display: block; text-align: center;">Contratar Aliado</a>
                 </div>
-
                 <div class="plan-card kage-card">
                     <div class="plan-badge">MÁXIMO PODER</div>
                     <div class="plan-header">
@@ -137,11 +124,8 @@
                     </div>
                     <div class="plan-body">
                         <ul>
-                            <li><i class="fas fa-check"></i> Permiso Supremo de Torneos</li>
-                            <li><i class="fas fa-check"></i> Gestionar inscripciones</li>
-                            <li><i class="fas fa-check"></i> Formatos: <strong>1v1, 2v2, 3v3 y 5v5</strong></li>
+                            <li><i class="fas fa-check"></i> Todos los formatos (hasta 5v5)</li>
                             <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
-                            <li><i class="fas fa-user-shield"></i> Habilitación manual por Admin</li>
                         </ul>
                     </div>
                     <a href="#modal-pago" class="btn-susanoo btn-plan" style="display: block; text-align: center;">Convertirme en Kage</a>
@@ -185,7 +169,6 @@
                             <th>Rango Ninja</th>
                             <th>Jugador</th>
                             <th>ID / Server</th>
-                            <th>Tier MLBB</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -194,7 +177,6 @@
                             <td><span class="rank-tag kage">KAGE</span></td>
                             <td><strong>Matías</strong></td>
                             <td>12345678 (1234)</td>
-                            <td>Mítico Inmortal</td>
                             <td><span class="status verified"><i class="fas fa-check-circle"></i></span></td>
                         </tr>
                     </tbody>
@@ -204,28 +186,9 @@
 
         <section id="abismo" class="section-container">
             <h2 class="section-title"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            <div class="form-card upload-zone">
-                <h3>Sube tu mejor jugada o stats</h3>
-                <form id="upload-media">
-                    <div class="input-group">
-                        <label>¿Qué vas a compartir?</label>
-                        <select id="media-type" class="ninja-select">
-                            <option value="clip">Clip Épico (Video)</option>
-                            <option value="stats">Estadísticas (Foto)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Selecciona tu archivo</label>
-                        <input type="file" accept="image/*,video/*" required>
-                    </div>
-                    <button type="submit" class="btn-submit btn-upload"><i class="fas fa-cloud-upload-alt"></i> Compartir con la Aldea</button>
-                </form>
-            </div>
             <div class="media-gallery">
                 <div class="media-card">
-                    <div class="media-placeholder">
-                        <i class="fas fa-play-circle"></i>
-                    </div>
+                    <div class="media-placeholder"><i class="fas fa-play-circle"></i></div>
                     <div class="media-info">
                         <h4>Savage con Gusion</h4>
                         <p class="author">Por: NinjaAsesino</p>
@@ -237,62 +200,25 @@
 
         <section id="gremio" class="section-container">
             <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio de Reclutamiento</h2>
-            <p style="text-align: center; margin-bottom: 40px; color: #ccc;">Busca escuadrón, recluta jugadores según el rol o simplemente charla en la taberna global.</p>
-            
             <div class="gremio-layout">
                 <div class="board-column">
-                    <div class="torneos-filters" style="margin-bottom: 20px;">
-                        <button class="filter-btn active">Todo</button>
-                        <button class="filter-btn">Busco Escuadrón</button>
-                        <button class="filter-btn">Reclutar Jugador</button>
-                    </div>
-                    
-                    <div class="board-cards">
-                        <div class="social-post">
-                            <div class="post-header">
-                                <img src="https://ui-avatars.com/api/?name=Matías&background=random" alt="Avatar" class="avatar">
-                                <div class="post-user-info">
-                                    <strong>Matías</strong>
-                                    <span class="rank-tag kage" style="font-size: 0.6rem;">MÍTICO</span>
-                                </div>
-                            </div>
-                            <div class="role-tags">
-                                <span class="role tank"><i class="fas fa-shield-alt"></i> Main Tanque</span>
-                                <span class="role support"><i class="fas fa-hand-holding-heart"></i> Apoyo</span>
-                            </div>
-                            <p class="post-text">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana. Tengo micrófono y buena comunicación.</p>
-                            <button class="btn-susanoo btn-small"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
+                    <div class="social-post">
+                        <div class="post-header">
+                            <img src="https://ui-avatars.com/api/?name=Matías&background=random" alt="Avatar" class="avatar">
+                            <div class="post-user-info"><strong>Matías</strong><span class="rank-tag kage" style="font-size: 0.6rem;">MÍTICO</span></div>
                         </div>
-
-                        <div class="social-post">
-                            <div class="post-header">
-                                <img src="https://ui-avatars.com/api/?name=Akatsuki&background=ff0040&color=fff" alt="Avatar" class="avatar">
-                                <div class="post-user-info">
-                                    <strong>Team Akatsuki</strong>
-                                    <span class="rank-tag jonin" style="font-size: 0.6rem;">LEYENDA/MÍTICO</span>
-                                </div>
-                            </div>
-                            <div class="role-tags">
-                                <span class="role assassin"><i class="fas fa-khanda"></i> Buscamos: Asesino/Jungla</span>
-                            </div>
-                            <p class="post-text">Nos falta un jungla picante para cerrar el roster del torneo Kage Elite. Requisito: WR mayor a 55%.</p>
-                            <button class="btn-rasengan btn-small"><i class="fas fa-envelope"></i> Postularme</button>
-                        </div>
+                        <p class="post-text">Busco escuadrón competitivo para torneos 5v5.</p>
+                        <button class="btn-susanoo btn-small"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
                     </div>
                 </div>
-
                 <div class="chat-column">
                     <div class="chat-box">
-                        <div class="chat-header">
-                            <i class="fas fa-globe"></i> Taberna Global (Chat Abierto)
-                        </div>
+                        <div class="chat-header"><i class="fas fa-globe"></i> Taberna Global</div>
                         <div class="chat-messages">
-                            <div class="msg"><span class="msg-time">[18:05]</span> <strong class="user jonin">GusionPro:</strong> Alguien para rankear ahora en leyenda?</div>
-                            <div class="msg"><span class="msg-time">[18:07]</span> <strong class="user tank">SakuraHeals:</strong> Yo, invitame ID 123456.</div>
-                            <div class="msg"><span class="msg-time">[18:15]</span> <strong class="user kage">Admin Matías:</strong> ¡Bienvenidos al nuevo Gremio, respeten las normas del chat!</div>
+                            <div class="msg"><strong class="user kage">Admin Matías:</strong> ¡Bienvenidos al nuevo Gremio!</div>
                         </div>
                         <div class="chat-input">
-                            <input type="text" placeholder="Escribe tu mensaje en la taberna...">
+                            <input type="text" placeholder="Escribe tu mensaje...">
                             <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
@@ -304,115 +230,22 @@
             <h2 class="section-title"><i class="fas fa-hanko"></i> Centro de Mando del Kage</h2>
             <div class="admin-dashboard">
                 <div class="admin-stats">
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <span>Ninjas Activos</span>
-                        <p>154</p>
-                    </div>
-                    <div class="stat-card pending">
-                        <i class="fas fa-hourglass-half"></i>
-                        <span>Por Verificar</span>
-                        <p>12</p>
-                    </div>
-                    <div class="stat-card banned">
-                        <i class="fas fa-user-slash"></i>
-                        <span>Desterrados</span>
-                        <p>3</p>
-                    </div>
+                    <div class="stat-card"><i class="fas fa-users"></i><span>Ninjas Activos</span><p>154</p></div>
+                    <div class="stat-card banned"><i class="fas fa-user-slash"></i><span>Desterrados</span><p>3</p></div>
                 </div>
-
-                <div class="admin-card" style="margin-bottom: 20px;">
-                    <h3><i class="fas fa-gem"></i> Gestión de Suscripciones (Planes Activos)</h3>
+                <div class="admin-card">
+                    <h3><i class="fas fa-gem"></i> Gestión de Suscripciones</h3>
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Nick</th>
-                                <th>Plan Solicitado</th>
-                                <th>Tiempo Restante</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Nick</th><th>Plan</th><th>Tiempo</th><th>Acción</th></tr></thead>
                         <tbody>
                             <tr>
                                 <td>Sasuke_Pro</td>
                                 <td><span class="rank-tag kage">KAGE ELITE</span></td>
-                                <td style="color: var(--success-green); font-family: monospace; font-size: 1.1rem;">03:45:00</td>
-                                <td><button class="btn-reject" title="Revocar Permisos"><i class="fas fa-stop-circle"></i> Revocar</button></td>
-                            </tr>
-                            <tr>
-                                <td>Naruto_Uzumaki</td>
-                                <td><span class="rank-tag jonin" style="background: var(--rasengan-blue);">ALIADO</span></td>
-                                <td style="color: #888;">Pendiente de pago...</td>
-                                <td><button class="btn-approve"><i class="fas fa-play-circle"></i> Activar Plan</button></td>
+                                <td style="color: var(--success-green); font-family: monospace;">03:45:00</td>
+                                <td><button class="btn-reject"><i class="fas fa-stop-circle"></i> Revocar</button></td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="admin-tables">
-                    <div class="admin-card">
-                        <h3><i class="fas fa-scroll"></i> Solicitudes Libro Bingo</h3>
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Rango</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Uchiha_Madara</td>
-                                    <td>Mítico</td>
-                                    <td class="actions">
-                                        <button class="btn-approve"><i class="fas fa-check"></i></button>
-                                        <button class="btn-reject"><i class="fas fa-times"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="admin-card">
-                        <h3><i class="fas fa-users-cog"></i> Gestión de Población</h3>
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Nick</th>
-                                    <th>Reportes</th>
-                                    <th>Castigo</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Troll_MLBB_99</td>
-                                    <td><span class="report-tag">4 Reportes</span></td>
-                                    <td>
-                                        <button class="btn-ban">DESTERRAR</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="admin-card settings">
-                    <h3><i class="fas fa-cogs"></i> Permisos del Sistema</h3>
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <span>Mantenimiento de Página</span>
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <span>Inscripciones Abiertas</span>
-                            <label class="switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -422,24 +255,12 @@
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
             <h3><i class="fas fa-wallet"></i> Bóveda de Pago</h3>
-            <p>Transfiere el monto a cualquiera de estas cuentas y envía el comprobante por WhatsApp.</p>
             <div class="payment-methods">
-                <div class="pay-option">
-                    <span><i class="fas fa-money-bill-wave" style="color: var(--arg-blue);"></i> Pesos Argentinos (ARS)</span>
-                    <strong>Alias: matias.mj7</strong>
-                </div>
-                <div class="pay-option">
-                    <span><i class="fas fa-dollar-sign" style="color: #00ffa3;"></i> Dólares (USD)</span>
-                    <strong>Alias: incubar.soja.salida</strong>
-                </div>
-                <div class="pay-option crypto">
-                    <span><i class="fab fa-bitcoin" style="color: #f7931a;"></i> USDT (Red BEP20)</span>
-                    <strong style="font-size: 0.75rem; word-break: break-all;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
-                </div>
+                <div class="pay-option"><span>Pesos (ARS)</span><strong>Alias: matias.mj7</strong></div>
+                <div class="pay-option"><span>Dólares (USD)</span><strong>Alias: incubar.soja.salida</strong></div>
+                <div class="pay-option crypto"><span>USDT (BEP20)</span><strong style="font-size: 0.7rem; word-break: break-all;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
             </div>
-            <a href="https://wa.me/5491100000000?text=Hola%20Matías,%20acabo%20de%20realizar%20el%20pago..." target="_blank" class="btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> Enviar Comprobante
-            </a>
+            <a href="https://wa.me/5491100000000?text=Hola%20Admin,%20realice%20el%20pago..." target="_blank" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Enviar Comprobante</a>
         </div>
     </div>
 
