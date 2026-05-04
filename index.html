@@ -22,6 +22,7 @@
                 <li><a href="#planes">Planes</a></li>
                 <li><a href="#registro-bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
+                <li><a href="#gremio" style="color: var(--success-green);"><i class="fas fa-users"></i> Gremio</a></li>
                 <li><a href="#admin" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
             </ul>
         </nav>
@@ -54,8 +55,18 @@
                     <button class="plat-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
                     <button class="plat-btn facebook"><i class="fab fa-facebook"></i> Facebook</button>
                 </div>
-                <div class="video-wrapper">
-                    <iframe id="main-stream" src="https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ" title="MBL Arg Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="stream-layout">
+                    <div class="video-column">
+                        <div class="video-wrapper">
+                            <iframe id="main-stream" src="https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ" title="MBL Arg Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="discord-wrapper">
+                        <div class="discord-header">
+                            <i class="fab fa-discord"></i> Chat de Transmisión
+                        </div>
+                        <iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" allow="clipboard-write"></iframe>
+                    </div>
                 </div>
             </div>
         </section>
@@ -224,6 +235,71 @@
             </div>
         </section>
 
+        <section id="gremio" class="section-container">
+            <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio de Reclutamiento</h2>
+            <p style="text-align: center; margin-bottom: 40px; color: #ccc;">Busca escuadrón, recluta jugadores según el rol o simplemente charla en la taberna global.</p>
+            
+            <div class="gremio-layout">
+                <div class="board-column">
+                    <div class="torneos-filters" style="margin-bottom: 20px;">
+                        <button class="filter-btn active">Todo</button>
+                        <button class="filter-btn">Busco Escuadrón</button>
+                        <button class="filter-btn">Reclutar Jugador</button>
+                    </div>
+                    
+                    <div class="board-cards">
+                        <div class="social-post">
+                            <div class="post-header">
+                                <img src="https://ui-avatars.com/api/?name=Matías&background=random" alt="Avatar" class="avatar">
+                                <div class="post-user-info">
+                                    <strong>Matías</strong>
+                                    <span class="rank-tag kage" style="font-size: 0.6rem;">MÍTICO</span>
+                                </div>
+                            </div>
+                            <div class="role-tags">
+                                <span class="role tank"><i class="fas fa-shield-alt"></i> Main Tanque</span>
+                                <span class="role support"><i class="fas fa-hand-holding-heart"></i> Apoyo</span>
+                            </div>
+                            <p class="post-text">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana. Tengo micrófono y buena comunicación.</p>
+                            <button class="btn-susanoo btn-small"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
+                        </div>
+
+                        <div class="social-post">
+                            <div class="post-header">
+                                <img src="https://ui-avatars.com/api/?name=Akatsuki&background=ff0040&color=fff" alt="Avatar" class="avatar">
+                                <div class="post-user-info">
+                                    <strong>Team Akatsuki</strong>
+                                    <span class="rank-tag jonin" style="font-size: 0.6rem;">LEYENDA/MÍTICO</span>
+                                </div>
+                            </div>
+                            <div class="role-tags">
+                                <span class="role assassin"><i class="fas fa-khanda"></i> Buscamos: Asesino/Jungla</span>
+                            </div>
+                            <p class="post-text">Nos falta un jungla picante para cerrar el roster del torneo Kage Elite. Requisito: WR mayor a 55%.</p>
+                            <button class="btn-rasengan btn-small"><i class="fas fa-envelope"></i> Postularme</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-column">
+                    <div class="chat-box">
+                        <div class="chat-header">
+                            <i class="fas fa-globe"></i> Taberna Global (Chat Abierto)
+                        </div>
+                        <div class="chat-messages">
+                            <div class="msg"><span class="msg-time">[18:05]</span> <strong class="user jonin">GusionPro:</strong> Alguien para rankear ahora en leyenda?</div>
+                            <div class="msg"><span class="msg-time">[18:07]</span> <strong class="user tank">SakuraHeals:</strong> Yo, invitame ID 123456.</div>
+                            <div class="msg"><span class="msg-time">[18:15]</span> <strong class="user kage">Admin Matías:</strong> ¡Bienvenidos al nuevo Gremio, respeten las normas del chat!</div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" placeholder="Escribe tu mensaje en la taberna...">
+                            <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="admin" class="section-container">
             <h2 class="section-title"><i class="fas fa-hanko"></i> Centro de Mando del Kage</h2>
             <div class="admin-dashboard">
@@ -296,7 +372,6 @@
                             </tbody>
                         </table>
                     </div>
-
                     <div class="admin-card">
                         <h3><i class="fas fa-users-cog"></i> Gestión de Población</h3>
                         <table class="admin-table">
@@ -347,8 +422,7 @@
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
             <h3><i class="fas fa-wallet"></i> Bóveda de Pago</h3>
-            <p>Transfiere el monto a cualquiera de estas cuentas y envía el comprobante por WhatsApp para que el Admin active tus permisos de torneo.</p>
-            
+            <p>Transfiere el monto a cualquiera de estas cuentas y envía el comprobante por WhatsApp.</p>
             <div class="payment-methods">
                 <div class="pay-option">
                     <span><i class="fas fa-money-bill-wave" style="color: var(--arg-blue);"></i> Pesos Argentinos (ARS)</span>
@@ -363,8 +437,7 @@
                     <strong style="font-size: 0.75rem; word-break: break-all;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
                 </div>
             </div>
-
-            <a href="https://wa.me/5491165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20el%20pago%20por%20un%20plan%20para%20crear%20torneos.%20Te%20env%C3%ADo%20el%20comprobante%20y%20mi%20Nick%20del%20juego:" target="_blank" class="btn-whatsapp">
+            <a href="https://wa.me/5491100000000?text=Hola%20Matías,%20acabo%20de%20realizar%20el%20pago..." target="_blank" class="btn-whatsapp">
                 <i class="fab fa-whatsapp"></i> Enviar Comprobante
             </a>
         </div>
