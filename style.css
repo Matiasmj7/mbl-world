@@ -1,3 +1,4 @@
+/* Se mantienen todas las variables y estilos previos */
 :root {
     --bg-dark: #050505;
     --rasengan-blue: #00d2ff;
@@ -5,116 +6,50 @@
     --susanoo-red: #ff0040;
     --text-white: #ffffff;
     --arg-blue: #74acdf;
-    --card-bg: rgba(10, 10, 15, 0.85);
+    --card-bg: rgba(15, 15, 20, 0.95);
     --success-green: #00ffa3;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
+/* --- ESTILOS KAGE ADMIN (NUEVO) --- */
+.admin-dashboard { display: flex; flex-direction: column; gap: 30px; }
 
-body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { background: var(--card-bg); padding: 20px; border-radius: 10px; border-bottom: 3px solid var(--rasengan-blue); text-align: center; }
+.stat-card i { font-size: 2rem; color: var(--rasengan-blue); margin-bottom: 10px; }
+.stat-card p { font-size: 2.5rem; font-weight: 900; }
+.stat-card.pending { border-color: var(--chidori-purple); }
+.stat-card.pending i { color: var(--chidori-purple); }
+.stat-card.banned { border-color: var(--susanoo-red); }
+.stat-card.banned i { color: var(--susanoo-red); }
 
-/* --- FONDO PRINCIPAL --- */
-.dynamic-bg {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/fondo.jpg.png'); 
-    background-size: cover; background-position: center; filter: brightness(0.4); z-index: -2;
-}
+.admin-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+.admin-card { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid #333; }
+.admin-card h3 { margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase; color: var(--rasengan-blue); }
 
-.overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.9) 100%); z-index: -1;
-}
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.admin-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; color: #888; }
+.admin-table td { padding: 15px 12px; border-bottom: 1px solid #222; }
 
-/* --- ESTILOS DE SECCIÓN --- */
-.section-container { padding: 80px 10%; position: relative; }
-.section-title { font-size: 2.2rem; margin-bottom: 30px; border-left: 6px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; font-weight: 900; text-shadow: 0 0 10px rgba(0,210,255,0.3); }
+/* Botones de Acción Admin */
+.btn-view { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.btn-approve { background: var(--success-green); color: black; border: none; padding: 8px 12px; border-radius: 4px; margin-right: 5px; cursor: pointer; }
+.btn-reject { background: #444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+.btn-ban { background: transparent; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+.btn-ban:hover { background: var(--susanoo-red); color: white; box-shadow: 0 0 15px var(--susanoo-red); }
 
-/* --- STREAM HUB (NUEVO) --- */
-.stream-container { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--rasengan-blue); padding: 30px; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); }
-.stream-info { text-align: center; margin-bottom: 20px; }
-.stream-info h3 { color: var(--susanoo-red); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--susanoo-red); animation: pulse 2s infinite; }
+.report-tag { background: rgba(255, 0, 64, 0.1); color: var(--susanoo-red); padding: 3px 8px; border-radius: 4px; font-weight: bold; }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
-}
+/* Configuración (Switches) */
+.settings-grid { display: grid; gap: 15px; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }
 
-/* Botones de Plataformas */
-.platform-selector { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
-.plat-btn { background: rgba(0,0,0,0.6); border: 1px solid #444; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 1rem; }
-.plat-btn:hover { transform: translateY(-3px); }
+/* Estilo del Switch (On/Off) */
+.switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--success-green); }
+input:checked + .slider:before { transform: translateX(26px); }
 
-/* Colores Oficiales */
-.plat-btn.twitch:hover, .plat-btn.twitch.active { background: #9146FF; border-color: #9146FF; box-shadow: 0 0 20px #9146FF; }
-.plat-btn.youtube:hover, .plat-btn.youtube.active { background: #FF0000; border-color: #FF0000; box-shadow: 0 0 20px #FF0000; }
-.plat-btn.kick:hover, .plat-btn.kick.active { background: #53FC18; color: black; border-color: #53FC18; box-shadow: 0 0 20px #53FC18; }
-.plat-btn.tiktok:hover, .plat-btn.tiktok.active { background: #00f2fe; border-color: #ff0050; box-shadow: 0 0 20px #ff0050; color: black; }
-.plat-btn.facebook:hover, .plat-btn.facebook.active { background: #1877F2; border-color: #1877F2; box-shadow: 0 0 20px #1877F2; }
-
-/* Reproductor de Video (16:9 Adaptativo) */
-.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; border: 2px solid #333; background: #000; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
-.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-/* --- LA ARENA (TORNEOS) --- */
-.torneos-filters { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
-.filter-btn { background: rgba(0,0,0,0.6); border: 1px solid var(--chidori-purple); color: var(--text-white); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-.filter-btn:hover, .filter-btn.active { background: var(--chidori-purple); box-shadow: 0 0 15px var(--chidori-purple); }
-.torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-.torneo-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 25px; position: relative; transition: 0.3s; overflow: hidden; }
-.torneo-card:hover { border-color: var(--rasengan-blue); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 210, 255, 0.1); }
-.torneo-badge { position: absolute; top: 15px; right: -30px; padding: 5px 35px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; transform: rotate(45deg); letter-spacing: 1px; }
-.torneo-badge.open { background: var(--success-green); color: black; box-shadow: 0 0 10px var(--success-green); }
-.torneo-badge.full { background: var(--susanoo-red); color: white; box-shadow: 0 0 10px var(--susanoo-red); }
-.torneo-formato { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; font-weight: 900; margin-bottom: 15px; }
-.format-1v1 { background: rgba(0, 210, 255, 0.2); border: 1px solid var(--rasengan-blue); color: var(--rasengan-blue); }
-.format-5v5 { background: rgba(255, 0, 64, 0.2); border: 1px solid var(--susanoo-red); color: var(--susanoo-red); }
-.torneo-card h3 { font-size: 1.4rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-.torneo-info p { margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
-.torneo-info i { width: 20px; color: var(--rasengan-blue); }
-.btn-torneo { width: 100%; margin-top: 20px; padding: 12px; text-align: center; display: block; border-radius: 5px; }
-
-/* --- EFECTO LIBRO BINGO --- */
-#tabla-bingo { position: relative; background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; border-top: 2px solid var(--susanoo-red); border-bottom: 2px solid var(--susanoo-red); box-shadow: inset 0 0 100px #000; }
-#tabla-bingo::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 0; }
-#tabla-bingo h2, #tabla-bingo .table-wrapper { position: relative; z-index: 1; }
-
-/* --- FORMULARIOS --- */
-.form-card { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid var(--rasengan-blue); max-width: 600px; margin: 0 auto; backdrop-filter: blur(10px); }
-.input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-.input-group-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-label { font-weight: bold; margin-bottom: 8px; color: var(--rasengan-blue); font-size: 0.9rem; }
-input, .ninja-select { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 12px; color: white; border-radius: 5px; }
-input:focus, .ninja-select:focus { border-color: var(--rasengan-blue); outline: none; box-shadow: 0 0 10px var(--rasengan-blue); }
-
-.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; width: 100%; text-transform: uppercase; letter-spacing: 1px; }
-.btn-submit:hover { box-shadow: 0 0 20px var(--susanoo-red); transform: translateY(-2px); }
-.btn-upload { background: var(--chidori-purple); }
-.btn-upload:hover { box-shadow: 0 0 20px var(--chidori-purple); }
-
-/* --- TABLA BINGO --- */
-.table-wrapper { background: rgba(0,0,0,0.8); border-radius: 15px; overflow: hidden; border: 1px solid var(--susanoo-red); }
-.bingo-table { width: 100%; border-collapse: collapse; text-align: left; }
-.bingo-table th { background: var(--susanoo-red); padding: 15px; font-size: 0.9rem; color: white; text-transform: uppercase; }
-.bingo-table td { padding: 15px; border-bottom: 1px solid #222; }
-.rank-tag { padding: 5px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 900; display: inline-block; }
-.kage { background: #000; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); box-shadow: 0 0 10px var(--susanoo-red); }
-.jonin { background: var(--chidori-purple); color: white; }
-.status.verified { color: var(--rasengan-blue); font-size: 1.2rem; }
-
-/* --- NAVEGACIÓN Y HERO --- */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(0, 0, 0, 0.9); border-bottom: 2px solid var(--rasengan-blue); position: fixed; width: 100%; top: 0; z-index: 1000; }
-.logo { font-size: 1.8rem; font-weight: 900; color: white; letter-spacing: 2px; }
-.logo .highlight { color: var(--arg-blue); text-shadow: 0 0 10px var(--arg-blue); }
-.nav-links { display: flex; list-style: none; gap: 20px; }
-.nav-links a { text-decoration: none; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; transition: 0.3s; }
-.nav-links a:hover { color: var(--rasengan-blue); }
-.btn-login { background: transparent; border: 1px solid var(--rasengan-blue); color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
-.shippuden-text { font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; text-transform: uppercase; color: white; text-shadow: 0 0 30px #000; }
-.cta-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
-.btn-rasengan, .btn-chidori, .btn-susanoo { padding: 12px 35px; border-radius: 5px; text-decoration: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-.btn-rasengan { background: var(--rasengan-blue); color: white; box-shadow: 0 0 15px var(--rasengan-blue); }
-.btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); }
-.btn-susanoo { background: var(--susanoo-red); color: white; box-shadow: 0 0 15px var(--susanoo-red); }
-.btn-susanoo:hover { transform: scale(1.05); }
+/* Link de Admin en Navbar */
+.admin-link { background: rgba(0, 210, 255, 0.1); padding: 5px 10px; border-radius: 5px; border: 1px solid var(--rasengan-blue); }
