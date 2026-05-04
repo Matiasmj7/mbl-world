@@ -17,11 +17,11 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#stream" style="color: #ff0040;"><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle;"></i> En Vivo</a></li>
+                <li><a href="#stream">En Vivo</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
-                <li><a href="#admin">Admin</a></li>
+                <li><a href="#admin" class="admin-link"><i class="fas fa-user-shield"></i> Kage Admin</a></li>
             </ul>
         </nav>
         <button class="btn-login">Ingresar</button>
@@ -33,146 +33,112 @@
                 <h1 class="shippuden-text">DOMINA EL ABISMO</h1>
                 <p>Bienvenido al Libro Bingo, <span class="user-name">Matías</span>. Aquí comienza tu leyenda.</p>
                 <div class="cta-buttons">
-                    <a href="#stream" class="btn-susanoo">Ver Transmisión</a>
-                    <a href="#torneos" class="btn-rasengan">Torneos</a>
+                    <a href="#stream" class="btn-susanoo">Ver Live</a>
+                    <a href="#admin" class="btn-rasengan">Gestionar Aldea</a>
                 </div>
             </div>
         </section>
 
-        <section id="stream" class="section-container">
-            <h2 class="section-title"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
+        <section id="admin" class="section-container">
+            <h2 class="section-title"><i class="fas fa-hanko"></i> Centro de Mando del Kage</h2>
             
-            <div class="stream-container">
-                <div class="stream-info">
-                    <h3>🔴 Transmisión Principal</h3>
-                    <p>Sigue los torneos y partidas en directo. Elige la plataforma:</p>
-                </div>
-
-                <div class="platform-selector">
-                    <button class="plat-btn twitch active"><i class="fab fa-twitch"></i> Twitch</button>
-                    <button class="plat-btn youtube"><i class="fab fa-youtube"></i> YouTube</button>
-                    <button class="plat-btn kick"><i class="fas fa-bolt"></i> Kick</button>
-                    <button class="plat-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
-                    <button class="plat-btn facebook"><i class="fab fa-facebook"></i> Facebook</button>
-                </div>
-
-                <div class="video-wrapper">
-                    <iframe id="main-stream" src="https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ" title="MBL Arg Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section id="torneos" class="section-container">
-            <h2 class="section-title"><i class="fas fa-khanda"></i> La Arena de Combate</h2>
-            
-            <div class="torneos-filters">
-                <button class="filter-btn active">Todos</button>
-                <button class="filter-btn">1v1</button>
-                <button class="filter-btn">2v2</button>
-                <button class="filter-btn">5v5</button>
-            </div>
-
-            <div class="torneos-grid">
-                <div class="torneo-card">
-                    <div class="torneo-badge open">Inscripciones Abiertas</div>
-                    <div class="torneo-formato format-1v1">1 VS 1</div>
-                    <h3>Copa Genin Solitario</h3>
-                    <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Sábado, 15:00 hs</p>
-                        <p><i class="fas fa-users"></i> Cupos: 12/16</p>
-                        <p><i class="fas fa-trophy"></i> Premio: Pase Semanal</p>
+            <div class="admin-dashboard">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <span>Ninjas Activos</span>
+                        <p>154</p>
                     </div>
-                    <button class="btn-submit btn-torneo">Anotarse al Bracket</button>
+                    <div class="stat-card pending">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>Por Verificar</span>
+                        <p>12</p>
+                    </div>
+                    <div class="stat-card banned">
+                        <i class="fas fa-user-slash"></i>
+                        <span>Desterrados</span>
+                        <p>3</p>
+                    </div>
                 </div>
 
-                <div class="torneo-card">
-                    <div class="torneo-badge full">En Curso</div>
-                    <div class="torneo-formato format-5v5">5 VS 5</div>
-                    <h3>Liga Kage de Escuadrones</h3>
-                    <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
-                        <p><i class="fas fa-users"></i> Cupos: 8/8</p>
-                        <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
+                <div class="admin-tables">
+                    <div class="admin-card">
+                        <h3><i class="fas fa-scroll"></i> Solicitudes de Libro Bingo</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Rango</th>
+                                    <th>Prueba</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Uchiha_Madara</td>
+                                    <td>Mítico</td>
+                                    <td><button class="btn-view">Ver Captura</button></td>
+                                    <td class="actions">
+                                        <button class="btn-approve"><i class="fas fa-check"></i></button>
+                                        <button class="btn-reject"><i class="fas fa-times"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <button class="btn-chidori btn-torneo">Ver Llaves</button>
-                </div>
-            </div>
-        </section>
 
-        <section id="registro-bingo" class="section-container">
-            <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
-            <div class="form-card">
-                <form id="bingo-form">
-                    <div class="input-group">
-                        <label>Nick en el Juego</label>
-                        <input type="text" id="player-nick" placeholder="Ej: ItachiUchiha_7" required>
+                    <div class="admin-card">
+                        <h3><i class="fas fa-users-cog"></i> Gestión de la Población</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nick</th>
+                                    <th>Suscripción</th>
+                                    <th>Reportes</th>
+                                    <th>Castigo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Troll_MLBB_99</td>
+                                    <td>Gratis</td>
+                                    <td><span class="report-tag">4 Reportes</span></td>
+                                    <td>
+                                        <button class="btn-ban">DESTERRAR (BAN)</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="input-group-row">
-                        <div class="input-group">
-                            <label>ID de Jugador</label>
-                            <input type="number" id="player-id" placeholder="12345678" required>
+                </div>
+
+                <div class="admin-card settings">
+                    <h3><i class="fas fa-cogs"></i> Permisos del Sistema</h3>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span>Mantenimiento de Página</span>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
                         </div>
-                        <div class="input-group">
-                            <label>Server</label>
-                            <input type="number" id="player-server" placeholder="1234" required>
+                        <div class="setting-item">
+                            <span>Inscripciones Abiertas</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Chat Global de Usuarios</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Captura de Rango/Stats</label>
-                        <input type="file" id="player-img" accept="image/*" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Enviar para Validación</button>
-                </form>
-            </div>
-        </section>
-
-        <section id="tabla-bingo" class="section-container">
-            <h2 class="section-title"><i class="fas fa-trophy"></i> Los Más Buscados</h2>
-            <div class="table-wrapper">
-                <table class="bingo-table">
-                    <thead>
-                        <tr>
-                            <th>Rango Ninja</th>
-                            <th>Jugador</th>
-                            <th>ID / Server</th>
-                            <th>Tier MLBB</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bingo-data">
-                        <tr>
-                            <td><span class="rank-tag kage">KAGE</span></td>
-                            <td><strong>Matías</strong></td>
-                            <td>12345678 (1234)</td>
-                            <td>Mítico Inmortal</td>
-                            <td><span class="status verified"><i class="fas fa-check-circle"></i></span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="abismo" class="section-container">
-            <h2 class="section-title"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            <div class="form-card upload-zone">
-                <h3>Sube tu mejor jugada o stats</h3>
-                <form id="upload-media">
-                    <div class="input-group">
-                        <label>¿Qué vas a compartir?</label>
-                        <select id="media-type" class="ninja-select">
-                            <option value="clip">Clip Épico (Video)</option>
-                            <option value="stats">Estadísticas (Foto)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Selecciona tu archivo</label>
-                        <input type="file" accept="image/*,video/*" required>
-                    </div>
-                    <button type="submit" class="btn-submit btn-upload"><i class="fas fa-cloud-upload-alt"></i> Compartir con la Aldea</button>
-                </form>
-            </div>
-            <div class="media-gallery">
                 </div>
+            </div>
         </section>
     </main>
 
