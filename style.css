@@ -44,6 +44,7 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .btn-rasengan { background: var(--rasengan-blue); color: white; box-shadow: 0 0 15px var(--rasengan-blue); }
 .btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); }
 .btn-susanoo { background: var(--susanoo-red); color: white; box-shadow: 0 0 15px var(--susanoo-red); }
+.btn-susanoo:hover { transform: scale(1.05); }
 
 /* --- STREAM HUB --- */
 .stream-container { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--rasengan-blue); padding: 30px; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); }
@@ -65,7 +66,8 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .filter-btn { background: rgba(0,0,0,0.6); border: 1px solid var(--chidori-purple); color: var(--text-white); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 .filter-btn.active { background: var(--chidori-purple); box-shadow: 0 0 15px var(--chidori-purple); }
 .torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-.torneo-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 25px; position: relative; overflow: hidden; }
+.torneo-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 25px; position: relative; overflow: hidden; transition: 0.3s; }
+.torneo-card:hover { border-color: var(--rasengan-blue); transform: translateY(-5px); }
 .torneo-badge { position: absolute; top: 15px; right: -30px; padding: 5px 35px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; transform: rotate(45deg); }
 .torneo-badge.open { background: var(--success-green); color: black; }
 .torneo-badge.full { background: var(--susanoo-red); color: white; }
@@ -77,20 +79,54 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .torneo-info i { width: 20px; color: var(--rasengan-blue); }
 .btn-torneo { width: 100%; margin-top: 20px; padding: 12px; display: block; border-radius: 5px; }
 
+/* --- SUSCRIPCIONES Y PLANES (NUEVO) --- */
+.planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 20px; }
+.plan-card { background: var(--card-bg); border-radius: 15px; padding: 30px; position: relative; border: 1px solid #333; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+.plan-card:hover { transform: translateY(-10px); }
+.aliado-card { border-color: var(--rasengan-blue); }
+.aliado-card:hover { box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2); }
+.kage-card { border-color: var(--susanoo-red); background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.9) 100%); }
+.kage-card:hover { box-shadow: 0 10px 30px rgba(255, 0, 64, 0.2); }
+.plan-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--susanoo-red); color: white; padding: 5px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: 900; letter-spacing: 1px; box-shadow: 0 0 15px var(--susanoo-red); }
+.plan-header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+.plan-header h3 { font-size: 1.5rem; letter-spacing: 2px; }
+.price { font-size: 2.5rem; font-weight: 900; color: white; margin: 10px 0; }
+.price span { font-size: 1rem; color: #888; font-weight: normal; }
+.extra-time { font-size: 0.85rem; color: var(--success-green); font-weight: bold; }
+.plan-body ul { list-style: none; margin-bottom: 30px; }
+.plan-body li { margin-bottom: 15px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+.aliado-card .plan-body i { color: var(--rasengan-blue); }
+.kage-card .plan-body i { color: var(--susanoo-red); }
+.btn-plan { margin-top: auto; }
+
+/* MODAL DE PAGO */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+.modal-overlay:target { opacity: 1; visibility: visible; }
+.modal-content { background: #111; padding: 40px; border-radius: 15px; border: 2px solid var(--arg-blue); width: 90%; max-width: 500px; position: relative; text-align: center; box-shadow: 0 0 50px rgba(116, 172, 223, 0.2); }
+.close-modal { position: absolute; top: 15px; right: 20px; color: white; font-size: 1.5rem; text-decoration: none; transition: 0.3s; }
+.close-modal:hover { color: var(--susanoo-red); }
+.modal-content h3 { font-size: 1.8rem; margin-bottom: 15px; color: var(--text-white); }
+.modal-content p { color: #aaa; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5; }
+.payment-methods { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; text-align: left; }
+.pay-option { background: #050505; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
+.pay-option span { font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; }
+.pay-option strong { color: white; font-size: 1.1rem; letter-spacing: 1px; }
+.pay-option.crypto { border-color: rgba(247, 147, 26, 0.3); background: rgba(247, 147, 26, 0.05); }
+.btn-whatsapp { display: block; background: #25D366; color: white; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
+.btn-whatsapp:hover { background: #1ebe5d; transform: scale(1.02); }
+
 /* --- LIBRO BINGO --- */
 #tabla-bingo { position: relative; background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; border-top: 2px solid var(--susanoo-red); border-bottom: 2px solid var(--susanoo-red); box-shadow: inset 0 0 100px #000; }
 #tabla-bingo::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 0; }
 #tabla-bingo h2, #tabla-bingo .table-wrapper { position: relative; z-index: 1; }
-
 .form-card { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid var(--rasengan-blue); max-width: 600px; margin: 0 auto; backdrop-filter: blur(10px); }
 .input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
 .input-group-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 label { font-weight: bold; margin-bottom: 8px; color: var(--rasengan-blue); font-size: 0.9rem; }
 input, .ninja-select { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 12px; color: white; border-radius: 5px; }
-
-.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; text-transform: uppercase; }
+.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.3s; }
+.btn-submit:hover { box-shadow: 0 0 15px var(--susanoo-red); }
 .btn-upload { background: var(--chidori-purple); }
-
 .table-wrapper { background: rgba(0,0,0,0.8); border-radius: 15px; overflow: hidden; border: 1px solid var(--susanoo-red); }
 .bingo-table { width: 100%; border-collapse: collapse; text-align: left; }
 .bingo-table th { background: var(--susanoo-red); padding: 15px; font-size: 0.9rem; color: white; text-transform: uppercase; }
@@ -103,7 +139,8 @@ input, .ninja-select { background: rgba(0,0,0,0.6); border: 1px solid #444; padd
 /* --- ABISMO (GALERÍA) --- */
 .upload-zone { margin-bottom: 50px; text-align: center; }
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-.media-card { background: rgba(15, 15, 20, 0.9); border: 1px solid #333; border-radius: 10px; overflow: hidden; border-bottom: 3px solid var(--arg-blue); }
+.media-card { background: rgba(15, 15, 20, 0.9); border: 1px solid #333; border-radius: 10px; overflow: hidden; border-bottom: 3px solid var(--arg-blue); transition: 0.3s; }
+.media-card:hover { transform: translateY(-5px); border-color: var(--rasengan-blue); }
 .media-placeholder { height: 180px; background: linear-gradient(45deg, #111, #222); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--chidori-purple); }
 .stats-bg { color: var(--rasengan-blue); }
 .media-info { padding: 20px; text-align: center; }
