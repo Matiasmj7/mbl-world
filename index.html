@@ -17,10 +17,10 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#stream" style="color: #ff0040;"><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle;"></i> En Vivo</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
-                <li><a href="#planes">Suscripciones</a></li>
                 <li><a href="#admin">Admin</a></li>
             </ul>
         </nav>
@@ -33,8 +33,31 @@
                 <h1 class="shippuden-text">DOMINA EL ABISMO</h1>
                 <p>Bienvenido al Libro Bingo, <span class="user-name">Matías</span>. Aquí comienza tu leyenda.</p>
                 <div class="cta-buttons">
-                    <a href="#torneos" class="btn-rasengan">Ver Torneos</a>
-                    <a href="#bingo" class="btn-chidori">Libro Bingo</a>
+                    <a href="#stream" class="btn-susanoo">Ver Transmisión</a>
+                    <a href="#torneos" class="btn-rasengan">Torneos</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="stream" class="section-container">
+            <h2 class="section-title"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
+            
+            <div class="stream-container">
+                <div class="stream-info">
+                    <h3>🔴 Transmisión Principal</h3>
+                    <p>Sigue los torneos y partidas en directo. Elige la plataforma:</p>
+                </div>
+
+                <div class="platform-selector">
+                    <button class="plat-btn twitch active"><i class="fab fa-twitch"></i> Twitch</button>
+                    <button class="plat-btn youtube"><i class="fab fa-youtube"></i> YouTube</button>
+                    <button class="plat-btn kick"><i class="fas fa-bolt"></i> Kick</button>
+                    <button class="plat-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
+                    <button class="plat-btn facebook"><i class="fab fa-facebook"></i> Facebook</button>
+                </div>
+
+                <div class="video-wrapper">
+                    <iframe id="main-stream" src="https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ" title="MBL Arg Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
         </section>
@@ -46,7 +69,6 @@
                 <button class="filter-btn active">Todos</button>
                 <button class="filter-btn">1v1</button>
                 <button class="filter-btn">2v2</button>
-                <button class="filter-btn">3v3</button>
                 <button class="filter-btn">5v5</button>
             </div>
 
@@ -73,18 +95,6 @@
                         <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
                     </div>
                     <button class="btn-chidori btn-torneo">Ver Llaves</button>
-                </div>
-                
-                <div class="torneo-card">
-                    <div class="torneo-badge upcoming">Próximamente</div>
-                    <div class="torneo-formato format-2v2">2 VS 2</div>
-                    <h3>Dúo Dinámico</h3>
-                    <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Por definirse</p>
-                        <p><i class="fas fa-users"></i> Cupos: 0/16</p>
-                        <p><i class="fas fa-trophy"></i> Premio: Diamantes</p>
-                    </div>
-                    <button class="btn-submit btn-torneo" disabled style="opacity: 0.5; cursor: not-allowed;">Pronto</button>
                 </div>
             </div>
         </section>
@@ -137,13 +147,6 @@
                             <td>Mítico Inmortal</td>
                             <td><span class="status verified"><i class="fas fa-check-circle"></i></span></td>
                         </tr>
-                        <tr>
-                            <td><span class="rank-tag jonin">JONIN</span></td>
-                            <td>Escuadron_Alpha</td>
-                            <td>87654321 (5678)</td>
-                            <td>Leyenda I</td>
-                            <td><span class="status verified"><i class="fas fa-check-circle"></i></span></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -159,7 +162,6 @@
                         <select id="media-type" class="ninja-select">
                             <option value="clip">Clip Épico (Video)</option>
                             <option value="stats">Estadísticas (Foto)</option>
-                            <option value="humor">Meme / Humor</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -169,29 +171,8 @@
                     <button type="submit" class="btn-submit btn-upload"><i class="fas fa-cloud-upload-alt"></i> Compartir con la Aldea</button>
                 </form>
             </div>
-
             <div class="media-gallery">
-                <div class="media-card">
-                    <div class="media-placeholder">
-                        <i class="fas fa-play-circle"></i>
-                    </div>
-                    <div class="media-info">
-                        <h4>Savage con Gusion</h4>
-                        <p class="author">Por: NinjaAsesino</p>
-                        <button class="btn-like"><i class="fas fa-fire"></i> 142</button>
-                    </div>
                 </div>
-                <div class="media-card">
-                    <div class="media-placeholder stats-bg">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="media-info">
-                        <h4>Llegando a Mítico</h4>
-                        <p class="author">Por: SakuraHealer</p>
-                        <button class="btn-like"><i class="fas fa-fire"></i> 89</button>
-                    </div>
-                </div>
-            </div>
         </section>
     </main>
 
