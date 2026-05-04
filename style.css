@@ -7,23 +7,15 @@
     --arg-blue: #74acdf;
     --card-bg: rgba(10, 10, 15, 0.85);
     --success-green: #00ffa3;
+    --discord-color: #5865F2;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
-
 body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
 
 /* --- FONDO PRINCIPAL --- */
-.dynamic-bg {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/fondo.jpg.png'); 
-    background-size: cover; background-position: center; filter: brightness(0.4); z-index: -2;
-}
-
-.overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.9) 100%); z-index: -1;
-}
+.dynamic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/fondo.jpg.png'); background-size: cover; background-position: center; filter: brightness(0.4); z-index: -2; }
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.9) 100%); z-index: -1; }
 
 /* --- ESTILOS GENERALES DE SECCIÓN --- */
 .section-container { padding: 80px 10%; position: relative; }
@@ -45,8 +37,9 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); }
 .btn-susanoo { background: var(--susanoo-red); color: white; box-shadow: 0 0 15px var(--susanoo-red); }
 .btn-susanoo:hover { transform: scale(1.05); }
+.btn-small { padding: 8px 15px; font-size: 0.85rem; border: none; width: 100%; margin-top: 15px; }
 
-/* --- STREAM HUB --- */
+/* --- STREAM HUB CON DISCORD --- */
 .stream-container { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--rasengan-blue); padding: 30px; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); }
 .stream-info { text-align: center; margin-bottom: 20px; }
 .stream-info h3 { color: var(--susanoo-red); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; animation: pulse 2s infinite; }
@@ -58,11 +51,54 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .plat-btn.kick:hover, .plat-btn.kick.active { background: #53FC18; color: black; border-color: #53FC18; box-shadow: 0 0 20px #53FC18; }
 .plat-btn.tiktok:hover, .plat-btn.tiktok.active { background: #00f2fe; border-color: #ff0050; color: black; }
 .plat-btn.facebook:hover, .plat-btn.facebook.active { background: #1877F2; border-color: #1877F2; }
+.stream-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 10px; align-items: stretch; }
+@media (max-width: 992px) { .stream-layout { grid-template-columns: 1fr; } }
+.video-column { width: 100%; }
 .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; border: 2px solid #333; background: #000; }
 .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+.discord-wrapper { background: #111; border-radius: 10px; border: 2px solid var(--discord-color); display: flex; flex-direction: column; overflow: hidden; }
+.discord-header { background: var(--discord-color); color: white; padding: 12px; text-align: center; font-weight: 900; font-size: 0.9rem; text-transform: uppercase; }
+.discord-chat { flex-grow: 1; min-height: 350px; width: 100%; border: none; background: #36393f; }
+
+/* --- GREMIO DE RECLUTAMIENTO (NUEVA RED SOCIAL) --- */
+.gremio-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+@media (max-width: 992px) { .gremio-layout { grid-template-columns: 1fr; } }
+
+/* Tablón de Anuncios */
+.board-column { display: flex; flex-direction: column; gap: 20px; }
+.social-post { background: var(--card-bg); border: 1px solid #333; border-radius: 10px; padding: 20px; transition: 0.3s; }
+.social-post:hover { border-color: var(--rasengan-blue); transform: translateY(-3px); }
+.post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+.avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--rasengan-blue); }
+.post-user-info { display: flex; flex-direction: column; }
+.post-user-info strong { font-size: 1.1rem; color: white; }
+.post-text { color: #ccc; font-size: 0.95rem; line-height: 1.4; margin: 15px 0; }
+
+/* Etiquetas de Roles MLBB */
+.role-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.role { padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; border: 1px solid; display: flex; align-items: center; gap: 5px; }
+.tank { color: var(--success-green); border-color: var(--success-green); background: rgba(0, 255, 163, 0.1); }
+.assassin { color: var(--chidori-purple); border-color: var(--chidori-purple); background: rgba(157, 80, 187, 0.1); }
+.support { color: #ff69b4; border-color: #ff69b4; background: rgba(255, 105, 180, 0.1); }
+
+/* Chat Global (Taberna) */
+.chat-column { height: 100%; }
+.chat-box { background: #0a0a0c; border: 1px solid #333; border-radius: 10px; display: flex; flex-direction: column; height: 500px; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+.chat-header { background: #1a1a24; padding: 15px; text-align: center; font-weight: bold; border-bottom: 2px solid var(--arg-blue); color: var(--text-white); }
+.chat-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.msg { font-size: 0.85rem; color: #ddd; word-wrap: break-word; }
+.msg-time { color: #666; font-size: 0.7rem; margin-right: 5px; }
+.msg .user { font-weight: bold; margin-right: 5px; }
+.msg .user.kage { color: var(--susanoo-red); }
+.msg .user.jonin { color: var(--arg-blue); }
+.msg .user.tank { color: var(--success-green); }
+.chat-input { display: flex; padding: 10px; background: #111; border-top: 1px solid #333; }
+.chat-input input { flex-grow: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; }
+.btn-send { background: var(--arg-blue); color: #000; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-send:hover { background: var(--rasengan-blue); }
 
 /* --- LA ARENA (TORNEOS) --- */
-.torneos-filters { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
+.torneos-filters { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap; }
 .filter-btn { background: rgba(0,0,0,0.6); border: 1px solid var(--chidori-purple); color: var(--text-white); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 .filter-btn.active { background: var(--chidori-purple); box-shadow: 0 0 15px var(--chidori-purple); }
 .torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
@@ -156,19 +192,16 @@ input, .ninja-select { background: rgba(0,0,0,0.6); border: 1px solid #444; padd
 .stat-card.pending i { color: var(--chidori-purple); }
 .stat-card.banned { border-color: var(--susanoo-red); }
 .stat-card.banned i { color: var(--susanoo-red); }
-
 .admin-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
 .admin-card { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid #333; }
 .admin-card h3 { margin-bottom: 20px; font-size: 1.1rem; color: var(--rasengan-blue); }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .admin-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; color: #888; }
 .admin-table td { padding: 15px 12px; border-bottom: 1px solid #222; }
-
 .btn-approve { background: var(--success-green); color: black; border: none; padding: 8px 12px; border-radius: 4px; margin-right: 5px; cursor: pointer; }
 .btn-reject { background: #444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
 .btn-ban { background: transparent; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 .report-tag { background: rgba(255, 0, 64, 0.1); color: var(--susanoo-red); padding: 3px 8px; border-radius: 4px; font-weight: bold; }
-
 .settings-grid { display: grid; gap: 15px; }
 .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }
 .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
