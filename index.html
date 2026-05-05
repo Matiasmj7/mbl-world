@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.1"> 
+    <link rel="stylesheet" href="style.css?v=2.3"> 
 </head>
 <body>
 
@@ -25,7 +25,7 @@
                 <li><a href="#registro-bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#gremio" style="color: var(--green);"><i class="fas fa-users"></i> Gremio</a></li>
-                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin" style="color: gold;"><i class="fas fa-user-shield"></i> Panel Kage</a></li>
+                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin"><i class="fas fa-user-shield"></i> Panel Kage</a></li>
             </ul>
         </nav>
         <div class="auth-zone">
@@ -49,6 +49,13 @@
         <section id="stream" class="section">
             <h2 class="section-head"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
             <div class="container-glass stream-box">
+                <div class="platform-selector" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="plat-btn active" onclick="cambiarStream('twitch')" style="background: var(--blue); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-twitch"></i> Twitch</button>
+                    <button class="plat-btn" onclick="cambiarStream('youtube')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-youtube"></i> YouTube</button>
+                    <button class="plat-btn" onclick="cambiarStream('kick')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fas fa-bolt"></i> Kick</button>
+                    <button class="plat-btn" onclick="cambiarStream('tiktok')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-tiktok"></i> TikTok</button>
+                </div>
+
                 <div class="stream-grid">
                     <div class="video-container">
                         <iframe id="stream-frame" src="https://player.twitch.tv/?channel=matias_mj7&parent=mbl-world-v2.vercel.app" frameborder="0" allowfullscreen></iframe>
@@ -64,7 +71,8 @@
         <section id="torneos" class="section">
             <h2 class="section-head"><i class="fas fa-khanda"></i> Arena de Combate</h2>
             <div class="torneos-grid" id="lista-torneos">
-                </div>
+                <p style="color: #ccc; text-align: center; width: 100%;">Cargando torneos desde el servidor Kage...</p>
+            </div>
         </section>
 
         <section id="planes" class="section">
@@ -93,7 +101,7 @@
         <section id="registro-bingo" class="section">
             <h2 class="section-head"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
             <div class="container-glass" style="max-width: 600px; margin: 0 auto;">
-                <form id="bingo-form" onsubmit="event.preventDefault(); alert('Enviado a validación.');">
+                <form id="bingo-form" onsubmit="event.preventDefault(); alert('Pergamino enviado a validación.');">
                     <label style="color: var(--blue); font-weight: bold; font-size: 0.9rem;">Nick en el Juego</label>
                     <input type="text" placeholder="Ej: Itachi_7" required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
                     <div style="display: flex; gap: 15px; margin-bottom: 15px;">
@@ -114,7 +122,11 @@
         <section id="abismo" class="section">
             <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
             <div class="container-glass" style="text-align: center;">
-                <p style="color: #ccc; margin-bottom: 15px;">Sube tus mejores jugadas pronto.</p>
+                <p style="color: #ccc; margin-bottom: 15px;">Sube tus mejores jugadas aquí.</p>
+                <div style="margin-bottom: 20px;">
+                    <input type="file" id="video-upload" style="display: none;">
+                    <label for="video-upload" class="btn-secondary" style="cursor: pointer;"><i class="fas fa-upload"></i> Seleccionar Video</label>
+                </div>
                 <div style="height: 200px; background: #000; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #444; border-radius: 10px;">
                     <i class="fas fa-play-circle"></i>
                 </div>
@@ -133,7 +145,11 @@
                                 <span style="background: black; border: 1px solid var(--red); color: var(--red); padding: 2px 8px; font-size: 0.6rem; border-radius: 4px; font-weight: bold;">KAGE</span>
                             </div>
                         </div>
-                        <p style="color: #ccc;">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana.</p>
+                        <p style="color: #ccc; margin-bottom: 15px;">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-primary" style="padding: 8px 15px; font-size: 0.8rem;" onclick="alert('Solicitud enviada a Matías')"><i class="fas fa-user-plus"></i> Unirme</button>
+                            <button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; background: #333;" onclick="alert('Enlace copiado')"><i class="fas fa-share"></i> Compartir</button>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -142,7 +158,7 @@
                         <div class="chat-frame" id="chat-messages-container" style="overflow-y: auto; padding: 15px; background: #000; color: #ccc;"></div>
                         <div style="display: flex; padding: 10px; background: #111; border-top: 1px solid #333;">
                             <input type="text" id="chat-input-text" placeholder="Escribir..." style="flex-grow: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px;">
-                            <button id="btn-send-chat" style="background: var(--blue); border: none; padding: 10px 15px; border-radius: 5px; margin-left: 10px; cursor: pointer; font-weight: bold;"><i class="fas fa-paper-plane"></i></button>
+                            <button id="btn-send-chat" style="background: var(--blue); border: none; padding: 10px 15px; border-radius: 5px; margin-left: 10px; cursor: pointer; font-weight: bold; color: #000;"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
@@ -155,7 +171,7 @@
                 <form id="form-torneo">
                     <input type="text" id="t-nombre" placeholder="Nombre del Torneo" required>
                     <div class="form-row">
-                        <input type="text" id="t-fecha" placeholder="Día/Hora" required>
+                        <input type="text" id="t-fecha" placeholder="Día/Hora (Ej: Viernes 20:00)" required>
                         <input type="number" id="t-cupos" placeholder="Cupos Totales" required>
                     </div>
                     <input type="text" id="t-premio" placeholder="Premio (Ej: 1000 diamantes)">
@@ -164,7 +180,7 @@
                         <option value="2v2">2 vs 2</option>
                         <option value="5v5">5 vs 5</option>
                     </select>
-                    <button type="submit" class="btn-save">PUBLICAR TORNEO A LA NUBE</button>
+                    <button type="submit" class="btn-save"><i class="fas fa-cloud-upload-alt"></i> PUBLICAR TORNEO A LA NUBE</button>
                 </form>
             </div>
         </section>
@@ -194,6 +210,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=2.1"></script>
+    <script src="app.js?v=2.3"></script>
 </body>
 </html>
