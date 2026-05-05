@@ -28,7 +28,7 @@
                 <li><a href="#admin" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
             </ul>
         </nav>
-        <button class="btn-login">Ingresar</button>
+        <a href="#modal-login" class="btn-login" style="text-decoration: none; display: inline-block;">Ingresar</a>
     </header>
 
     <main>
@@ -75,13 +75,13 @@
 
         <section id="torneos" class="section-container">
             <h2 class="section-title"><i class="fas fa-khanda"></i> La Arena de Combate</h2>
-            <div class="torneos-filters">
+            <div class="torneos-filters" id="torneos-filtros">
                 <button class="filter-btn active">Todos</button>
                 <button class="filter-btn">1v1</button>
                 <button class="filter-btn">2v2</button>
                 <button class="filter-btn">5v5</button>
             </div>
-            <div class="torneos-grid">
+            <div class="torneos-grid" id="contenedor-torneos">
                 <div class="torneo-card">
                     <div class="torneo-badge open">Inscripciones Abiertas</div>
                     <div class="torneo-formato format-1v1">1 VS 1</div>
@@ -91,18 +91,7 @@
                         <p><i class="fas fa-users"></i> Cupos: 12/16</p>
                         <p><i class="fas fa-trophy"></i> Premio: Pase Semanal</p>
                     </div>
-                    <button class="btn-submit btn-torneo">Anotarse al Bracket</button>
-                </div>
-                <div class="torneo-card">
-                    <div class="torneo-badge full">En Curso</div>
-                    <div class="torneo-formato format-5v5">5 VS 5</div>
-                    <h3>Liga Kage de Escuadrones</h3>
-                    <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
-                        <p><i class="fas fa-users"></i> Cupos: 8/8</p>
-                        <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
-                    </div>
-                    <button class="btn-chidori btn-torneo">Ver Llaves</button>
+                    <button class="btn-submit btn-torneo" onclick="alert('Inscripción registrada. ¡Prepárate para la batalla!')">Anotarse al Bracket</button>
                 </div>
             </div>
         </section>
@@ -148,7 +137,7 @@
         <section id="registro-bingo" class="section-container">
             <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
             <div class="form-card">
-                <form id="bingo-form">
+                <form id="bingo-form" onsubmit="event.preventDefault(); alert('¡Datos enviados para validación!');">
                     <div class="input-group">
                         <label>Nick en el Juego</label>
                         <input type="text" id="player-nick" placeholder="Ej: ItachiUchiha_7" required>
@@ -206,7 +195,7 @@
                     <div class="media-info">
                         <h4>Savage con Gusion</h4>
                         <p class="author">Por: NinjaAsesino</p>
-                        <button class="btn-like"><i class="fas fa-fire"></i> 142</button>
+                        <button class="btn-like" onclick="alert('¡Le diste Me Gusta!')"><i class="fas fa-fire"></i> 142</button>
                     </div>
                 </div>
             </div>
@@ -228,7 +217,7 @@
                             <span class="role tank"><i class="fas fa-shield-alt"></i> Main Tanque</span>
                         </div>
                         <p class="post-text">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana.</p>
-                        <button class="btn-susanoo btn-small"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
+                        <button class="btn-susanoo btn-small" onclick="alert('Solicitud enviada a Matías')"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
                     </div>
                 </div>
 
@@ -253,6 +242,39 @@
         <section id="admin" class="section-container">
             <h2 class="section-title"><i class="fas fa-hanko"></i> Centro de Mando del Kage</h2>
             <div class="admin-dashboard">
+                
+                <div class="admin-card" style="margin-bottom: 20px; border-color: var(--success-green);">
+                    <h3><i class="fas fa-plus-circle" style="color: var(--success-green);"></i> Crear Torneo Oficial (Gratuito)</h3>
+                    <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 15px;">Los torneos creados aquí aparecerán automáticamente en la Arena de Combate con inscripción gratuita para la comunidad.</p>
+                    <form id="form-crear-torneo">
+                        <div class="input-group-row">
+                            <div class="input-group">
+                                <label>Nombre del Torneo</label>
+                                <input type="text" id="admin-torneo-nombre" placeholder="Ej: Gran Copa Kage" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Formato</label>
+                                <select id="admin-torneo-formato" class="ninja-select" style="background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 12px; color: white; border-radius: 5px;">
+                                    <option value="1v1">1 VS 1</option>
+                                    <option value="2v2">2 VS 2</option>
+                                    <option value="5v5">5 VS 5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group-row">
+                            <div class="input-group">
+                                <label>Día y Hora</label>
+                                <input type="text" id="admin-torneo-fecha" placeholder="Ej: Sábado, 20:00 hs" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Cupos Totales</label>
+                                <input type="number" id="admin-torneo-cupos" placeholder="Ej: 16" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar Torneo en la Arena</button>
+                    </form>
+                </div>
+
                 <div class="admin-stats">
                     <div class="stat-card">
                         <i class="fas fa-users"></i>
@@ -264,14 +286,9 @@
                         <span>Por Verificar</span>
                         <p>12</p>
                     </div>
-                    <div class="stat-card banned">
-                        <i class="fas fa-user-slash"></i>
-                        <span>Desterrados</span>
-                        <p>3</p>
-                    </div>
                 </div>
 
-                <div class="admin-card" style="margin-bottom: 20px;">
+                <div class="admin-card" style="margin-top: 20px;">
                     <h3><i class="fas fa-gem"></i> Gestión de Suscripciones</h3>
                     <table class="admin-table">
                         <thead>
@@ -287,53 +304,10 @@
                                 <td>Sasuke_Pro</td>
                                 <td><span class="rank-tag kage">KAGE ELITE</span></td>
                                 <td style="color: var(--success-green); font-family: monospace;">03:45:00</td>
-                                <td><button class="btn-reject"><i class="fas fa-stop-circle"></i> Revocar</button></td>
+                                <td><button class="btn-reject" onclick="alert('Permisos revocados')"><i class="fas fa-stop-circle"></i> Revocar</button></td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="admin-tables">
-                    <div class="admin-card">
-                        <h3><i class="fas fa-scroll"></i> Solicitudes Libro Bingo</h3>
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Uchiha_Madara</td>
-                                    <td class="actions">
-                                        <button class="btn-approve"><i class="fas fa-check"></i></button>
-                                        <button class="btn-reject"><i class="fas fa-times"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="admin-card">
-                        <h3><i class="fas fa-users-cog"></i> Gestión de Población</h3>
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Nick</th>
-                                    <th>Castigo</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Troll_MLBB_99</td>
-                                    <td>
-                                        <button class="btn-ban">DESTERRAR</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </section>
@@ -343,17 +317,37 @@
         <div class="footer-content">
             <div class="footer-logo">MBL <span class="highlight">ARG</span></div>
             <p>La arena definitiva para torneos de Mobile Legends. Forja tu leyenda.</p>
-            <div class="social-links">
-                <a href="#"><i class="fab fa-youtube"></i></a>
-                <a href="#"><i class="fab fa-discord"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-tiktok"></i></a>
-            </div>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 MBL Arg - Administrado por Kage Matías. Todos los derechos reservados.</p>
         </div>
     </footer>
+
+    <div id="modal-login" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
+            <h3><i class="fas fa-user-ninja"></i> Ingresar a la Aldea</h3>
+            <p>Identifícate para participar en torneos y usar la taberna.</p>
+            
+            <form id="login-form" onsubmit="event.preventDefault(); alert('¡Bienvenido Ninja!'); window.location.href='#';">
+                <div class="input-group">
+                    <input type="text" placeholder="Usuario o Email" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <input type="password" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="btn-submit" style="margin-bottom: 20px;">Entrar</button>
+            </form>
+
+            <div class="divider"><span>O ingresa con</span></div>
+
+            <button class="btn-google" onclick="alert('Redirigiendo a Google Auth...')">
+                <i class="fab fa-google"></i> Ingresar con Gmail
+            </button>
+            
+            <p style="margin-top: 20px; font-size: 0.8rem;">¿No tienes cuenta? <a href="#" style="color: var(--rasengan-blue);">Regístrate aquí</a></p>
+        </div>
+    </div>
 
     <div id="modal-pago" class="modal-overlay">
         <div class="modal-content">
@@ -365,14 +359,6 @@
                 <div class="pay-option">
                     <span><i class="fas fa-money-bill-wave" style="color: var(--arg-blue);"></i> Pesos (ARS)</span>
                     <strong>Alias: matias.mj7</strong>
-                </div>
-                <div class="pay-option">
-                    <span><i class="fas fa-dollar-sign" style="color: #00ffa3;"></i> Dólares (USD)</span>
-                    <strong>Alias: incubar.soja.salida</strong>
-                </div>
-                <div class="pay-option crypto">
-                    <span><i class="fab fa-bitcoin" style="color: #f7931a;"></i> USDT (BEP20)</span>
-                    <strong style="font-size: 0.75rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
                 </div>
             </div>
             <a href="https://wa.me/5491100000000" target="_blank" class="btn-whatsapp">
