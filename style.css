@@ -64,7 +64,7 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .torneo-info p { margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
 .torneo-info i { width: 20px; color: var(--rasengan-blue); }
 .btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.3s; display: inline-block; text-align: center;}
-.btn-submit:hover { box-shadow: 0 0 15px var(--susanoo-red); }
+.btn-submit:hover:not(:disabled) { box-shadow: 0 0 15px var(--susanoo-red); }
 
 .planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 20px; }
 .plan-card { background: var(--card-bg); border-radius: 15px; padding: 30px; position: relative; border: 1px solid #333; display: flex; flex-direction: column; justify-content: space-between; }
@@ -166,3 +166,17 @@ input:focus { border-color: var(--rasengan-blue); }
 .divider { display: flex; align-items: center; margin: 20px 0; color: #666; font-size: 0.9rem; }
 .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #333; }
 .btn-google { background: white; color: #333; border: none; padding: 12px; border-radius: 5px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;}
+
+/* --- ESTILOS BRACKET (RECUPERADOS PARA LAS LLAVES) --- */
+.bracket-container { display: flex; justify-content: space-between; gap: 20px; margin-top: 20px; padding-bottom: 20px; min-width: 800px; }
+.bracket-round { display: flex; flex-direction: column; justify-content: space-around; width: 22%; position: relative; }
+.round-title { text-align: center; margin-bottom: 15px; color: var(--arg-blue); text-transform: uppercase; font-weight: 900; }
+.match { background: #1a1a24; border: 1px solid #444; border-radius: 8px; margin-bottom: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.match.final-match { border-color: gold; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+.match.champion-match { border-color: var(--success-green); box-shadow: 0 0 20px rgba(0, 255, 163, 0.5); background: rgba(0, 255, 163, 0.1); }
+.player { padding: 10px 15px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.3s; font-size: 0.9rem; font-weight: bold; color: white;}
+.player:last-child { border-bottom: none; }
+.player:hover { background: rgba(0, 210, 255, 0.2); color: var(--rasengan-blue); }
+.player.empty { color: #555; font-style: italic; cursor: default; }
+.player.empty:hover { background: transparent; color: #555; }
+.player.champion { font-size: 1.5rem; text-align: center; padding: 20px; color: var(--success-green); }
