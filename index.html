@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -59,13 +59,13 @@
                 </div>
                 <div class="stream-layout">
                     <div class="video-column">
-                        <div class="video-wrapper">
+                        <div class="video-wrapper" id="video-placeholder">
                             <iframe id="main-stream" src="https://player.twitch.tv/?channel=matias_mj7&parent=matiasmj7.github.io" frameborder="0" allowfullscreen></iframe>
                         </div>
                     </div>
                     <div class="discord-wrapper">
-                        <div class="discord-header">Chat de la Aldea</div>
-                        <iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473"></iframe>
+                        <div class="discord-header"><i class="fab fa-discord"></i> Chat de la Aldea</div>
+                        <iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" allow="clipboard-write"></iframe>
                     </div>
                 </div>
             </div>
@@ -73,24 +73,54 @@
 
         <section id="torneos" class="section-container">
             <h2 class="section-title"><i class="fas fa-khanda"></i> Arena de Combate</h2>
+            <div class="torneos-filters">
+                <button class="filter-btn active" data-filter="todos">Todos</button>
+                <button class="filter-btn" data-filter="1v1">1v1</button>
+                <button class="filter-btn" data-filter="2v2">2v2</button>
+                <button class="filter-btn" data-filter="5v5">5v5</button>
+            </div>
             <div class="torneos-grid" id="contenedor-torneos">
                 </div>
         </section>
 
         <section id="planes" class="section-container">
-            <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería</h2>
+            <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería de la Aldea</h2>
             <div class="planes-grid">
-                <div class="plan-card">
-                    <h3>PLAN ALIADO</h3>
-                    <div class="price">$4.000 ARS</div>
+                <div class="plan-card aliado-card">
+                    <div class="plan-header"><h3>PLAN ALIADO</h3><div class="price">$4.000 ARS</div></div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Torneos 1v1 y 2v2</li>
+                            <li><i class="fas fa-clock"></i> Reloj en pantalla</li>
+                        </ul>
+                    </div>
                     <a href="#modal-pago" class="btn-submit">Contratar</a>
                 </div>
                 <div class="plan-card kage-card">
-                    <div class="plan-badge">ELITE</div>
-                    <h3>KAGE ELITE</h3>
-                    <div class="price">$10.000 ARS</div>
+                    <div class="plan-badge">MÁXIMO PODER</div>
+                    <div class="plan-header"><h3>KAGE ELITE</h3><div class="price">$10.000 ARS</div></div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Todos los formatos</li>
+                            <li><i class="fas fa-clock"></i> Reloj en pantalla</li>
+                        </ul>
+                    </div>
                     <a href="#modal-pago" class="btn-susanoo">Contratar</a>
                 </div>
+            </div>
+        </section>
+
+        <section id="registro-bingo" class="section-container">
+            <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
+            <div class="form-card">
+                <form id="bingo-form">
+                    <div class="input-group"><label>Nick en el Juego</label><input type="text" placeholder="Ej: Itachi_7" required></div>
+                    <div class="input-group-row">
+                        <div class="input-group"><label>ID Jugador</label><input type="number" placeholder="1234567" required></div>
+                        <div class="input-group"><label>Server</label><input type="number" placeholder="1234" required></div>
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar Registro</button>
+                </form>
             </div>
         </section>
 
@@ -103,15 +133,16 @@
                             <img src="https://ui-avatars.com/api/?name=Matías&background=random" class="avatar">
                             <strong>Matías <span class="rank-tag kage">KAGE</span></strong>
                         </div>
-                        <p>¿Quién para unas rankeds?</p>
+                        <p>Busco equipo para torneo 5v5. Main Jungla/ADC.</p>
+                        <button class="btn-susanoo btn-small" onclick="alert('Invitación enviada')">Invitar a Squad</button>
                     </div>
                 </div>
                 <div class="chat-column">
                     <div class="chat-box">
-                        <div class="chat-header">Taberna Global</div>
+                        <div class="chat-header">Taberna Global (En Vivo)</div>
                         <div class="chat-messages" id="chat-messages-container"></div>
                         <div class="chat-input">
-                            <input type="text" id="chat-input-text" placeholder="Escribir...">
+                            <input type="text" id="chat-input-text" placeholder="Escribir mensaje...">
                             <button class="btn-send" id="btn-send-chat"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
@@ -120,48 +151,59 @@
         </section>
 
         <section id="admin" class="section-container" style="display: none;">
-            <h2 class="section-title"><i class="fas fa-user-shield"></i> Panel Kage Supremo</h2>
-            <div class="admin-card">
-                <form id="form-crear-torneo">
-                    <div class="input-group-row">
-                        <div class="input-group"><label>Torneo</label><input type="text" id="admin-torneo-nombre" required></div>
-                        <div class="input-group">
-                            <label>Formato</label>
-                            <select id="admin-torneo-formato">
-                                <option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option>
-                            </select>
+            <h2 class="section-title"><i class="fas fa-user-shield"></i> Centro de Mando del Kage</h2>
+            <div class="admin-dashboard">
+                <div class="admin-card">
+                    <h3><i class="fas fa-plus-circle"></i> Crear Torneo Oficial</h3>
+                    <form id="form-crear-torneo">
+                        <div class="input-group-row">
+                            <div class="input-group"><label>Nombre del Torneo</label><input type="text" id="admin-torneo-nombre" required></div>
+                            <div class="input-group">
+                                <label>Formato</label>
+                                <select id="admin-torneo-formato">
+                                    <option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="input-group-row">
-                        <div class="input-group"><label>Fecha</label><input type="text" id="admin-torneo-fecha" required></div>
-                        <div class="input-group"><label>Cupos</label><input type="number" id="admin-torneo-cupos" required></div>
-                    </div>
-                    <div class="input-group"><label>Premio</label><input type="text" id="admin-torneo-premio" placeholder="A definir"></div>
-                    <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar Torneo</button>
-                </form>
+                        <div class="input-group-row">
+                            <div class="input-group"><label>Día y Hora</label><input type="text" id="admin-torneo-fecha" required></div>
+                            <div class="input-group"><label>Cupos Totales</label><input type="number" id="admin-torneo-cupos" required></div>
+                        </div>
+                        <div class="input-group">
+                            <label>Premio Personalizado</label>
+                            <input type="text" id="admin-torneo-premio" placeholder="Ej: $15.000 ARS">
+                        </div>
+                        <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar a la Nube</button>
+                    </form>
+                </div>
             </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>&copy; 2026 MBL Arg - Kage Matías.</p>
+    </footer>
+
     <div id="modal-login" class="modal-overlay">
         <div class="modal-content">
             <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Ingresar</h3>
-            <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Google</button>
+            <h3>Ingresar a la Aldea</h3>
+            <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Google Login</button>
         </div>
     </div>
 
     <div id="modal-pago" class="modal-overlay">
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Pagos</h3>
-            <div class="pay-option"><strong>Alias: matias.mj7</strong></div>
+            <h3>Bóveda de Pagos</h3>
+            <div class="pay-option"><strong>Alias Pesos: matias.mj7</strong></div>
+            <div class="pay-option"><strong>USDT (BEP20): 0x00...ef5A</strong></div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
 </body>
 </html>
