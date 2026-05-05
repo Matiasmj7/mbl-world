@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. FUNCIONALIDAD BOTONES STREAM (YA ARREGLADO)
+    // 1. FUNCIONALIDAD BOTONES STREAM
     const platBtns = document.querySelectorAll('.plat-btn');
     const mainStream = document.getElementById('main-stream');
 
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. SISTEMA DE FILTROS (YA ARREGLADO)
+    // 2. SISTEMA DE FILTROS 
     const filterBtns = document.querySelectorAll('.filter-btn');
     const torneosCards = document.querySelectorAll('.torneo-card');
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. CREADOR DE TORNEOS ADMIN (YA ARREGLADO)
+    // 3. CREADOR DE TORNEOS ADMIN 
     const formCrearTorneo = document.getElementById('form-crear-torneo');
     const contenedorTorneos = document.getElementById('contenedor-torneos');
 
@@ -74,39 +74,72 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.hash = '#torneos';
         });
     }
+
+    // --- NUEVO: FUNCIONALIDAD DEL CHAT DE LA TABERNA ---
+    const chatInput = document.getElementById('chat-input-text');
+    const btnSendChat = document.getElementById('btn-send-chat');
+    const chatContainer = document.getElementById('chat-messages-container');
+
+    if (btnSendChat && chatInput && chatContainer) {
+        // Función para agregar mensaje
+        const enviarMensaje = () => {
+            const mensaje = chatInput.value.trim();
+            if (mensaje !== '') {
+                // Obtener hora actual
+                const ahora = new Date();
+                const hora = ahora.getHours().toString().padStart(2, '0');
+                const minutos = ahora.getMinutes().toString().padStart(2, '0');
+                const tiempoStr = `[${hora}:${minutos}]`;
+
+                // Crear el elemento HTML del mensaje (te ponemos como usuario para que pruebes)
+                const nuevoMensajeHTML = `<div class="msg"><span class="msg-time">${tiempoStr}</span> <strong class="user tank">Tú:</strong> ${mensaje}</div>`;
+
+                // Insertarlo al final de la caja de chat
+                chatContainer.insertAdjacentHTML('beforeend', nuevoMensajeHTML);
+
+                // Limpiar la barra de texto
+                chatInput.value = '';
+
+                // Hacer que la caja baje automáticamente al último mensaje
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        };
+
+        // Al hacer clic en el botón de enviar
+        btnSendChat.addEventListener('click', enviarMensaje);
+
+        // Al presionar la tecla Enter
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                enviarMensaje();
+            }
+        });
+    }
 });
 
-// --- NUEVAS FUNCIONES PARA GESTIÓN DE SUSCRIPCIONES (ADMIN) ---
+// --- FUNCIONES DE TABLA ADMIN ---
 
-// Función para APROBAR una solicitud pendiente
 function aprobarSuscripcion(btn, nick) {
     if(confirm(`¿Estás seguro de APROBAR la suscripción de ${nick}?`)) {
-        // Buscamos la fila de la tabla
         const row = btn.closest('tr');
-        // Cambiamos la columna de estado
         row.querySelector('.status-col').innerHTML = '<span class="rank-tag jonin" style="background: var(--rasengan-blue);">ACTIVO</span>';
-        // Cambiamos los botones de acción
         row.querySelector('.actions-col').innerHTML = '<button class="btn-reject" onclick="revocarSuscripcion(this, \''+nick+'\')"><i class="fas fa-stop-circle"></i> Revocar</button>';
         alert(`Suscripción de ${nick} activada.`);
     }
 }
 
-// Función para RECHAZAR una solicitud pendiente (borra la fila)
 function rechazarSuscripcion(btn, nick) {
     if(confirm(`¿Estás seguro de RECHAZAR la solicitud de ${nick}?`)) {
         const row = btn.closest('tr');
-        row.remove(); // Borramos la fila de la tabla
+        row.remove(); 
         alert(`Solicitud de ${nick} rechazada.`);
     }
 }
 
-// Función para REVOCAR un plan ya activo
 function revocarSuscripcion(btn, nick) {
     if(confirm(`¿ATENCIÓN: Estás seguro de REVOCAR el plan activo de ${nick}? Volverá a estar pendiente.`)) {
         const row = btn.closest('tr');
-        // Volvemos el estado a PENDIENTE
         row.querySelector('.status-col').innerHTML = '<span class="rank-tag jonin" style="background: #444;">PENDIENTE</span>';
-        // Volvemos a poner los botones de Aprobar/Rechazar
         row.querySelector('.actions-col').innerHTML = `
             <button class="btn-approve" onclick="aprobarSuscripcion(this, '${nick}')"><i class="fas fa-check"></i> Aprobar</button>
             <button class="btn-reject" onclick="rechazarSuscripcion(this, '${nick}')"><i class="fas fa-times"></i> Rechazar</button>
