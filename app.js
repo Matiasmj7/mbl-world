@@ -6,75 +6,93 @@ const firebaseConfig = {
   messagingSenderId: "308094247977",
   appId: "1:308094247977:web:cef31ccf807f732f5ce838"
 };
+
+// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// CONFIGURACIÓN DE ACCESO
 const EMAIL_ADMIN = "matias.moto7@gmail.com";
 let usuarioActual = "Ninja Anónimo";
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. GESTIÓN DE SESIÓN
     auth.onAuthStateChanged(user => {
         const userBtn = document.getElementById('user-btn');
         const heroName = document.getElementById('hero-user-name');
         const adminSection = document.getElementById('admin');
         const navAdminLink = document.getElementById('nav-admin-link');
+
         if(user) {
             usuarioActual = user.displayName || user.email.split('@')[0];
             userBtn.innerText = usuarioActual;
             if(heroName) heroName.innerText = usuarioActual;
+
+            // Lógica de Admin
             if(user.email === EMAIL_ADMIN) {
-                if(adminSection) adminSection.style.display = 'block';
-                if(navAdminLink) navAdminLink.style.display = 'block';
+                adminSection.style.display = 'block';
+                navAdminLink.style.display = 'block';
             }
         } else {
             usuarioActual = "Ninja Anónimo";
             userBtn.innerText = "Ingresar";
-            if(adminSection) adminSection.style.display = 'none';
+            adminSection.style.display = 'none';
+            navAdminLink.style.display = 'none';
         }
     });
 
-    document.getElementById('btn-login-google').addEventListener('click', () => {
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(() => window.location.hash = '#');
-    });
+    // 2. LOGIN GOOGLE
+    const btnGoogle = document.getElementById('btn-login-google');
+    if(btnGoogle) {
+        btnGoogle.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(() => {
+                window.location.hash = '#'; // Cierra el modal
+            }).catch(err => console.error("Error Login:", err));
+        });
+    }
 
+    // 3. CARGAR TORNEOS (Realtime)
+    const contenedorTorneos = document.getElementById('contenedor-torneos');
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
-        const cont = document.getElementById('contenedor-torneos');
-        cont.innerHTML = '';
+        contenedorTorneos.innerHTML = '';
         snap.forEach(doc => {
-            const d = doc.data();
-            cont.innerHTML += `<div class="torneo-card glass-box"><span style="color:#00d2ff; font-weight:bold;">${d.formato.toUpperCase()}</span><h3 style="margin:10px 0;">${d.nombre}</h3><p>Fecha: ${d.fecha}</p><p>Cupos: ${d.cuposTotales}</p><p style="color:#00ffa3;">Premio: ${d.premio || 'A definir'}</p><button class="btn-submit" style="margin-top:15px;" onclick="alert('Inscrito')">INSCRIBIRSE</button></div>`;
+            const data = doc.data();
+            contenedorTorneos.innerHTML += `
+                <div class="torneo-card glass-box">
+                    <span style="color:var(--rasengan-blue); font-weight:bold;">${data.formato}</span>
+                    <h3 style="margin:10px 0;">${data.nombre}</h3>
+                    <p><i class="far fa-calendar-alt"></i> ${data.fecha}</p>
+                    <p><i class="fas fa-users"></i> Cupos: ${data.cuposTotales}</p>
+                    <p style="color:var(--success-green); font-weight:bold;">Premio: ${data.premio || 'A definir'}</p>
+                    <button class="btn-susanoo" style="width:100%; margin-top:15px;" onclick="alert('Inscripción enviada')">UNIRSE AL COMBATE</button>
+                </div>
+            `;
         });
     });
 
-    document.getElementById('form-crear-torneo').addEventListener('submit', (e) => {
-        e.preventDefault();
-        db.collection('torneos').add({
-            nombre: document.getElementById('admin-torneo-nombre').value,
-            formato: document.getElementById('admin-torneo-formato').value,
-            fecha: document.getElementById('admin-torneo-fecha').value,
-            cuposTotales: document.getElementById('admin-torneo-cupos').value,
-            premio: document.getElementById('admin-torneo-premio').value,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            document.getElementById('form-crear-torneo').reset();
-            alert("¡Torneo Publicado!");
+    // 4. CREAR TORNEOS (Solo Admin)
+    const formTorneo = document.getElementById('form-crear-torneo');
+    if(formTorneo) {
+        formTorneo.addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection('torneos').add({
+                nombre: document.getElementById('admin-torneo-nombre').value,
+                formato: document.getElementById('admin-torneo-formato').value,
+                fecha: document.getElementById('admin-torneo-fecha').value,
+                cuposTotales: document.getElementById('admin-torneo-cupos').value,
+                premio: document.getElementById('admin-torneo-premio').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                formTorneo.reset();
+                alert("¡Torneo publicado con éxito!");
+            }).catch(err => alert("Error al publicar: " + err));
         });
-    });
-
-    document.getElementById('btn-send-chat').addEventListener('click', () => {
-        const txt = document.getElementById('chat-input-text').value.trim();
-        if(txt && usuarioActual !== "Ninja Anónimo") {
-            db.collection('taberna').add({ usuario: usuarioActual, texto: txt, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('chat-input-text').value = '';
-        }
-    });
-
-    db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
-        const bc = document.getElementById('chat-messages-container');
-        bc.innerHTML = '';
-        snap.forEach(doc => { const d = doc.data(); bc.innerHTML += `<div><strong style="color:#00d2ff">${d.usuario}:</strong> ${d.texto}</div>`; });
-        bc.scrollTop = bc.scrollHeight;
-    });
+    }
 });
 
-function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
+function cerrarSesion() {
+    auth.signOut().then(() => window.location.reload());
+}
