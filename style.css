@@ -14,14 +14,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
 body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
 
-/* --- VIDEO DE FONDO --- */
 .dynamic-bg-video { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -2; filter: brightness(0.3); }
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.95) 100%); z-index: -1; }
 
 .section-container { padding: 80px 10%; position: relative; }
 .section-title { font-size: 2.2rem; margin-bottom: 30px; border-left: 6px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; font-weight: 900; }
 
-/* --- NAVBAR Y HERO --- */
 .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(0, 0, 0, 0.9); border-bottom: 2px solid var(--rasengan-blue); position: fixed; width: 100%; top: 0; z-index: 1000; }
 .logo { font-size: 1.8rem; font-weight: 900; color: white; letter-spacing: 2px; }
 .logo .highlight { color: var(--arg-blue); text-shadow: 0 0 10px var(--arg-blue); }
@@ -32,10 +30,9 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .shippuden-text { font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; text-transform: uppercase; color: white; }
 .cta-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
 .btn-rasengan { background: var(--rasengan-blue); color: white; padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; }
-.btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; }
-.btn-susanoo { background: var(--susanoo-red); color: white; padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; border: none; display: inline-block; }
+.btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; cursor: pointer; text-align: center;}
+.btn-susanoo { background: var(--susanoo-red); color: white; padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; border: none; display: inline-block; cursor: pointer;}
 
-/* --- STREAM --- */
 .stream-container { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--rasengan-blue); padding: 30px; }
 .platform-selector { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
 .plat-btn { background: rgba(0,0,0,0.6); border: 1px solid #444; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
@@ -51,11 +48,9 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .discord-header { background: var(--discord-color); color: white; padding: 12px; text-align: center; font-weight: 900; }
 .discord-chat { flex-grow: 1; min-height: 350px; width: 100%; border: none; }
 
-/* --- TORNEOS --- */
 .torneos-filters { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
 .filter-btn { background: rgba(0,0,0,0.6); border: 1px solid var(--chidori-purple); color: var(--text-white); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
 .filter-btn.active { background: var(--chidori-purple); box-shadow: 0 0 15px var(--chidori-purple); }
-
 .torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 
 .torneo-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 25px; position: relative; overflow: hidden; transition: 0.3s; }
@@ -68,11 +63,10 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .torneo-card h3 { font-size: 1.4rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
 .torneo-info p { margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
 .torneo-info i { width: 20px; color: var(--rasengan-blue); }
-.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; text-transform: uppercase; }
+.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; text-transform: uppercase; transition: 0.3s; display: inline-block; text-align: center;}
+.btn-submit:hover { box-shadow: 0 0 15px var(--susanoo-red); }
 
-/* --- PLANES --- */
 .planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 20px; }
-
 .plan-card { background: var(--card-bg); border-radius: 15px; padding: 30px; position: relative; border: 1px solid #333; display: flex; flex-direction: column; justify-content: space-between; }
 .aliado-card { border-color: var(--rasengan-blue); }
 .kage-card { border-color: var(--susanoo-red); background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.9) 100%); }
@@ -85,7 +79,6 @@ body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: h
 .aliado-card .plan-body i { color: var(--rasengan-blue); }
 .kage-card .plan-body i { color: var(--susanoo-red); }
 
-/* --- LIBRO BINGO Y FORMULARIOS --- */
 .form-card { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid var(--rasengan-blue); max-width: 600px; margin: 0 auto; backdrop-filter: blur(10px); }
 .input-group { margin-bottom: 20px; display: flex; flex-direction: column; text-align: left; }
 .input-group-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -101,7 +94,6 @@ input:focus { border-color: var(--rasengan-blue); }
 .rank-tag.kage { background: #000; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); }
 .rank-tag.jonin { background: var(--chidori-purple); color: white;}
 
-/* --- ABISMO --- */
 .media-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 .media-card { background: rgba(15, 15, 20, 0.9); border: 1px solid #333; border-radius: 10px; overflow: hidden; border-bottom: 3px solid var(--arg-blue); transition: 0.3s;}
 .media-card:hover { transform: translateY(-5px); border-color: var(--rasengan-blue); }
@@ -109,18 +101,17 @@ input:focus { border-color: var(--rasengan-blue); }
 .media-info { padding: 20px; text-align: center; }
 .btn-like { background: transparent; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
-/* --- GREMIO Y CHAT --- */
 .gremio-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
 @media (max-width: 992px) { .gremio-layout { grid-template-columns: 1fr; } }
-
 .board-column { display: flex; flex-direction: column; gap: 20px; }
 .social-post { background: var(--card-bg); border: 1px solid #333; border-radius: 10px; padding: 20px; }
 .post-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; }
 .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--rasengan-blue); }
 .post-user-info strong { display: block; font-size: 1.1rem; color: white; }
-.role-tags { display: flex; gap: 10px; margin-bottom: 10px; }
+.role-tags { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;}
 .role { padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; border: 1px solid; }
 .tank { color: var(--success-green); border-color: var(--success-green); background: rgba(0, 255, 163, 0.1); }
+.assassin { color: var(--chidori-purple); border-color: var(--chidori-purple); background: rgba(157, 80, 187, 0.1); }
 .post-text { color: #ccc; line-height: 1.4; }
 .btn-small { padding: 8px 15px; font-size: 0.85rem; border: none; width: 100%; margin-top: 15px; cursor: pointer; border-radius: 5px; font-weight: bold; }
 
@@ -131,11 +122,12 @@ input:focus { border-color: var(--rasengan-blue); }
 .msg-time { color: #666; font-size: 0.7rem; margin-right: 5px; }
 .msg .user { font-weight: bold; margin-right: 5px; }
 .msg .user.kage { color: var(--susanoo-red); }
+.msg .user.jonin { color: var(--arg-blue); }
+.msg .user.tank { color: var(--success-green); }
 .chat-input { display: flex; padding: 10px; background: #111; border-top: 1px solid #333; }
 .chat-input input { flex-grow: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; }
 .btn-send { background: var(--arg-blue); border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; color: black; font-weight: bold; }
 
-/* --- KAGE ADMIN --- */
 .admin-dashboard { display: flex; flex-direction: column; gap: 30px; }
 .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
 .stat-card { background: var(--card-bg); padding: 20px; border-radius: 10px; border-bottom: 3px solid var(--rasengan-blue); text-align: center; }
@@ -157,16 +149,12 @@ input:focus { border-color: var(--rasengan-blue); }
 .btn-ban { background: transparent; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%;}
 .btn-ban:hover { background: var(--susanoo-red); color: white; }
 
-.admin-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-
-/* --- FOOTER --- */
 .site-footer { background: #050505; border-top: 2px solid var(--rasengan-blue); padding: 40px 10% 20px; text-align: center; margin-top: 50px; }
 .footer-logo { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 15px; letter-spacing: 2px; }
 .footer-logo .highlight { color: var(--arg-blue); }
 .footer-content p { color: #888; font-size: 0.95rem; margin-bottom: 25px; }
 .footer-bottom { border-top: 1px solid #222; padding-top: 20px; color: #555; font-size: 0.8rem; }
 
-/* --- MODALES --- */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
 .modal-overlay:target { opacity: 1; visibility: visible; }
 .modal-content { background: #111; padding: 40px; border-radius: 15px; border: 2px solid var(--arg-blue); width: 90%; max-width: 500px; position: relative; text-align: center; }
