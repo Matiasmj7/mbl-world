@@ -5,44 +5,110 @@
     --susanoo-red: #ff0040;
     --text-white: #ffffff;
     --arg-blue: #74acdf;
-    --card-bg: rgba(10, 10, 15, 0.9);
+    --card-bg: rgba(15, 15, 20, 0.85); /* Este fondo es crucial para las tarjetas */
     --success-green: #00ffa3;
+    --discord-color: #5865F2;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
-body { background-color: var(--bg-dark); color: var(--text-white); }
+body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
 
-/* FONDO */
+/* --- FONDO PRINCIPAL --- */
 .dynamic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/fondo.jpg.png'); background-size: cover; background-position: center; filter: brightness(0.4); z-index: -2; }
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.9) 100%); z-index: -1; }
 
-.section-container { padding: 80px 10%; }
-.section-title { font-size: 2rem; margin-bottom: 25px; border-left: 5px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; }
+/* --- ESTRUCTURAS GENERALES --- */
+.section-container { padding: 80px 10%; position: relative; }
+.section-title { font-size: 2.2rem; margin-bottom: 30px; border-left: 6px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; font-weight: 900; text-shadow: 0 0 10px rgba(0,210,255,0.3); }
 
-/* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(0,0,0,0.95); position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid var(--rasengan-blue); }
+/* --- BOTONES --- */
+.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; text-decoration: none; display: inline-block; text-align: center; width: 100%; }
+.btn-submit:hover { box-shadow: 0 0 15px var(--susanoo-red); }
+.btn-rasengan { background: var(--rasengan-blue); color: white; padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; box-shadow: 0 0 15px var(--rasengan-blue); }
+.btn-chidori { border: 2px solid var(--chidori-purple); color: var(--chidori-purple); background: rgba(0,0,0,0.5); padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; text-align: center; }
+.btn-susanoo { background: var(--susanoo-red); color: white; padding: 12px 35px; border-radius: 5px; font-weight: bold; text-decoration: none; display: inline-block; text-align: center; box-shadow: 0 0 15px var(--susanoo-red); border: none; width: 100%; }
+.btn-small { padding: 8px 15px; font-size: 0.85rem; width: auto; margin-top: 15px; cursor: pointer; }
+
+/* --- NAVBAR Y HERO --- */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(0, 0, 0, 0.9); border-bottom: 2px solid var(--rasengan-blue); position: fixed; width: 100%; top: 0; z-index: 1000; }
+.logo { font-size: 1.8rem; font-weight: 900; color: white; }
+.logo .highlight { color: var(--arg-blue); text-shadow: 0 0 10px var(--arg-blue); }
 .nav-links { display: flex; list-style: none; gap: 20px; }
-.nav-links a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
-
-/* HERO */
+.nav-links a { text-decoration: none; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
+.btn-login { background: transparent; border: 1px solid var(--rasengan-blue); color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
 .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
-.shippuden-text { font-size: 4rem; font-weight: 900; text-shadow: 0 0 20px #000; }
-.btn-rasengan, .btn-susanoo { padding: 12px 30px; border-radius: 5px; text-decoration: none; font-weight: bold; color: white; display: inline-block; margin: 10px; }
-.btn-rasengan { background: var(--rasengan-blue); }
-.btn-susanoo { background: var(--susanoo-red); }
+.shippuden-text { font-size: clamp(3rem, 10vw, 6rem); font-weight: 900; text-transform: uppercase; color: white; text-shadow: 0 0 30px #000; }
+.cta-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
 
-/* CHAT */
-.chat-box { background: #000; border: 1px solid #333; border-radius: 10px; overflow: hidden; height: 400px; display: flex; flex-direction: column; }
-.chat-header { background: #111; padding: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid var(--rasengan-blue); }
-.chat-messages { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-.chat-input { display: flex; padding: 10px; background: #111; }
+/* --- STREAM Y DISCORD --- */
+.stream-container { background: var(--card-bg); border-radius: 15px; border: 1px solid var(--rasengan-blue); padding: 30px; }
+.platform-selector { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+.plat-btn { background: rgba(0,0,0,0.6); border: 1px solid #444; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.stream-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: stretch; }
+@media (max-width: 992px) { .stream-layout { grid-template-columns: 1fr; } }
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 10px; border: 2px solid #333; background: #000; }
+.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.discord-wrapper { background: #111; border-radius: 10px; border: 2px solid var(--discord-color); display: flex; flex-direction: column; overflow: hidden; }
+.discord-header { background: var(--discord-color); color: white; padding: 12px; text-align: center; font-weight: 900; text-transform: uppercase; }
+.discord-chat { flex-grow: 1; min-height: 350px; width: 100%; border: none; }
+
+/* --- TORNEOS --- */
+.torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.torneo-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 25px; position: relative; overflow: hidden; }
+.torneo-badge { position: absolute; top: 15px; right: -30px; padding: 5px 35px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; transform: rotate(45deg); }
+.torneo-badge.open { background: var(--success-green); color: black; }
+.torneo-badge.full { background: var(--susanoo-red); color: white; }
+.torneo-formato { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; font-weight: 900; margin-bottom: 15px; background: rgba(0, 210, 255, 0.2); border: 1px solid var(--rasengan-blue); color: var(--rasengan-blue); }
+.torneo-card h3 { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.torneo-info p { color: #ccc; margin-bottom: 8px; }
+.btn-torneo { margin-top: 15px; }
+
+/* --- PLANES --- */
+.planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+.plan-card { background: var(--card-bg); border-radius: 15px; padding: 30px; border: 1px solid #333; position: relative; display: flex; flex-direction: column; }
+.aliado-card { border-color: var(--rasengan-blue); }
+.kage-card { border-color: var(--susanoo-red); background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.9) 100%); }
+.plan-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--susanoo-red); color: white; padding: 5px 20px; border-radius: 20px; font-weight: bold; }
+.price { font-size: 2.5rem; font-weight: 900; margin: 10px 0; }
+.price span { font-size: 1rem; color: #888; }
+.plan-body ul { list-style: none; margin-bottom: 30px; padding: 0; }
+.plan-body li { margin-bottom: 10px; color: #ccc; }
+.btn-plan { margin-top: auto; }
+
+/* --- FORMULARIOS (LIBRO BINGO) --- */
+.form-card { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid var(--rasengan-blue); max-width: 600px; margin: 0 auto; }
+.input-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+.input-group label { margin-bottom: 5px; color: var(--rasengan-blue); font-weight: bold; }
+.input-group input { background: rgba(0,0,0,0.6); border: 1px solid #444; padding: 12px; color: white; border-radius: 5px; }
+
+/* --- TABERNA / GREMIO --- */
+.gremio-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+@media (max-width: 992px) { .gremio-layout { grid-template-columns: 1fr; } }
+.board-column { display: flex; flex-direction: column; gap: 20px; }
+.social-post { background: var(--card-bg); border: 1px solid #333; border-radius: 10px; padding: 20px; }
+.post-header { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; }
+.rank-tag { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+.rank-tag.kage { background: var(--susanoo-red); color: white; }
+.post-text { color: #ccc; }
+.chat-box { background: #0a0a0c; border: 1px solid #333; border-radius: 10px; display: flex; flex-direction: column; height: 400px; }
+.chat-header { background: #1a1a24; padding: 15px; text-align: center; font-weight: bold; border-bottom: 2px solid var(--arg-blue); }
+.chat-messages { flex-grow: 1; padding: 15px; overflow-y: auto; }
+.msg { margin-bottom: 10px; color: #ddd; font-size: 0.9rem; }
+.msg .user { font-weight: bold; margin-right: 5px; }
+.msg .user.kage { color: var(--susanoo-red); }
+.chat-input { display: flex; padding: 10px; background: #111; border-top: 1px solid #333; }
 .chat-input input { flex-grow: 1; background: transparent; border: none; color: white; outline: none; }
-.btn-send { background: var(--rasengan-blue); border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
-.msg { font-size: 0.9rem; margin-bottom: 5px; }
-.user.kage { color: var(--susanoo-red); }
-.user.jonin { color: var(--rasengan-blue); }
+.btn-send { background: var(--arg-blue); border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
 
-/* CARDS */
-.torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.torneo-card { background: var(--card-bg); padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center; }
-.btn-submit { background: var(--susanoo-red); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
+/* --- ADMIN --- */
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { background: var(--card-bg); padding: 20px; border-radius: 10px; border-bottom: 3px solid var(--rasengan-blue); text-align: center; }
+.stat-card p { font-size: 2.5rem; font-weight: bold; }
+
+/* --- MODAL PAGO --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+.modal-overlay:target { opacity: 1; visibility: visible; }
+.modal-content { background: #111; padding: 40px; border-radius: 15px; border: 2px solid var(--arg-blue); width: 90%; max-width: 400px; position: relative; text-align: center; }
+.close-modal { position: absolute; top: 15px; right: 20px; color: white; font-size: 1.5rem; text-decoration: none; }
+.pay-option { background: #050505; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; }
+.btn-whatsapp { display: block; background: #25D366; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-decoration: none; text-transform: uppercase; margin-top: 20px; }
