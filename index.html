@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -94,6 +94,20 @@
             </div>
         </section>
 
+        <section id="registro-bingo" class="section-container">
+            <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
+            <div class="form-card shadow-fix">
+                <form>
+                    <div class="input-group"><label>Nick</label><input type="text" required></div>
+                    <div class="input-group-row">
+                        <div class="input-group"><label>ID</label><input type="number" required></div>
+                        <div class="input-group"><label>Server</label><input type="number" required></div>
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar</button>
+                </form>
+            </div>
+        </section>
+
         <section id="gremio" class="section-container">
             <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio y Taberna</h2>
             <div class="gremio-layout">
@@ -103,7 +117,7 @@
                             <img src="https://ui-avatars.com/api/?name=Matías&background=random" class="avatar">
                             <strong>Matías <span class="rank-tag kage">KAGE</span></strong>
                         </div>
-                        <p>¿Alguien para rankear ahora?</p>
+                        <p>Busco equipo para 5v5.</p>
                     </div>
                 </div>
                 <div class="chat-column">
@@ -128,7 +142,7 @@
                         <div class="input-group"><label>Nombre</label><input type="text" id="admin-torneo-nombre" required></div>
                         <div class="input-group">
                             <label>Formato</label>
-                            <select id="admin-torneo-formato" style="width:100%; padding:12px; background:#000; color:white; border:1px solid #444; border-radius:5px;">
+                            <select id="admin-torneo-formato">
                                 <option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option>
                             </select>
                         </div>
@@ -137,8 +151,8 @@
                         <div class="input-group"><label>Fecha</label><input type="text" id="admin-torneo-fecha" required></div>
                         <div class="input-group"><label>Cupos</label><input type="number" id="admin-torneo-cupos" required></div>
                     </div>
-                    <div class="input-group"><label>Premio</label><input type="text" id="admin-torneo-premio" placeholder="Ej: $5000 ARS"></div>
-                    <button type="submit" class="btn-submit" style="background:var(--success-green); color:black;">Subir a la Arena</button>
+                    <div class="input-group"><label>Premio</label><input type="text" id="admin-torneo-premio" placeholder="A definir"></div>
+                    <button type="submit" class="btn-submit" style="background:var(--success-green); color:black;">Publicar Torneo</button>
                 </form>
             </div>
         </section>
@@ -148,13 +162,13 @@
         <div class="modal-content shadow-fix">
             <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
             <h3>Ingresar</h3>
-            <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Entrar con Google</button>
+            <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Google Login</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>
