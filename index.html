@@ -17,11 +17,11 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#stream" style="color: #ff0040;"><i class="fas fa-circle" style="font-size: 8px;"></i> En Vivo</a></li>
+                <li><a href="#stream" style="color: #ff0040;"><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle;"></i> En Vivo</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#planes">Planes</a></li>
                 <li><a href="#registro-bingo">Libro Bingo</a></li>
-                <li><a href="#gremio" style="color: var(--success-green);"><i class="fas fa-users"></i> Gremio</a></li>
+                <li><a href="#gremio" style="color: var(--success-green);"><i class="fas fa-users"></i> Taberna</a></li>
                 <li><a href="#admin" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
             </ul>
         </nav>
@@ -32,10 +32,39 @@
         <section id="inicio" class="hero">
             <div class="hero-content">
                 <h1 class="shippuden-text">DOMINA EL ABISMO</h1>
-                <p>Bienvenido, <span class="user-name">Matías</span>. Tu leyenda comienza aquí.</p>
+                <p>Bienvenido al Libro Bingo, <span class="user-name">Matías</span>. Aquí comienza tu leyenda.</p>
                 <div class="cta-buttons">
-                    <a href="#stream" class="btn-susanoo">Ver Live</a>
+                    <a href="#stream" class="btn-susanoo">Ver Transmisión</a>
                     <a href="#planes" class="btn-rasengan">Crear Torneos</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="stream" class="section-container">
+            <h2 class="section-title"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
+            <div class="stream-container">
+                <div class="stream-info">
+                    <h3>🔴 Transmisión Principal</h3>
+                </div>
+                <div class="platform-selector">
+                    <button class="plat-btn twitch active"><i class="fab fa-twitch"></i> Twitch</button>
+                    <button class="plat-btn youtube"><i class="fab fa-youtube"></i> YouTube</button>
+                    <button class="plat-btn kick"><i class="fas fa-bolt"></i> Kick</button>
+                    <button class="plat-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</button>
+                    <button class="plat-btn facebook"><i class="fab fa-facebook"></i> Facebook</button>
+                </div>
+                <div class="stream-layout">
+                    <div class="video-column">
+                        <div class="video-wrapper">
+                            <iframe id="main-stream" src="https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ" title="MBL Arg Live" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="discord-wrapper">
+                        <div class="discord-header">
+                            <i class="fab fa-discord"></i> Chat de Transmisión
+                        </div>
+                        <iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" allow="clipboard-write"></iframe>
+                    </div>
                 </div>
             </div>
         </section>
@@ -51,31 +80,105 @@
             <div class="torneos-grid">
                 <div class="torneo-card">
                     <div class="torneo-badge open">Abierto</div>
-                    <div class="torneo-formato format-1v1">1v1</div>
+                    <div class="torneo-formato format-1v1">1 VS 1</div>
                     <h3>Copa Genin Solitario</h3>
-                    <button class="btn-submit btn-torneo">Anotarse</button>
+                    <div class="torneo-info">
+                        <p><i class="fas fa-calendar-alt"></i> Sábado, 15:00 hs</p>
+                        <p><i class="fas fa-users"></i> Cupos: 12/16</p>
+                    </div>
+                    <button class="btn-submit btn-torneo">Anotarse al Bracket</button>
                 </div>
                 <div class="torneo-card">
                     <div class="torneo-badge full">Cerrado</div>
-                    <div class="torneo-formato format-5v5">5v5</div>
+                    <div class="torneo-formato format-5v5">5 VS 5</div>
                     <h3>Liga Kage Elite</h3>
+                    <div class="torneo-info">
+                        <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
+                        <p><i class="fas fa-users"></i> Cupos: 8/8</p>
+                    </div>
                     <button class="btn-chidori btn-torneo">Ver Llaves</button>
                 </div>
+            </div>
+        </section>
+
+        <section id="planes" class="section-container">
+            <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería de la Aldea</h2>
+            <div class="planes-grid">
+                <div class="plan-card aliado-card">
+                    <div class="plan-header">
+                        <h3>PLAN ALIADO</h3>
+                        <div class="price">$4.000 ARS <span>/ 2 Horas</span></div>
+                        <p class="extra-time">+1 Hora extra por $2.000 ARS</p>
+                    </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Crear Torneos 1v1 y 2v2</li>
+                            <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
+                        </ul>
+                    </div>
+                    <a href="#modal-pago" class="btn-submit btn-plan">Contratar Aliado</a>
+                </div>
+                <div class="plan-card kage-card">
+                    <div class="plan-badge">MÁXIMO PODER</div>
+                    <div class="plan-header">
+                        <h3>KAGE ELITE</h3>
+                        <div class="price">$10.000 ARS <span>/ 4 Horas</span></div>
+                        <p class="extra-time">+2 Horas extra por $4.000 ARS</p>
+                    </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Todos los formatos (hasta 5v5)</li>
+                            <li><i class="fas fa-clock"></i> Reloj de tiempo en pantalla</li>
+                        </ul>
+                    </div>
+                    <a href="#modal-pago" class="btn-susanoo btn-plan">Convertirme en Kage</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="registro-bingo" class="section-container">
+            <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
+            <div class="form-card">
+                <form id="bingo-form">
+                    <div class="input-group">
+                        <label>Nick en el Juego</label>
+                        <input type="text" placeholder="Ej: ItachiUchiha_7" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Captura de Rango</label>
+                        <input type="file" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar Captura</button>
+                </form>
             </div>
         </section>
 
         <section id="gremio" class="section-container">
             <h2 class="section-title"><i class="fas fa-users-cog"></i> Taberna de la Aldea</h2>
             <div class="gremio-layout">
+                <div class="board-column">
+                    <div class="social-post">
+                        <div class="post-header">
+                            <div class="post-user-info">
+                                <strong>Matías</strong>
+                                <span class="rank-tag kage">MÍTICO</span>
+                            </div>
+                        </div>
+                        <p class="post-text">Busco escuadrón competitivo para jugar torneos 5v5. Main Tanque.</p>
+                        <button class="btn-susanoo btn-small">Invitar a Squad</button>
+                    </div>
+                </div>
                 <div class="chat-column">
                     <div class="chat-box">
-                        <div class="chat-header">Chat Global</div>
-                        <div id="chat-messages" class="chat-messages">
+                        <div class="chat-header">
+                            <i class="fas fa-globe"></i> Chat Global
+                        </div>
+                        <div class="chat-messages">
                             <div class="msg"><strong class="user kage">Admin:</strong> ¡Bienvenidos ninjas! Hablen con respeto.</div>
                         </div>
                         <div class="chat-input">
-                            <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
-                            <button id="send-msg" class="btn-send"><i class="fas fa-paper-plane"></i></button>
+                            <input type="text" placeholder="Escribe un mensaje...">
+                            <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
@@ -83,19 +186,33 @@
         </section>
 
         <section id="admin" class="section-container">
-            <h2 class="section-title">Panel de Control</h2>
-            <div class="admin-card">
-                <table class="admin-table" style="width:100%">
-                    <tr>
-                        <td>Usuario_Prueba</td>
-                        <td><button class="btn-approve">Aprobar</button></td>
-                        <td><button class="btn-reject">Ban</button></td>
-                    </tr>
-                </table>
+            <h2 class="section-title"><i class="fas fa-hanko"></i> Panel de Control</h2>
+            <div class="admin-dashboard">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <span>Activos</span>
+                        <p>154</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <script src="app.js"></script>
+    <div id="modal-pago" class="modal-overlay">
+        <div class="modal-content">
+            <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
+            <h3><i class="fas fa-wallet"></i> Bóveda de Pago</h3>
+            <p>Transfiere y envía el comprobante por WhatsApp.</p>
+            <div class="payment-methods">
+                <div class="pay-option">
+                    <span>Pesos (ARS)</span>
+                    <strong>Alias: matias.mj7</strong>
+                </div>
+            </div>
+            <a href="https://wa.me/5491100000000" target="_blank" class="btn-whatsapp">Enviar Comprobante</a>
+        </div>
+    </div>
+
 </body>
 </html>
