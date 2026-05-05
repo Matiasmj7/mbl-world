@@ -208,20 +208,20 @@
                             <span class="role tank"><i class="fas fa-shield-alt"></i> Main Tanque</span>
                         </div>
                         <p class="post-text">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana.</p>
-                        <button class="btn-susanoo btn-small"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
+                        <button class="btn-susanoo btn-small" onclick="alert('¡Invitación a Squad enviada con éxito! Esperando respuesta de Matías...')"><i class="fas fa-user-plus"></i> Invitar a Squad</button>
                     </div>
                 </div>
 
                 <div class="chat-column">
                     <div class="chat-box">
                         <div class="chat-header"><i class="fas fa-globe"></i> Taberna Global</div>
-                        <div class="chat-messages">
+                        <div class="chat-messages" id="chat-messages-container">
                             <div class="msg"><span class="msg-time">[18:05]</span> <strong class="user jonin">GusionPro:</strong> Alguien para rankear?</div>
-                            <div class="msg"><span class="msg-time">[18:15]</span> <strong class="user kage">Admin Matías:</strong> ¡Bienvenidos!</div>
+                            <div class="msg"><span class="msg-time">[18:15]</span> <strong class="user kage">Admin Matías:</strong> ¡Bienvenidos a la Taberna!</div>
                         </div>
                         <div class="chat-input">
-                            <input type="text" placeholder="Escribe tu mensaje...">
-                            <button class="btn-send"><i class="fas fa-paper-plane"></i></button>
+                            <input type="text" id="chat-input-text" placeholder="Escribe tu mensaje...">
+                            <button class="btn-send" id="btn-send-chat"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
@@ -324,7 +324,7 @@
                             <tbody>
                                 <tr>
                                     <td>Troll_99</td>
-                                    <td><button class="btn-ban" onclick="alert('Ninja Desterrado')">DESTERRAR</button></td>
+                                    <td><button class="btn-ban" onclick="alert('Ninja Desterrado de la Aldea')">DESTERRAR</button></td>
                                 </tr>
                             </tbody>
                         </table>
