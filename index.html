@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=1.5">
+    <link rel="stylesheet" href="style.css?v=2.1"> 
 </head>
 <body>
 
@@ -19,16 +19,19 @@
         <nav>
             <ul class="menu">
                 <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#stream" class="btn-live">En Vivo</a></li>
+                <li><a href="#stream" class="btn-live"><i class="fas fa-circle" style="font-size: 8px; vertical-align: middle;"></i> En Vivo</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#planes">Planes</a></li>
-                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin">Panel Kage</a></li>
+                <li><a href="#registro-bingo">Libro Bingo</a></li>
+                <li><a href="#abismo">Abismo</a></li>
+                <li><a href="#gremio" style="color: var(--green);"><i class="fas fa-users"></i> Gremio</a></li>
+                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin" style="color: gold;"><i class="fas fa-user-shield"></i> Panel Kage</a></li>
             </ul>
         </nav>
         <div class="auth-zone">
             <a href="#modal-login" class="btn-auth" id="user-display">Ingresar</a>
-            <div class="user-popover">
-                <button onclick="cerrarSesion()" class="btn-exit">Cerrar Sesión</button>
+            <div class="user-popover" id="user-dropdown">
+                <button onclick="cerrarSesion()" class="btn-exit"><i class="fas fa-sign-out-alt"></i> Salir</button>
             </div>
         </div>
     </header>
@@ -36,7 +39,7 @@
     <main class="content-wrapper">
         <section id="inicio" class="hero-section">
             <h1 class="title-main">DOMINA EL ABISMO</h1>
-            <p class="welcome-msg">Bienvenido, <span id="user-greeting">Ninja</span>.</p>
+            <p class="welcome-msg">Bienvenido al Libro Bingo, <span id="user-greeting">Ninja</span>.</p>
             <div class="hero-actions">
                 <a href="#stream" class="btn-primary">VER STREAM</a>
                 <a href="#planes" class="btn-secondary">SQUAD TORNEOS</a>
@@ -51,7 +54,7 @@
                         <iframe id="stream-frame" src="https://player.twitch.tv/?channel=matias_mj7&parent=mbl-world-v2.vercel.app" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="chat-container">
-                        <div class="chat-head">Taberna de la Aldea</div>
+                        <div class="chat-head"><i class="fab fa-discord"></i> Chat de la Aldea</div>
                         <iframe class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473"></iframe>
                     </div>
                 </div>
@@ -64,14 +67,96 @@
                 </div>
         </section>
 
+        <section id="planes" class="section">
+            <h2 class="section-head"><i class="fas fa-gem"></i> Tesorería de la Aldea</h2>
+            <div class="planes-grid">
+                <div class="plan-card container-glass">
+                    <h3>PLAN ALIADO</h3>
+                    <div class="price">$4.000 ARS</div>
+                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc;">
+                        <li><i class="fas fa-check" style="color: var(--blue);"></i> Torneos 1v1 y 2v2</li>
+                    </ul>
+                    <a href="#modal-pago" class="btn-submit" style="display: block; text-align: center;">Contratar</a>
+                </div>
+                <div class="plan-card container-glass" style="border-color: var(--red) !important; background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.95) 100%) !important;">
+                    <div style="background: var(--red); color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">ELITE</div>
+                    <h3>KAGE ELITE</h3>
+                    <div class="price">$10.000 ARS</div>
+                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc;">
+                        <li><i class="fas fa-check" style="color: var(--red);"></i> Todos los formatos</li>
+                    </ul>
+                    <a href="#modal-pago" class="btn-primary" style="display: block; text-align: center;">Convertirme en Kage</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="registro-bingo" class="section">
+            <h2 class="section-head"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
+            <div class="container-glass" style="max-width: 600px; margin: 0 auto;">
+                <form id="bingo-form" onsubmit="event.preventDefault(); alert('Enviado a validación.');">
+                    <label style="color: var(--blue); font-weight: bold; font-size: 0.9rem;">Nick en el Juego</label>
+                    <input type="text" placeholder="Ej: Itachi_7" required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label style="color: var(--blue); font-weight: bold; font-size: 0.9rem;">ID Jugador</label>
+                            <input type="number" placeholder="1234567" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="color: var(--blue); font-weight: bold; font-size: 0.9rem;">Server</label>
+                            <input type="number" placeholder="1234" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; border: none;">ENVIAR REGISTRO</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="abismo" class="section">
+            <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
+            <div class="container-glass" style="text-align: center;">
+                <p style="color: #ccc; margin-bottom: 15px;">Sube tus mejores jugadas pronto.</p>
+                <div style="height: 200px; background: #000; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #444; border-radius: 10px;">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+            </div>
+        </section>
+
+        <section id="gremio" class="section">
+            <h2 class="section-head"><i class="fas fa-users-cog"></i> Gremio y Taberna</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <div class="container-glass" style="margin-bottom: 20px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                            <img src="https://ui-avatars.com/api/?name=Matías&background=random" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--blue);">
+                            <div>
+                                <strong style="display: block;">Matías</strong>
+                                <span style="background: black; border: 1px solid var(--red); color: var(--red); padding: 2px 8px; font-size: 0.6rem; border-radius: 4px; font-weight: bold;">KAGE</span>
+                            </div>
+                        </div>
+                        <p style="color: #ccc;">Busco escuadrón competitivo para jugar torneos 5v5 los fines de semana.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="container-glass chat-container" style="height: 450px;">
+                        <div class="chat-head"><i class="fas fa-globe"></i> Taberna Global (EN VIVO)</div>
+                        <div class="chat-frame" id="chat-messages-container" style="overflow-y: auto; padding: 15px; background: #000; color: #ccc;"></div>
+                        <div style="display: flex; padding: 10px; background: #111; border-top: 1px solid #333;">
+                            <input type="text" id="chat-input-text" placeholder="Escribir..." style="flex-grow: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px;">
+                            <button id="btn-send-chat" style="background: var(--blue); border: none; padding: 10px 15px; border-radius: 5px; margin-left: 10px; cursor: pointer; font-weight: bold;"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="admin" class="section" style="display: none;">
             <h2 class="section-head"><i class="fas fa-user-shield"></i> Centro de Mando Admin</h2>
-            <div class="container-glass">
-                <form id="form-torneo" class="admin-form">
+            <div class="container-glass admin-form">
+                <form id="form-torneo">
                     <input type="text" id="t-nombre" placeholder="Nombre del Torneo" required>
                     <div class="form-row">
                         <input type="text" id="t-fecha" placeholder="Día/Hora" required>
-                        <input type="number" id="t-cupos" placeholder="Cupos" required>
+                        <input type="number" id="t-cupos" placeholder="Cupos Totales" required>
                     </div>
                     <input type="text" id="t-premio" placeholder="Premio (Ej: 1000 diamantes)">
                     <select id="t-formato">
@@ -79,7 +164,7 @@
                         <option value="2v2">2 vs 2</option>
                         <option value="5v5">5 vs 5</option>
                     </select>
-                    <button type="submit" class="btn-save">PUBLICAR TORNEO</button>
+                    <button type="submit" class="btn-save">PUBLICAR TORNEO A LA NUBE</button>
                 </form>
             </div>
         </section>
@@ -95,9 +180,20 @@
         </div>
     </div>
 
+    <div id="modal-pago" class="modal">
+        <div class="modal-box container-glass">
+            <a href="#planes" class="btn-close"><i class="fas fa-times"></i></a>
+            <h3>Bóveda de Pagos</h3>
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left;">
+                <span style="color: var(--blue); font-size: 0.8rem; font-weight: bold;">ALIAS PESOS (ARS)</span><br>
+                <strong style="font-size: 1.2rem;">matias.mj7</strong>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=1.5"></script>
+    <script src="app.js?v=2.1"></script>
 </body>
 </html>
