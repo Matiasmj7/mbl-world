@@ -11,11 +11,13 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// TU EMAIL DE ADMIN
 const EMAIL_ADMIN = "matias.moto7@gmail.com";
 let usuarioActual = "Ninja Anónimo";
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    // ESTADO DE SESIÓN
     auth.onAuthStateChanged(user => {
         const userBtn = document.getElementById('user-btn');
         const heroName = document.getElementById('hero-user-name');
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userBtn.href = "javascript:void(0)";
             if(heroName) heroName.innerText = usuarioActual;
 
+            // PODERES DE KAGE
             if(user.email === EMAIL_ADMIN) {
                 if(adminSection) adminSection.style.display = 'block';
                 if(navAdminLink) navAdminLink.style.display = 'block';
@@ -41,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // LOGIN GOOGLE
     const btnGoogle = document.getElementById('btn-login-google');
     if(btnGoogle) {
         btnGoogle.addEventListener('click', () => {
@@ -49,26 +53,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // CARGAR TORNEOS
     const contenedorTorneos = document.getElementById('contenedor-torneos');
     if(contenedorTorneos) {
         db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
             contenedorTorneos.innerHTML = '';
             snap.forEach(doc => {
-                const data = doc.data();
+                const d = doc.data();
                 contenedorTorneos.innerHTML += `
-                    <div class="torneo-card shadow-fix">
-                        <span style="color:var(--rasengan-blue); font-weight:bold;">${data.formato.toUpperCase()}</span>
-                        <h3 style="margin:10px 0;">${data.nombre}</h3>
-                        <p>Fecha: ${data.fecha}</p>
-                        <p>Cupos: ${data.cuposTotales}</p>
-                        <p style="color:var(--success-green);">Premio: ${data.premio || 'A definir'}</p>
-                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscripto!')">Inscribirse</button>
+                    <div class="torneo-card">
+                        <span style="color:#00d2ff; font-weight:bold;">${d.formato.toUpperCase()}</span>
+                        <h3 style="margin:10px 0;">${d.nombre}</h3>
+                        <p style="font-size:0.9rem;">Fecha: ${d.fecha}</p>
+                        <p style="font-size:0.9rem;">Cupos: ${d.cuposTotales}</p>
+                        <p style="color:#00ffa3;">Premio: ${d.premio || 'A definir'}</p>
+                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscrito!')">INSCRIBIRSE</button>
                     </div>
                 `;
             });
         });
     }
 
+    // CREAR TORNEO (ADMIN)
     const formTorneo = document.getElementById('form-crear-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
@@ -82,30 +88,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formTorneo.reset();
-                alert("¡Torneo publicado!");
+                alert("¡Torneo guardado en Firebase!");
             });
         });
     }
 
+    // CHAT EN VIVO
     const btnChat = document.getElementById('btn-send-chat');
+    const inputChat = document.getElementById('chat-input-text');
     const boxChat = document.getElementById('chat-messages-container');
+
     if(btnChat) {
         btnChat.addEventListener('click', () => {
-            const txt = document.getElementById('chat-input-text').value.trim();
+            const txt = inputChat.value.trim();
             if(txt && usuarioActual !== "Ninja Anónimo") {
                 db.collection('taberna').add({
                     usuario: usuarioActual,
                     texto: txt,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                document.getElementById('chat-input-text').value = '';
+                inputChat.value = '';
             }
         });
+        
         db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
             boxChat.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                boxChat.innerHTML += `<div><strong style="color:var(--rasengan-blue)">${d.usuario}:</strong> ${d.texto}</div>`;
+                boxChat.innerHTML += `<div><strong style="color:#00d2ff">${d.usuario}:</strong> ${d.texto}</div>`;
             });
             boxChat.scrollTop = boxChat.scrollHeight;
         });
