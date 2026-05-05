@@ -1,1 +1,160 @@
+/* VARIABLES DE DISEÑO */
+:root {
+    --bg-dark: #050505;
+    --rasengan-blue: #00d2ff;
+    --susanoo-red: #ff0040;
+    --glass-bg: rgba(10, 10, 15, 0.95);
+    --success-green: #00ffa3;
+    --border-color: #333;
+}
 
+/* RESET GENERAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: white;
+    overflow-x: hidden;
+}
+
+/* FONDO Y MARCOS */
+.dynamic-bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+    filter: brightness(0.2);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 20%, black 100%);
+    z-index: -1;
+}
+
+/* NAVBAR NINJA */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background: rgba(0, 0, 0, 0.9);
+    border-bottom: 2px solid var(--rasengan-blue);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; }
+.highlight { color: var(--rasengan-blue); text-shadow: 0 0 10px var(--rasengan-blue); }
+
+.nav-links { display: flex; list-style: none; gap: 20px; }
+.nav-links a { 
+    text-decoration: none; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 0.8rem; 
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.live-link { color: var(--susanoo-red) !important; }
+.live-link i { font-size: 8px; vertical-align: middle; margin-right: 5px; animation: blink 1s infinite; }
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* CONTENEDORES GLASS */
+.glass-box {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+/* SECCIONES */
+.section-container { padding: 120px 8% 60px; position: relative; z-index: 1; }
+.section-title { 
+    font-size: 2.2rem; 
+    margin-bottom: 40px; 
+    border-left: 8px solid var(--rasengan-blue); 
+    padding-left: 20px; 
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+/* HERO SECTION */
+.hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+.shippuden-text { 
+    font-size: clamp(3rem, 10vw, 6rem); 
+    font-weight: 900; 
+    text-shadow: 0 0 30px var(--rasengan-blue);
+    margin-bottom: 20px;
+}
+
+/* BOTONES */
+.btn-susanoo, .btn-submit-admin { 
+    background: var(--susanoo-red); 
+    color: white; 
+    padding: 15px 30px; 
+    border-radius: 5px; 
+    text-decoration: none; 
+    font-weight: 900;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-rasengan { 
+    background: var(--rasengan-blue); 
+    color: white; 
+    padding: 15px 30px; 
+    border-radius: 5px; 
+    text-decoration: none; 
+    font-weight: 900;
+    margin-left: 15px;
+}
+
+/* GRID DE TORNEOS */
+.torneos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.torneo-card { transition: 0.3s; }
+.torneo-card:hover { transform: translateY(-10px); border-color: var(--rasengan-blue) !important; }
+
+/* ADMIN FORM */
+.admin-card input, .admin-card select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #000;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+}
+.input-row { display: flex; gap: 10px; }
+
+/* MODALES */
+.modal-overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.9); z-index: 2000; display: none; 
+    align-items: center; justify-content: center; 
+}
+.modal-overlay:target { display: flex; }
+.modal-content { text-align: center; max-width: 400px; border: 2px solid var(--rasengan-blue); }
+.btn-google { 
+    background: white; color: black; border: none; padding: 15px; 
+    width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer;
+    margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
