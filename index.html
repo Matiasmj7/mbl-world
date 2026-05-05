@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -257,10 +257,9 @@
 
                 <div class="chat-column">
                     <div class="chat-box">
-                        <div class="chat-header"><i class="fas fa-globe"></i> Taberna Global</div>
+                        <div class="chat-header"><i class="fas fa-globe"></i> Taberna Global (EN VIVO)</div>
                         <div class="chat-messages" id="chat-messages-container">
-                            <div class="msg"><span class="msg-time">[18:05]</span> <strong class="user jonin">GusionPro:</strong> Alguien para rankear?</div>
-                            <div class="msg"><span class="msg-time">[18:15]</span> <strong class="user kage">Admin Matías:</strong> ¡Bienvenidos a la Taberna!</div>
+                            <div class="msg"><span class="msg-time">[Sistema]</span> <strong class="user kage">Admin Matías:</strong> ¡Conectando con la base de datos...</div>
                         </div>
                         <div class="chat-input">
                             <input type="text" id="chat-input-text" placeholder="Escribe tu mensaje...">
@@ -276,7 +275,7 @@
             <div class="admin-dashboard">
                 
                 <div class="admin-card" style="margin-bottom: 20px; border-color: var(--success-green);">
-                    <h3><i class="fas fa-plus-circle" style="color: var(--success-green);"></i> Crear Torneo Oficial</h3>
+                    <h3><i class="fas fa-plus-circle" style="color: var(--success-green);"></i> Crear Torneo Oficial (NUBE)</h3>
                     <form id="form-crear-torneo">
                         <div class="input-group-row">
                             <div class="input-group">
@@ -306,7 +305,7 @@
                             <label>Premio del Torneo</label>
                             <input type="text" id="admin-torneo-premio" placeholder="Ej: $10.000 ARS (Deja en blanco para 'A definir')">
                         </div>
-                        <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar Torneo</button>
+                        <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar Torneo a Todos</button>
                     </form>
                 </div>
 
@@ -397,7 +396,6 @@
                         <div class="player" onclick="avanzarJugador(this, 'semi2-2')">6. Obito</div>
                     </div>
                 </div>
-
                 <div class="bracket-round">
                     <h4 class="round-title">Semifinal</h4>
                     <div class="match">
@@ -409,7 +407,6 @@
                         <div class="player empty" id="semi2-2" onclick="avanzarJugador(this, 'final-2')">-</div>
                     </div>
                 </div>
-
                 <div class="bracket-round">
                     <h4 class="round-title" style="color: gold;">Final</h4>
                     <div class="match final-match">
@@ -417,7 +414,6 @@
                         <div class="player empty" id="final-2" onclick="avanzarJugador(this, 'campeon')">-</div>
                     </div>
                 </div>
-
                 <div class="bracket-round">
                     <h4 class="round-title" style="color: var(--success-green);"><i class="fas fa-trophy"></i> Campeón</h4>
                     <div class="match champion-match">
@@ -445,17 +441,21 @@
     <div id="modal-login" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3><i class="fas fa-user-ninja"></i> Ingresar</h3>
-            <form onsubmit="event.preventDefault(); window.location.href='#';">
-                <div class="input-group"><input type="text" placeholder="Usuario" required></div>
-                <div class="input-group"><input type="password" placeholder="Contraseña" required></div>
-                <button type="submit" class="btn-submit">Entrar</button>
+            <h3><i class="fas fa-user-ninja"></i> Ingresar a la Aldea</h3>
+            <form id="form-login-email">
+                <div class="input-group"><input type="email" id="login-email" placeholder="Correo Electrónico" required></div>
+                <div class="input-group"><input type="password" id="login-pass" placeholder="Contraseña" required></div>
+                <button type="submit" class="btn-submit">Entrar / Registrarse</button>
             </form>
             <div class="divider"><span>O</span></div>
-            <button class="btn-google"><i class="fab fa-google"></i> Gmail</button>
+            <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Ingresar con Google</button>
         </div>
     </div>
 
-    <script src="app.js?v=4"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+
+    <script src="app.js?v=5"></script>
 </body>
 </html>
