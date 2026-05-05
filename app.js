@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // FILTROS DE TORNEOS (Asegurando la lectura del data-formato)
+    // FILTROS DE TORNEOS 
     const filterBtns = document.querySelectorAll('.filter-btn');
     const torneosCards = document.querySelectorAll('.torneo-card');
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // CREADOR DE TORNEOS ADMIN (Asegurando detalles correctos en la nueva tarjeta)
+    // CREADOR DE TORNEOS ADMIN (AHORA INCLUYE EL PREMIO Y LOS 2 BOTONES)
     const formCrearTorneo = document.getElementById('form-crear-torneo');
     const contenedorTorneos = document.getElementById('contenedor-torneos');
 
@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const formato = document.getElementById('admin-torneo-formato').value;
             const fecha = document.getElementById('admin-torneo-fecha').value;
             const cupos = document.getElementById('admin-torneo-cupos').value;
+            
+            // Si el admin no escribe premio, le ponemos "A definir" por defecto
+            let premioIngresado = document.getElementById('admin-torneo-premio').value;
+            const premio = premioIngresado.trim() === '' ? 'A definir' : premioIngresado;
 
             const nuevaTarjetaHTML = `
                 <div class="torneo-card" data-formato="${formato}" style="border-color: var(--success-green);">
@@ -65,8 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="torneo-info">
                         <p><i class="fas fa-calendar-alt"></i> ${fecha}</p>
                         <p><i class="fas fa-users"></i> Cupos: 0/${cupos} Inscriptos</p>
+                        <p><i class="fas fa-trophy"></i> Premio: ${premio}</p>
                     </div>
                     <button class="btn-submit btn-torneo" style="background: var(--success-green); color: black;" onclick="alert('¡Inscripción exitosa! Preparate para la batalla.')">Inscribirse Gratis</button>
+                    <a href="#modal-bracket" class="btn-chidori btn-torneo" style="margin-top: 10px; display: block; text-align: center;"><i class="fas fa-sitemap"></i> Ver Llaves</a>
                 </div>
             `;
 
@@ -108,7 +114,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// TABLA ADMIN (SUSCRIPCIONES)
+// --- FUNCIONES BRACKET (LLAVES) ---
+function avanzarJugador(elementoClickeado, idDestino) {
+    const nombreJugador = elementoClickeado.innerText;
+    if (nombreJugador === '-' || nombreJugador === '?') return;
+
+    const cajaDestino = document.getElementById(idDestino);
+    cajaDestino.innerText = nombreJugador;
+    cajaDestino.classList.remove('empty');
+    
+    // Restablecer color de los dos competidores de la celda y pintar de verde al ganador
+    elementoClickeado.parentElement.querySelectorAll('.player').forEach(p => p.style.color = 'white');
+    elementoClickeado.style.color = 'var(--success-green)';
+}
+
+// --- TABLA ADMIN (SUSCRIPCIONES) ---
 function aprobarSuscripcion(btn, nick) {
     if(confirm(`¿Estás seguro de APROBAR la suscripción de ${nick}?`)) {
         const row = btn.closest('tr');
