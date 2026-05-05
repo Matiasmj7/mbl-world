@@ -1,4 +1,4 @@
-// CONFIGURACIÓN DE FIREBASE
+// --- CONFIGURACIÓN DE FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyBEsnLlMgiQVie9MXrKL4dhQ2m23tv34kg",
   authDomain: "mblarg-94390.firebaseapp.com",
@@ -8,7 +8,6 @@ const firebaseConfig = {
   appId: "1:308094247977:web:cef31ccf807f732f5ce838"
 };
 
-// INICIALIZACIÓN
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -17,7 +16,7 @@ let usuarioActual = "Ninja Anónimo";
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // CONTROL DE ESTADO DE AUTENTICACIÓN
+    // CONTROL DE USUARIO EN VIVO
     auth.onAuthStateChanged(user => {
         const userBtn = document.getElementById('user-btn');
         const heroName = document.getElementById('hero-user-name');
@@ -64,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // LECTOR DE TORNEOS (FIREBASE)
+    // LECTOR DE TORNEOS DESDE LA NUBE
     const contenedorTorneos = document.getElementById('contenedor-torneos');
     if(contenedorTorneos) {
         db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
@@ -73,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = doc.data();
                 contenedorTorneos.innerHTML += `
                     <div class="torneo-card" data-formato="${data.formato}">
-                        <div class="torneo-badge">Inscripción Abierta</div>
+                        <div class="torneo-badge">Abierto</div>
                         <span class="torneo-formato">${data.formato.toUpperCase()}</span>
                         <h3>${data.nombre}</h3>
                         <div class="torneo-info">
@@ -81,14 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p><i class="fas fa-users"></i> Cupos: ${data.cuposTotales}</p>
                             <p><i class="fas fa-trophy"></i> Premio: ${data.premio || 'A definir'}</p>
                         </div>
-                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('Inscripto!')">Inscribirse</button>
+                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscripto en la base de datos!')">Inscribirse</button>
                     </div>
                 `;
             });
         });
     }
 
-    // CREADOR DE TORNEOS (ADMIN -> FIREBASE)
+    // CREADOR DE TORNEOS (ADMIN)
     const formTorneo = document.getElementById('form-crear-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
@@ -102,12 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formTorneo.reset();
-                alert("¡Torneo publicado con éxito!");
+                alert("¡Torneo guardado en Firebase!");
             });
         });
     }
 
-    // CHAT TABERNA (EN VIVO FIREBASE)
+    // CHAT EN VIVO
     const btnChat = document.getElementById('btn-send-chat');
     const inputChat = document.getElementById('chat-input-text');
     const boxChat = document.getElementById('chat-messages-container');
@@ -129,13 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
             boxChat.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                boxChat.innerHTML += `<div><strong style="color:var(--arg-blue)">${d.usuario}:</strong> ${d.texto}</div>`;
+                boxChat.innerHTML += `<div><strong style="color:var(--rasengan-blue)">${d.usuario}:</strong> ${d.texto}</div>`;
             });
             boxChat.scrollTop = boxChat.scrollHeight;
         });
     }
 
-    // PLATAFORMAS DE STREAM
+    // SELECTOR DE STREAM
     const platBtns = document.querySelectorAll('.plat-btn');
     const mainStream = document.getElementById('main-stream');
     const streamLinks = {
@@ -157,10 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// FUNCIÓN PARA SALIR
 function cerrarSesion() {
     auth.signOut().then(() => {
-        alert("Cerraste sesión.");
+        alert("Sesión finalizada.");
         window.location.reload();
     });
 }
