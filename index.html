@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -32,9 +32,7 @@
         <div class="user-menu-container">
             <a href="#modal-login" class="btn-login" id="user-btn">Ingresar</a>
             <div class="user-dropdown" id="user-dropdown">
-                <button onclick="cerrarSesion()" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </button>
+                <button onclick="cerrarSesion()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
             </div>
         </div>
     </header>
@@ -63,7 +61,7 @@
                 <div class="stream-layout">
                     <div class="video-column">
                         <div class="video-wrapper">
-                            <iframe id="main-stream" src="https://player.twitch.tv/?channel=matias_mj7&parent=matiasmj7.github.io" title="MBL Arg Live" frameborder="0" allowfullscreen></iframe>
+                            <iframe id="main-stream" src="https://player.twitch.tv/?channel=matias_mj7&parent=matiasmj7.github.io" frameborder="0" allowfullscreen></iframe>
                         </div>
                     </div>
                     <div class="discord-wrapper">
@@ -94,6 +92,12 @@
                         <h3>PLAN ALIADO</h3>
                         <div class="price">$4.000 ARS <span>/ 2hs</span></div>
                     </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Torneos 1v1 y 2v2</li>
+                            <li><i class="fas fa-clock"></i> Reloj en pantalla</li>
+                        </ul>
+                    </div>
                     <a href="#modal-pago" class="btn-submit">Contratar</a>
                 </div>
                 <div class="plan-card kage-card">
@@ -101,6 +105,12 @@
                     <div class="plan-header">
                         <h3>KAGE ELITE</h3>
                         <div class="price">$10.000 ARS <span>/ 4hs</span></div>
+                    </div>
+                    <div class="plan-body">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Todos los formatos</li>
+                            <li><i class="fas fa-clock"></i> Reloj en pantalla</li>
+                        </ul>
                     </div>
                     <a href="#modal-pago" class="btn-susanoo">Convertirme en Kage</a>
                 </div>
@@ -110,11 +120,11 @@
         <section id="registro-bingo" class="section-container">
             <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
             <div class="form-card">
-                <form onsubmit="event.preventDefault(); alert('Datos enviados al Kage.');">
-                    <div class="input-group"><label>Nick Ninja</label><input type="text" required></div>
+                <form onsubmit="event.preventDefault(); alert('Enviado a validación.');">
+                    <div class="input-group"><label>Nick Ninja</label><input type="text" required placeholder="Ej: Itachi_7"></div>
                     <div class="input-group-row">
-                        <div class="input-group"><label>ID Jugador</label><input type="number" required></div>
-                        <div class="input-group"><label>Server</label><input type="number" required></div>
+                        <div class="input-group"><label>ID Jugador</label><input type="number" required placeholder="1234567"></div>
+                        <div class="input-group"><label>Server</label><input type="number" required placeholder="1234"></div>
                     </div>
                     <button type="submit" class="btn-submit">Enviar Registro</button>
                 </form>
@@ -123,10 +133,10 @@
 
         <section id="abismo" class="section-container">
             <h2 class="section-title"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            <div class="form-card" style="margin-bottom: 20px;">
-                <label>Sube tu jugada</label>
+            <div class="form-card" style="margin-bottom: 40px;">
+                <label>Sube tu mejor jugada</label>
                 <input type="file" style="margin-top: 10px;">
-                <button class="btn-submit" style="margin-top: 15px;">Compartir</button>
+                <button class="btn-submit" style="margin-top: 15px; background: var(--chidori-purple);">Compartir</button>
             </div>
             <div class="media-gallery">
                 <div class="media-card">
@@ -175,7 +185,7 @@
                         <div class="input-group"><label>Nombre</label><input type="text" id="admin-torneo-nombre" required></div>
                         <div class="input-group">
                             <label>Formato</label>
-                            <select id="admin-torneo-formato" style="background:#111; color:white; padding:10px; border-radius:5px;">
+                            <select id="admin-torneo-formato" style="background:#111; color:white; padding:12px; border-radius:5px; border:1px solid #444;">
                                 <option value="1v1">1 VS 1</option>
                                 <option value="2v2">2 VS 2</option>
                                 <option value="5v5">5 VS 5</option>
@@ -187,15 +197,11 @@
                         <div class="input-group"><label>Cupos</label><input type="number" id="admin-torneo-cupos" required></div>
                     </div>
                     <div class="input-group"><label>Premio</label><input type="text" id="admin-torneo-premio" placeholder="A definir"></div>
-                    <button type="submit" class="btn-submit">Publicar a Firebase</button>
+                    <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar a Firebase</button>
                 </form>
             </div>
         </section>
     </main>
-
-    <footer class="site-footer">
-        <p>&copy; 2026 MBL Arg - Kage Matías.</p>
-    </footer>
 
     <div id="modal-login" class="modal-overlay">
         <div class="modal-content">
@@ -214,15 +220,31 @@
     <div id="modal-pago" class="modal-overlay">
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Métodos de Pago</h3>
-            <div class="pay-option" style="margin: 15px 0;"><span>Alias ARS:</span> <strong>matias.mj7</strong></div>
-            <div class="pay-option"><span>Cripto USDT:</span> <strong style="font-size:0.7rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
+            <h3>Bóveda de Pago</h3>
+            <div class="pay-option" style="margin: 20px 0; text-align: left; background: #000; padding: 15px; border-radius: 10px; border: 1px solid #333;">
+                <span style="color: var(--arg-blue); font-size: 0.8rem; font-weight: bold;">ALIAS PESOS (ARS)</span><br>
+                <strong style="font-size: 1.2rem;">matias.mj7</strong>
+            </div>
+            <div class="pay-option" style="text-align: left; background: #000; padding: 15px; border-radius: 10px; border: 1px solid #333;">
+                <span style="color: var(--success-green); font-size: 0.8rem; font-weight: bold;">CRIPTO USDT (BEP20)</span><br>
+                <strong style="font-size: 0.7rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-bracket" class="modal-overlay">
+        <div class="modal-content bracket-modal" style="max-width: 90%; width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <a href="#torneos" class="close-modal"><i class="fas fa-times"></i></a>
+            <h3><i class="fas fa-sitemap"></i> Llaves Eliminatorias</h3>
+            <div class="bracket-container" id="bracket-content">
+                <p style="color: #666;">Cargando Brackets...</p>
+            </div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>
