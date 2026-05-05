@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -89,9 +89,10 @@
                     <div class="torneo-info">
                         <p><i class="fas fa-calendar-alt"></i> Sábado, 15:00 hs</p>
                         <p><i class="fas fa-users"></i> Cupos: 12/16 Inscriptos</p>
-                        <p><i class="fas fa-trophy"></i> Premio: Pase Semanal</p>
+                        <p><i class="fas fa-trophy"></i> Premio: A definir</p>
                     </div>
                     <button class="btn-submit btn-torneo" onclick="alert('¡Inscripción exitosa! Preparate para la batalla.')">Inscribirse</button>
+                    <a href="#modal-bracket" class="btn-chidori btn-torneo" style="margin-top: 10px; display: block; text-align: center;"><i class="fas fa-sitemap"></i> Ver Llaves</a>
                 </div>
 
                 <div class="torneo-card" data-formato="5v5">
@@ -101,9 +102,10 @@
                     <div class="torneo-info">
                         <p><i class="fas fa-calendar-alt"></i> Domingo, 18:00 hs</p>
                         <p><i class="fas fa-users"></i> Cupos: 8/8 Inscriptos</p>
-                        <p><i class="fas fa-trophy"></i> Premio: $15.000 ARS</p>
+                        <p><i class="fas fa-trophy"></i> Premio: A definir</p>
                     </div>
-                    <button class="btn-chidori btn-torneo" onclick="alert('El torneo ya está lleno o en curso.')">Ver Llaves</button>
+                    <button class="btn-submit btn-torneo" style="background: #444; cursor: not-allowed;" disabled>Torneo Lleno</button>
+                    <a href="#modal-bracket" class="btn-chidori btn-torneo" style="margin-top: 10px; display: block; text-align: center;"><i class="fas fa-sitemap"></i> Ver Llaves</a>
                 </div>
             </div>
         </section>
@@ -300,6 +302,10 @@
                                 <input type="number" id="admin-torneo-cupos" placeholder="Ej: 16" required>
                             </div>
                         </div>
+                        <div class="input-group">
+                            <label>Premio del Torneo</label>
+                            <input type="text" id="admin-torneo-premio" placeholder="Ej: $10.000 ARS (Deja en blanco para 'A definir')">
+                        </div>
                         <button type="submit" class="btn-submit" style="background: var(--success-green); color: black;">Publicar Torneo</button>
                     </form>
                 </div>
@@ -351,7 +357,6 @@
                         </table>
                     </div>
                 </div>
-
             </div>
         </section>
     </main>
@@ -366,30 +371,74 @@
         </div>
     </footer>
 
+    <div id="modal-bracket" class="modal-overlay">
+        <div class="modal-content bracket-modal" style="max-width: 90%; width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <a href="#torneos" class="close-modal"><i class="fas fa-times"></i></a>
+            <h3><i class="fas fa-sitemap"></i> Llaves Eliminatorias</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">Admin: Haz clic en el jugador que gane el encuentro para avanzarlo de ronda.</p>
+            
+            <div class="bracket-container">
+                <div class="bracket-round">
+                    <h4 class="round-title">Cuartos</h4>
+                    <div class="match">
+                        <div class="player" onclick="avanzarJugador(this, 'semi1-1')">1. Matías</div>
+                        <div class="player" onclick="avanzarJugador(this, 'semi1-1')">8. GusionPro</div>
+                    </div>
+                    <div class="match">
+                        <div class="player" onclick="avanzarJugador(this, 'semi1-2')">4. Sakura</div>
+                        <div class="player" onclick="avanzarJugador(this, 'semi1-2')">5. Naruto</div>
+                    </div>
+                    <div class="match">
+                        <div class="player" onclick="avanzarJugador(this, 'semi2-1')">2. Sasuke</div>
+                        <div class="player" onclick="avanzarJugador(this, 'semi2-1')">7. Itachi</div>
+                    </div>
+                    <div class="match">
+                        <div class="player" onclick="avanzarJugador(this, 'semi2-2')">3. Kakashi</div>
+                        <div class="player" onclick="avanzarJugador(this, 'semi2-2')">6. Obito</div>
+                    </div>
+                </div>
+
+                <div class="bracket-round">
+                    <h4 class="round-title">Semifinal</h4>
+                    <div class="match">
+                        <div class="player empty" id="semi1-1" onclick="avanzarJugador(this, 'final-1')">-</div>
+                        <div class="player empty" id="semi1-2" onclick="avanzarJugador(this, 'final-1')">-</div>
+                    </div>
+                    <div class="match">
+                        <div class="player empty" id="semi2-1" onclick="avanzarJugador(this, 'final-2')">-</div>
+                        <div class="player empty" id="semi2-2" onclick="avanzarJugador(this, 'final-2')">-</div>
+                    </div>
+                </div>
+
+                <div class="bracket-round">
+                    <h4 class="round-title" style="color: gold;">Final</h4>
+                    <div class="match final-match">
+                        <div class="player empty" id="final-1" onclick="avanzarJugador(this, 'campeon')">-</div>
+                        <div class="player empty" id="final-2" onclick="avanzarJugador(this, 'campeon')">-</div>
+                    </div>
+                </div>
+
+                <div class="bracket-round">
+                    <h4 class="round-title" style="color: var(--success-green);"><i class="fas fa-trophy"></i> Campeón</h4>
+                    <div class="match champion-match">
+                        <div class="player empty champion" id="campeon">?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-pago" class="modal-overlay">
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
             <h3><i class="fas fa-wallet"></i> Bóveda de Pago</h3>
             <p>Transfiere el monto a cualquiera de estas cuentas y envía el comprobante.</p>
-            
             <div class="payment-methods">
-                <div class="pay-option">
-                    <span><i class="fas fa-money-bill-wave" style="color: var(--arg-blue);"></i> Pesos (ARS)</span>
-                    <strong>Alias: matias.mj7</strong>
-                </div>
-                <div class="pay-option">
-                    <span><i class="fas fa-dollar-sign" style="color: #00ffa3;"></i> Dólares (USD)</span>
-                    <strong>Alias: incubar.soja.salida</strong>
-                </div>
-                <div class="pay-option crypto">
-                    <span><i class="fab fa-bitcoin" style="color: #f7931a;"></i> USDT (BEP20)</span>
-                    <strong style="font-size: 0.75rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
-                </div>
+                <div class="pay-option"><span>Pesos (ARS)</span><strong>Alias: matias.mj7</strong></div>
+                <div class="pay-option"><span>Dólares (USD)</span><strong>Alias: incubar.soja.salida</strong></div>
+                <div class="pay-option crypto"><span>USDT (BEP20)</span><strong style="font-size: 0.75rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
             </div>
-            
-            <a href="https://wa.me/5491100000000" target="_blank" class="btn-whatsapp">
-                <i class="fab fa-whatsapp"></i> Enviar Comprobante
-            </a>
+            <a href="https://wa.me/5491100000000" target="_blank" class="btn-whatsapp">Enviar Comprobante</a>
         </div>
     </div>
 
@@ -407,6 +456,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
