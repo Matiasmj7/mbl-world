@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | El Camino del Ninja</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* DISEÑO INTEGRADO PARA EVITAR ERRORES DE CARGA */
+        /* ESTILOS BLINDADOS INTEGRADOS */
         :root {
             --bg-dark: #050505;
             --rasengan-blue: #00d2ff;
@@ -15,20 +14,16 @@
             --glass-bg: rgba(10, 10, 15, 0.98);
             --success-green: #00ffa3;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-dark); color: white; overflow-x: hidden; }
-
         .dynamic-bg-video { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -2; filter: brightness(0.2); }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, black 100%); z-index: -1; }
-
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(0, 0, 0, 0.98); border-bottom: 2px solid var(--rasengan-blue); position: fixed; width: 100%; top: 0; z-index: 1000; }
         .logo { font-size: 1.8rem; font-weight: 900; }
         .highlight { color: var(--rasengan-blue); }
         .nav-links { display: flex; list-style: none; gap: 20px; }
         .nav-links a { text-decoration: none; color: white; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
-
-        .glass-box, .torneo-card, .plan-card, .social-post, .admin-card, .form-card {
+        .glass-box, .torneo-card, .plan-card, .social-post, .admin-card {
             background: var(--glass-bg) !important;
             border: 1px solid #333 !important;
             border-radius: 15px !important;
@@ -36,48 +31,34 @@
             box-shadow: 0 15px 40px rgba(0,0,0,1) !important;
             margin-bottom: 20px;
         }
-
         .section-container { padding: 100px 8%; position: relative; z-index: 1; }
         .section-title { font-size: 2rem; margin-bottom: 40px; border-left: 6px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; }
-
         .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
         .shippuden-text { font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; text-shadow: 0 0 20px var(--rasengan-blue); }
-
         .torneos-grid, .planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-
         .stream-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        @media (max-width: 992px) { .stream-layout { grid-template-columns: 1fr; } }
         .video-wrapper { position: relative; padding-bottom: 56.25%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #222; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        
         .discord-wrapper { border: 2px solid #9d50bb; height: 450px; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; }
         .discord-header { background: #9d50bb; padding: 12px; text-align: center; font-weight: bold; }
-
         .chat-box { height: 500px; display: flex; flex-direction: column; overflow: hidden; }
         .chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; color: #ccc; font-size: 0.9rem; }
         .chat-input { display: flex; padding: 15px; background: #111; gap: 10px; }
         .chat-input input { flex-grow: 1; background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; }
-        
         .btn-submit, .btn-susanoo { background: var(--susanoo-red); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: 900; text-transform: uppercase; text-decoration: none; text-align: center; display: inline-block; }
         .btn-rasengan { background: var(--rasengan-blue); color: white; padding: 14px 30px; border-radius: 8px; font-weight: 900; text-decoration: none; }
-        
         .user-menu-container { position: relative; }
         .btn-login { background: transparent; border: 1px solid var(--rasengan-blue); color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; text-decoration: none; cursor: pointer; }
         .user-dropdown { position: absolute; top: 110%; right: 0; background: #111; border: 1px solid var(--rasengan-blue); padding: 10px; border-radius: 5px; display: none; min-width: 150px; }
         .user-menu-container:hover .user-dropdown { display: block; }
         .btn-logout { background: var(--susanoo-red); color: white; border: none; padding: 8px; width: 100%; border-radius: 3px; cursor: pointer; font-weight: bold; }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-overlay:target { display: flex; }
         .modal-content { background: #0c0c12; border: 2px solid var(--rasengan-blue); padding: 40px; border-radius: 20px; max-width: 400px; text-align: center; position: relative; }
-        
         .btn-google { background: white; color: black; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; vertical-align: middle; margin-right: 10px; border: 2px solid var(--rasengan-blue); }
-        .rank-tag { background: black; border: 1px solid var(--susanoo-red); color: var(--susanoo-red); padding: 2px 8px; font-size: 0.6rem; border-radius: 4px; }
     </style>
 </head>
 <body>
-
     <video autoplay loop muted playsinline class="dynamic-bg-video">
         <source src="https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4" type="video/mp4">
     </video>
@@ -95,112 +76,27 @@
                 <li id="nav-admin-link" style="display: none;"><a href="#admin" style="color: gold;"><i class="fas fa-user-shield"></i> Admin</a></li>
             </ul>
         </nav>
-        
         <div class="user-menu-container">
             <a href="#modal-login" class="btn-login" id="user-btn">Ingresar</a>
-            <div class="user-dropdown" id="user-dropdown">
-                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
-            </div>
+            <div class="user-dropdown" id="user-dropdown"><button onclick="cerrarSesion()" class="btn-logout">Salir</button></div>
         </div>
     </header>
 
     <main>
-        <section id="inicio" class="hero">
-            <div class="hero-content">
-                <h1 class="shippuden-text">DOMINA EL ABISMO</h1>
-                <p>Bienvenido, <span id="hero-user-name">Ninja</span>.</p>
-                <div class="cta-buttons">
-                    <a href="#stream" class="btn-susanoo">VER TRANSMISIÓN</a>
-                    <a href="#planes" class="btn-rasengan">CREAR TORNEOS</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="stream" class="section-container">
-            <h2 class="section-title"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
-            <div class="stream-container glass-box">
-                <div class="stream-layout">
-                    <div class="video-column">
-                        <div class="video-wrapper">
-                            <iframe id="main-stream" src="https://player.twitch.tv/?channel=matias_mj7&parent=matiasmj7.github.io" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    <div class="discord-wrapper">
-                        <div class="discord-header">Chat de la Aldea</div>
-                        <iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473"></iframe>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="torneos" class="section-container">
-            <h2 class="section-title"><i class="fas fa-khanda"></i> Arena de Combate</h2>
-            <div class="torneos-grid" id="contenedor-torneos">
-                </div>
-        </section>
-
-        <section id="planes" class="section-container">
-            <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería</h2>
-            <div class="planes-grid">
-                <div class="plan-card glass-box">
-                    <h3>PLAN ALIADO</h3>
-                    <div class="price">$4.000 ARS</div>
-                    <a href="#modal-pago" class="btn-submit">CONTRATAR</a>
-                </div>
-                <div class="plan-card glass-box" style="border-color: var(--susanoo-red) !important;">
-                    <h3>KAGE ELITE</h3>
-                    <div class="price">$10.000 ARS</div>
-                    <a href="#modal-pago" class="btn-susanoo">CONTRATAR</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="gremio" class="section-container">
-            <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio y Taberna</h2>
-            <div class="gremio-layout">
-                <div class="chat-column">
-                    <div class="chat-box glass-box">
-                        <div class="chat-header">Taberna Global (En Vivo)</div>
-                        <div class="chat-messages" id="chat-messages-container"></div>
-                        <div class="chat-input">
-                            <input type="text" id="chat-input-text" placeholder="Escribir...">
-                            <button class="btn-send" id="btn-send-chat"><i class="fas fa-paper-plane"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="admin" class="section-container" style="display: none;">
-            <h2 class="section-title"><i class="fas fa-user-shield"></i> Centro de Mando</h2>
-            <div class="admin-card glass-box">
-                <form id="form-crear-torneo">
-                    <div class="input-group"><label>Nombre del Torneo</label><input type="text" id="admin-torneo-nombre" required style="width:100%; padding:10px; margin-bottom:10px;"></div>
-                    <div class="input-group-row" style="display: flex; gap: 10px; margin-bottom:10px;">
-                        <input type="text" id="admin-torneo-fecha" placeholder="Fecha" required style="flex:1; padding:10px;">
-                        <input type="number" id="admin-torneo-cupos" placeholder="Cupos" required style="flex:1; padding:10px;">
-                    </div>
-                    <input type="text" id="admin-torneo-premio" placeholder="Premio" style="width:100%; padding:10px; margin-bottom:15px;">
-                    <select id="admin-torneo-formato" style="width:100%; padding:10px; margin-bottom:15px; background:#000; color:white;">
-                        <option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option>
-                    </select>
-                    <button type="submit" class="btn-submit" style="background:#00ffa3; color:black;">PUBLICAR TORNEO</button>
-                </form>
-            </div>
-        </section>
+        <section id="inicio" class="hero"><div class="hero-content"><h1 class="shippuden-text">DOMINA EL ABISMO</h1><p>Bienvenido, <span id="hero-user-name">Ninja</span>.</p><div class="cta-buttons"><a href="#stream" class="btn-susanoo">VER TRANSMISIÓN</a><a href="#planes" class="btn-rasengan">CREAR TORNEOS</a></div></div></section>
+        <section id="stream" class="section-container"><h2 class="section-title"><i class="fas fa-eye"></i> Visión del Byakugan</h2><div class="stream-container glass-box"><div class="stream-layout"><div class="video-column"><div class="video-wrapper"><iframe id="main-stream" src="https://player.twitch.tv/?channel=matias_mj7&parent=matiasmj7.github.io" frameborder="0" allowfullscreen></iframe></div></div><div class="discord-wrapper"><div class="discord-header">Chat de la Aldea</div><iframe class="discord-chat" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473"></iframe></div></div></div></section>
+        <section id="torneos" class="section-container"><h2 class="section-title"><i class="fas fa-khanda"></i> Arena de Combate</h2><div class="torneos-grid" id="contenedor-torneos"></div></section>
+        <section id="planes" class="section-container"><h2 class="section-title"><i class="fas fa-gem"></i> Tesorería</h2><div class="planes-grid"><div class="plan-card glass-box"><h3>PLAN ALIADO</h3><div class="price">$4.000 ARS</div><a href="#modal-pago" class="btn-submit">CONTRATAR</a></div><div class="plan-card glass-box" style="border-color: #ff0040 !important;"><h3>KAGE ELITE</h3><div class="price">$10.000 ARS</div><a href="#modal-pago" class="btn-susanoo">CONTRATAR</a></div></div></section>
+        <section id="gremio" class="section-container"><h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio y Taberna</h2><div class="chat-column"><div class="chat-box glass-box"><div class="chat-header">Taberna Global (En Vivo)</div><div class="chat-messages" id="chat-messages-container"></div><div class="chat-input"><input type="text" id="chat-input-text" placeholder="Escribir..."><button class="btn-send" id="btn-send-chat"><i class="fas fa-paper-plane"></i></button></div></div></div></section>
+        <section id="admin" class="section-container" style="display: none;"><h2 class="section-title"><i class="fas fa-user-shield"></i> Centro de Mando</h2><div class="admin-card glass-box"><form id="form-crear-torneo"><input type="text" id="admin-torneo-nombre" placeholder="Nombre Torneo" required style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:white; border:1px solid #333;"><div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" id="admin-torneo-fecha" placeholder="Fecha" required style="flex:1; padding:10px; background:#000; color:white; border:1px solid #333;"><input type="number" id="admin-torneo-cupos" placeholder="Cupos" required style="flex:1; padding:10px; background:#000; color:white; border:1px solid #333;"></div><input type="text" id="admin-torneo-premio" placeholder="Premio" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:white; border:1px solid #333;"><select id="admin-torneo-formato" style="width:100%; padding:10px; margin-bottom:15px; background:#000; color:white; border:1px solid #333;"><option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option></select><button type="submit" class="btn-submit" style="background:#00ffa3; color:black;">PUBLICAR TORNEO</button></form></div></section>
     </main>
 
-    <div id="modal-login" class="modal-overlay">
-        <div class="modal-content glass-box">
-            <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Ingresar</h3>
-            <button class="btn-google" id="btn-login-google">Entrar con Google</button>
-        </div>
-    </div>
+    <div id="modal-login" class="modal-overlay"><div class="modal-content glass-box"><a href="#" class="close-modal"><i class="fas fa-times"></i></a><h3>Ingresar</h3><button class="btn-google" id="btn-login-google">Google Login</button></div></div>
+    <div id="modal-pago" class="modal-overlay"><div class="modal-content glass-box"><a href="#" class="close-modal"><i class="fas fa-times"></i></a><h3>Pagos</h3><p>Alias: matias.mj7</p></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=13"></script>
+    <script src="app.js?v=14"></script>
 </body>
 </html>
