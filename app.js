@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. FUNCIONALIDAD BOTONES STREAM
+    // STREAM
     const platBtns = document.querySelectorAll('.plat-btn');
     const mainStream = document.getElementById('main-stream');
 
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. SISTEMA DE FILTROS 
+    // FILTROS DE TORNEOS (Asegurando la lectura del data-formato)
     const filterBtns = document.querySelectorAll('.filter-btn');
     const torneosCards = document.querySelectorAll('.torneo-card');
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. CREADOR DE TORNEOS ADMIN 
+    // CREADOR DE TORNEOS ADMIN (Asegurando detalles correctos en la nueva tarjeta)
     const formCrearTorneo = document.getElementById('form-crear-torneo');
     const contenedorTorneos = document.getElementById('contenedor-torneos');
 
@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const nombre = document.getElementById('admin-torneo-nombre').value;
             const formato = document.getElementById('admin-torneo-formato').value;
+            const fecha = document.getElementById('admin-torneo-fecha').value;
+            const cupos = document.getElementById('admin-torneo-cupos').value;
 
             const nuevaTarjetaHTML = `
                 <div class="torneo-card" data-formato="${formato}" style="border-color: var(--success-green);">
@@ -61,54 +63,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="torneo-formato format-${formato}">${formato.toUpperCase()}</div>
                     <h3>${nombre}</h3>
                     <div class="torneo-info">
-                        <p><i class="fas fa-calendar-alt"></i> Próximamente</p>
-                        <p><i class="fas fa-users"></i> Inscripción Abierta</p>
+                        <p><i class="fas fa-calendar-alt"></i> ${fecha}</p>
+                        <p><i class="fas fa-users"></i> Cupos: 0/${cupos} Inscriptos</p>
                     </div>
-                    <button class="btn-submit btn-torneo" style="background: var(--success-green); color: black;">Inscribirse Gratis</button>
+                    <button class="btn-submit btn-torneo" style="background: var(--success-green); color: black;" onclick="alert('¡Inscripción exitosa! Preparate para la batalla.')">Inscribirse Gratis</button>
                 </div>
             `;
 
             contenedorTorneos.insertAdjacentHTML('afterbegin', nuevaTarjetaHTML);
             formCrearTorneo.reset();
-            alert(`¡Torneo "${nombre}" publicado!`);
+            alert(`¡Torneo "${nombre}" publicado en la Arena!`);
             window.location.hash = '#torneos';
         });
     }
 
-    // --- NUEVO: FUNCIONALIDAD DEL CHAT DE LA TABERNA ---
+    // CHAT DE LA TABERNA
     const chatInput = document.getElementById('chat-input-text');
     const btnSendChat = document.getElementById('btn-send-chat');
     const chatContainer = document.getElementById('chat-messages-container');
 
     if (btnSendChat && chatInput && chatContainer) {
-        // Función para agregar mensaje
         const enviarMensaje = () => {
             const mensaje = chatInput.value.trim();
             if (mensaje !== '') {
-                // Obtener hora actual
                 const ahora = new Date();
                 const hora = ahora.getHours().toString().padStart(2, '0');
                 const minutos = ahora.getMinutes().toString().padStart(2, '0');
                 const tiempoStr = `[${hora}:${minutos}]`;
 
-                // Crear el elemento HTML del mensaje (te ponemos como usuario para que pruebes)
                 const nuevoMensajeHTML = `<div class="msg"><span class="msg-time">${tiempoStr}</span> <strong class="user tank">Tú:</strong> ${mensaje}</div>`;
 
-                // Insertarlo al final de la caja de chat
                 chatContainer.insertAdjacentHTML('beforeend', nuevoMensajeHTML);
-
-                // Limpiar la barra de texto
                 chatInput.value = '';
-
-                // Hacer que la caja baje automáticamente al último mensaje
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         };
 
-        // Al hacer clic en el botón de enviar
         btnSendChat.addEventListener('click', enviarMensaje);
-
-        // Al presionar la tecla Enter
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 enviarMensaje();
@@ -117,8 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- FUNCIONES DE TABLA ADMIN ---
-
+// TABLA ADMIN (SUSCRIPCIONES)
 function aprobarSuscripcion(btn, nick) {
     if(confirm(`¿Estás seguro de APROBAR la suscripción de ${nick}?`)) {
         const row = btn.closest('tr');
@@ -137,7 +127,7 @@ function rechazarSuscripcion(btn, nick) {
 }
 
 function revocarSuscripcion(btn, nick) {
-    if(confirm(`¿ATENCIÓN: Estás seguro de REVOCAR el plan activo de ${nick}? Volverá a estar pendiente.`)) {
+    if(confirm(`¿Estás seguro de REVOCAR el plan activo de ${nick}?`)) {
         const row = btn.closest('tr');
         row.querySelector('.status-col').innerHTML = '<span class="rank-tag jonin" style="background: #444;">PENDIENTE</span>';
         row.querySelector('.actions-col').innerHTML = `
