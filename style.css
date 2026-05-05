@@ -1,63 +1,117 @@
-:root {
-    --bg-dark: #050505;
-    --rasengan-blue: #00d2ff;
-    --susanoo-red: #ff0040;
-    --card-bg: #0a0a0f; /* FONDO SÓLIDO */
-    --success-green: #00ffa3;
+const firebaseConfig = {
+  apiKey: "AIzaSyBEsnLlMgiQVie9MXrKL4dhQ2m23tv34kg",
+  authDomain: "mblarg-94390.firebaseapp.com",
+  projectId: "mblarg-94390",
+  storageBucket: "mblarg-94390.firebasestorage.app",
+  messagingSenderId: "308094247977",
+  appId: "1:308094247977:web:cef31ccf807f732f5ce838"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const EMAIL_ADMIN = "matias.moto7@gmail.com";
+let usuarioActual = "Ninja Anónimo";
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    auth.onAuthStateChanged(user => {
+        const userBtn = document.getElementById('user-btn');
+        const heroName = document.getElementById('hero-user-name');
+        const adminSection = document.getElementById('admin');
+        const navAdminLink = document.getElementById('nav-admin-link');
+
+        if(user) {
+            usuarioActual = user.displayName || user.email.split('@')[0];
+            userBtn.innerText = usuarioActual;
+            userBtn.href = "javascript:void(0)";
+            if(heroName) heroName.innerText = usuarioActual;
+
+            if(user.email === EMAIL_ADMIN) {
+                if(adminSection) adminSection.style.display = 'block';
+                if(navAdminLink) navAdminLink.style.display = 'block';
+            }
+        } else {
+            usuarioActual = "Ninja Anónimo";
+            userBtn.innerText = "Ingresar";
+            userBtn.href = "#modal-login";
+            if(heroName) heroName.innerText = "Ninja";
+            if(adminSection) adminSection.style.display = 'none';
+        }
+    });
+
+    const btnGoogle = document.getElementById('btn-login-google');
+    if(btnGoogle) {
+        btnGoogle.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(() => window.location.hash = '#');
+        });
+    }
+
+    const contenedorTorneos = document.getElementById('contenedor-torneos');
+    if(contenedorTorneos) {
+        db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+            contenedorTorneos.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                contenedorTorneos.innerHTML += `
+                    <div class="torneo-card shadow-fix">
+                        <span style="color:var(--rasengan-blue); font-weight:bold;">${data.formato.toUpperCase()}</span>
+                        <h3 style="margin:10px 0;">${data.nombre}</h3>
+                        <p>Fecha: ${data.fecha}</p>
+                        <p>Cupos: ${data.cuposTotales}</p>
+                        <p style="color:var(--success-green);">Premio: ${data.premio || 'A definir'}</p>
+                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscripto!')">Inscribirse</button>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    const formTorneo = document.getElementById('form-crear-torneo');
+    if(formTorneo) {
+        formTorneo.addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection('torneos').add({
+                nombre: document.getElementById('admin-torneo-nombre').value,
+                formato: document.getElementById('admin-torneo-formato').value,
+                fecha: document.getElementById('admin-torneo-fecha').value,
+                cuposTotales: document.getElementById('admin-torneo-cupos').value,
+                premio: document.getElementById('admin-torneo-premio').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                formTorneo.reset();
+                alert("¡Torneo publicado!");
+            });
+        });
+    }
+
+    const btnChat = document.getElementById('btn-send-chat');
+    const boxChat = document.getElementById('chat-messages-container');
+    if(btnChat) {
+        btnChat.addEventListener('click', () => {
+            const txt = document.getElementById('chat-input-text').value.trim();
+            if(txt && usuarioActual !== "Ninja Anónimo") {
+                db.collection('taberna').add({
+                    usuario: usuarioActual,
+                    texto: txt,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById('chat-input-text').value = '';
+            }
+        });
+        db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
+            boxChat.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                boxChat.innerHTML += `<div><strong style="color:var(--rasengan-blue)">${d.usuario}:</strong> ${d.texto}</div>`;
+            });
+            boxChat.scrollTop = boxChat.scrollHeight;
+        });
+    }
+});
+
+function cerrarSesion() {
+    auth.signOut().then(() => window.location.reload());
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-body { background-color: var(--bg-dark); color: white; overflow-x: hidden; }
-
-.dynamic-bg-video { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -2; filter: brightness(0.2); }
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 0%, black 100%); z-index: -1; }
-
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: rgba(0, 0, 0, 0.95); border-bottom: 2px solid var(--rasengan-blue); position: fixed; width: 100%; top: 0; z-index: 1000; }
-.logo { font-size: 1.8rem; font-weight: 900; }
-.highlight { color: var(--rasengan-blue); }
-.nav-links { display: flex; list-style: none; gap: 15px; }
-.nav-links a { text-decoration: none; color: white; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
-
-/* CORRECCIÓN DE SOMBRAS Y FONDOS */
-.shadow-fix { 
-    background: var(--card-bg) !important; 
-    border: 1px solid #333 !important; 
-    box-shadow: 0 10px 40px rgba(0,0,0,1) !important;
-}
-
-.section-container { padding: 100px 10%; position: relative; z-index: 1; }
-.section-title { font-size: 2rem; margin-bottom: 40px; border-left: 5px solid var(--rasengan-blue); padding-left: 15px; text-transform: uppercase; }
-
-.hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
-.shippuden-text { font-size: 4.5rem; font-weight: 900; text-shadow: 0 0 20px var(--rasengan-blue); }
-
-.torneos-grid, .planes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-.torneo-card, .plan-card, .admin-card, .social-post { 
-    background: var(--card-bg); 
-    padding: 30px; 
-    border-radius: 15px; 
-    border: 1px solid #222;
-}
-
-.stream-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-@media (max-width: 900px) { .stream-layout { grid-template-columns: 1fr; } }
-.video-wrapper { position: relative; padding-bottom: 56.25%; background: #000; border-radius: 10px; overflow: hidden; border: 2px solid #222; }
-.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-.discord-wrapper { height: 500px; border: 2px solid #9d50bb; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
-.discord-header { background: #9d50bb; padding: 10px; text-align: center; font-weight: bold; }
-
-.chat-box { background: #000; border: 1px solid #333; height: 500px; display: flex; flex-direction: column; border-radius: 15px; overflow: hidden; }
-.chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 0.9rem; }
-.chat-input { display: flex; padding: 15px; background: #111; gap: 10px; }
-.chat-input input { flex-grow: 1; background: #000; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; }
-
-.btn-submit, .btn-susanoo { background: var(--susanoo-red); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: 900; text-transform: uppercase; text-decoration: none; display: inline-block; text-align: center; }
-.btn-rasengan { background: var(--rasengan-blue); color: white; padding: 12px 25px; border-radius: 8px; font-weight: 900; text-decoration: none; }
-.user-menu-container { position: relative; }
-.user-dropdown { position: absolute; top: 110%; right: 0; background: #111; border: 1px solid var(--rasengan-blue); padding: 10px; border-radius: 5px; display: none; min-width: 150px; }
-.user-menu-container:hover .user-dropdown { display: block; }
-
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; }
-.modal-overlay:target { display: flex; }
-.modal-content { background: #111; padding: 40px; border-radius: 20px; border: 2px solid var(--rasengan-blue); width: 90%; max-width: 400px; text-align: center; position: relative; }
-.btn-google { background: white; color: black; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
