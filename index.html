@@ -32,7 +32,9 @@
         <div class="user-menu-container">
             <a href="#modal-login" class="btn-login" id="user-btn">Ingresar</a>
             <div class="user-dropdown" id="user-dropdown">
-                <button onclick="cerrarSesion()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</button>
+                <button onclick="cerrarSesion()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
             </div>
         </div>
     </header>
@@ -88,13 +90,19 @@
             <h2 class="section-title"><i class="fas fa-gem"></i> Tesorería de la Aldea</h2>
             <div class="planes-grid">
                 <div class="plan-card aliado-card">
-                    <div class="plan-header"><h3>PLAN ALIADO</h3><div class="price">$4.000 ARS</div></div>
-                    <a href="#modal-pago" class="btn-submit btn-plan">Contratar</a>
+                    <div class="plan-header">
+                        <h3>PLAN ALIADO</h3>
+                        <div class="price">$4.000 ARS <span>/ 2hs</span></div>
+                    </div>
+                    <a href="#modal-pago" class="btn-submit">Contratar</a>
                 </div>
                 <div class="plan-card kage-card">
                     <div class="plan-badge">MÁXIMO PODER</div>
-                    <div class="plan-header"><h3>KAGE ELITE</h3><div class="price">$10.000 ARS</div></div>
-                    <a href="#modal-pago" class="btn-susanoo btn-plan">Convertirme en Kage</a>
+                    <div class="plan-header">
+                        <h3>KAGE ELITE</h3>
+                        <div class="price">$10.000 ARS <span>/ 4hs</span></div>
+                    </div>
+                    <a href="#modal-pago" class="btn-susanoo">Convertirme en Kage</a>
                 </div>
             </div>
         </section>
@@ -102,19 +110,37 @@
         <section id="registro-bingo" class="section-container">
             <h2 class="section-title"><i class="fas fa-scroll"></i> Pergamino de Registro</h2>
             <div class="form-card">
-                <form onsubmit="event.preventDefault(); alert('Enviado a validación.');">
-                    <div class="input-group"><label>Nick</label><input type="text" required></div>
+                <form onsubmit="event.preventDefault(); alert('Datos enviados al Kage.');">
+                    <div class="input-group"><label>Nick Ninja</label><input type="text" required></div>
                     <div class="input-group-row">
-                        <div class="input-group"><label>ID</label><input type="number" required></div>
+                        <div class="input-group"><label>ID Jugador</label><input type="number" required></div>
                         <div class="input-group"><label>Server</label><input type="number" required></div>
                     </div>
-                    <button type="submit" class="btn-submit">Registrar</button>
+                    <button type="submit" class="btn-submit">Enviar Registro</button>
                 </form>
             </div>
         </section>
 
+        <section id="abismo" class="section-container">
+            <h2 class="section-title"><i class="fas fa-video"></i> Archivos del Abismo</h2>
+            <div class="form-card" style="margin-bottom: 20px;">
+                <label>Sube tu jugada</label>
+                <input type="file" style="margin-top: 10px;">
+                <button class="btn-submit" style="margin-top: 15px;">Compartir</button>
+            </div>
+            <div class="media-gallery">
+                <div class="media-card">
+                    <div class="media-placeholder"><i class="fas fa-play-circle"></i></div>
+                    <div class="media-info">
+                        <h4>Savage con Gusion</h4>
+                        <p>Por: NinjaAsesino</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="gremio" class="section-container">
-            <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio y Taberna</h2>
+            <h2 class="section-title"><i class="fas fa-users-cog"></i> Gremio de Reclutamiento</h2>
             <div class="gremio-layout">
                 <div class="board-column">
                     <div class="social-post">
@@ -122,7 +148,8 @@
                             <img src="https://ui-avatars.com/api/?name=Matías&background=random" class="avatar">
                             <strong>Matías <span class="rank-tag kage">KAGE</span></strong>
                         </div>
-                        <p class="post-text">Busco escuadrón competitivo para 5v5.</p>
+                        <div class="role-tags"><span class="role tank">Main Tanque</span></div>
+                        <p>Busco escuadrón competitivo para 5v5.</p>
                         <button class="btn-susanoo btn-small" onclick="alert('Invitación enviada')">Invitar</button>
                     </div>
                 </div>
@@ -140,15 +167,18 @@
         </section>
 
         <section id="admin" class="section-container">
-            <h2 class="section-title"><i class="fas fa-user-shield"></i> Panel Kage</h2>
+            <h2 class="section-title"><i class="fas fa-user-shield"></i> Panel de Mando</h2>
             <div class="admin-card">
                 <h3>Crear Torneo en la Nube</h3>
                 <form id="form-crear-torneo">
                     <div class="input-group-row">
                         <div class="input-group"><label>Nombre</label><input type="text" id="admin-torneo-nombre" required></div>
-                        <div class="input-group"><label>Formato</label>
-                            <select id="admin-torneo-formato" style="background: #111; color: white; padding: 10px; border-radius: 5px;">
-                                <option value="1v1">1 VS 1</option><option value="2v2">2 VS 2</option><option value="5v5">5 VS 5</option>
+                        <div class="input-group">
+                            <label>Formato</label>
+                            <select id="admin-torneo-formato" style="background:#111; color:white; padding:10px; border-radius:5px;">
+                                <option value="1v1">1 VS 1</option>
+                                <option value="2v2">2 VS 2</option>
+                                <option value="5v5">5 VS 5</option>
                             </select>
                         </div>
                     </div>
@@ -157,20 +187,24 @@
                         <div class="input-group"><label>Cupos</label><input type="number" id="admin-torneo-cupos" required></div>
                     </div>
                     <div class="input-group"><label>Premio</label><input type="text" id="admin-torneo-premio" placeholder="A definir"></div>
-                    <button type="submit" class="btn-submit">Publicar Torneo</button>
+                    <button type="submit" class="btn-submit">Publicar a Firebase</button>
                 </form>
             </div>
         </section>
     </main>
 
+    <footer class="site-footer">
+        <p>&copy; 2026 MBL Arg - Kage Matías.</p>
+    </footer>
+
     <div id="modal-login" class="modal-overlay">
         <div class="modal-content">
             <a href="#" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Ingresar</h3>
+            <h3>Ingresar a la Aldea</h3>
             <form id="form-login-email">
-                <input type="email" id="login-email" placeholder="Email" required style="margin-bottom: 10px;">
-                <input type="password" id="login-pass" placeholder="Password" required style="margin-bottom: 10px;">
-                <button type="submit" class="btn-submit">Entrar</button>
+                <input type="email" id="login-email" placeholder="Correo" required style="margin-bottom:10px; width:100%;">
+                <input type="password" id="login-pass" placeholder="Contraseña" required style="margin-bottom:15px; width:100%;">
+                <button type="submit" class="btn-submit">Entrar / Registrar</button>
             </form>
             <div class="divider"><span>O</span></div>
             <button class="btn-google" id="btn-login-google"><i class="fab fa-google"></i> Google</button>
@@ -180,9 +214,9 @@
     <div id="modal-pago" class="modal-overlay">
         <div class="modal-content">
             <a href="#planes" class="close-modal"><i class="fas fa-times"></i></a>
-            <h3>Pagos</h3>
-            <div class="pay-option"><span>ARS</span><strong>Alias: matias.mj7</strong></div>
-            <div class="pay-option"><span>USDT</span><strong>0x00...ef5A</strong></div>
+            <h3>Métodos de Pago</h3>
+            <div class="pay-option" style="margin: 15px 0;"><span>Alias ARS:</span> <strong>matias.mj7</strong></div>
+            <div class="pay-option"><span>Cripto USDT:</span> <strong style="font-size:0.7rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
         </div>
     </div>
 
