@@ -29,10 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if(user) {
             currentUserName = user.displayName || user.email.split('@')[0];
             
-            // Actualizar UI
             if(userDisplay) {
                 userDisplay.innerText = currentUserName;
-                userDisplay.href = "#"; // Desactivar link al modal
+                userDisplay.href = "#"; 
             }
             if(userGreeting) userGreeting.innerText = currentUserName;
 
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(adminSection) adminSection.style.display = 'none';
             }
         } else {
-            // Usuario No Logueado
             currentUserName = "Ninja Anónimo";
             if(userDisplay) {
                 userDisplay.innerText = "Ingresar";
@@ -64,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then(() => {
                 window.location.hash = '#'; // Cierra modal
-            }).catch(err => alert("Error: " + err.message));
+            }).catch(err => alert("Error al iniciar sesión: " + err.message));
         });
     }
 
@@ -73,6 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(listaTorneos) {
         db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
             listaTorneos.innerHTML = '';
+            
+            if(snap.empty) {
+                 listaTorneos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">Aún no hay torneos activos en la aldea. ¡Espera el anuncio del Kage!</p>';
+            }
+
             snap.forEach(doc => {
                 const d = doc.data();
                 listaTorneos.innerHTML += `
@@ -82,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p style="margin-bottom: 8px; color: #ccc;"><i class="far fa-calendar-alt" style="color: var(--blue); width: 20px;"></i> ${d.fecha}</p>
                         <p style="margin-bottom: 8px; color: #ccc;"><i class="fas fa-users" style="color: var(--blue); width: 20px;"></i> Cupos: ${d.cupos}</p>
                         <p style="margin-bottom: 15px; color: var(--green); font-weight: bold;"><i class="fas fa-trophy" style="color: var(--green); width: 20px;"></i> Premio: ${d.premio || 'A definir'}</p>
-                        <button class="btn-primary" style="width:100%;" onclick="alert('¡Inscripción recibida!')">UNIRSE A LA BATALLA</button>
+                        <button class="btn-primary" style="width:100%;" onclick="alert('¡Inscripción recibida para el torneo ${d.nombre}!')">UNIRSE A LA BATALLA</button>
                     </div>
                 `;
             });
@@ -103,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formT.reset();
-                alert("¡Torneo guardado en Firebase!");
+                alert("¡Torneo guardado y publicado en la Arena!");
             }).catch(error => alert("Error guardando torneo: " + error));
         });
     }
@@ -122,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 inputField.value = '';
             } else if (currentUserName === "Ninja Anónimo") {
-                alert("Debes ingresar a la aldea para hablar.");
+                alert("Debes ingresar a la aldea para poder hablar en la Taberna.");
             }
         });
     }
@@ -143,4 +146,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function cerrarSesion() {
     firebase.auth().signOut().then(() => window.location.reload());
+}
+
+// FUNCIÓN PARA CAMBIAR EL REPRODUCTOR DE STREAM
+function cambiarStream(plataforma) {
+    const iframe = document.getElementById('stream-frame');
+    const botones = document.querySelectorAll('.plat-btn');
+    
+    // Reiniciar estilos de todos los botones
+    botones.forEach(btn => {
+        btn.style.background = '#111';
+        btn.style.color = 'white';
+        btn.style.border = '1px solid #444';
+    });
+
+    // Activar el botón seleccionado y cambiar el src del iframe
+    if (plataforma === 'twitch') {
+        // Asegúrate de que parent= coincide con la URL de tu página desplegada
+        iframe.src = "https://player.twitch.tv/?channel=matias_mj7&parent=mbl-world-v2.vercel.app";
+        botones[0].style.background = 'var(--blue)';
+        botones[0].style.color = '#000';
+        botones[0].style.border = 'none';
+    } else if (plataforma === 'youtube') {
+        iframe.src = "https://www.youtube.com/embed/live_stream?channel=UCUZHFZ9jIKrLroW8LcyJEQQ";
+        botones[1].style.background = 'var(--red)';
+        botones[1].style.color = '#fff';
+        botones[1].style.border = 'none';
+    } else if (plataforma === 'kick') {
+        iframe.src = "https://player.kick.com/matias_mj7";
+        botones[2].style.background = 'var(--green)';
+        botones[2].style.color = '#000';
+        botones[2].style.border = 'none';
+    } else if (plataforma === 'tiktok') {
+        // URL embebida de TikTok (reemplaza si tienes un feed específico)
+        iframe.src = "https://www.tiktok.com/embed/v2/6949015180630658309";
+        botones[3].style.background = '#ff0050'; // Color de TikTok
+        botones[3].style.color = '#fff';
+        botones[3].style.border = 'none';
+    }
 }
