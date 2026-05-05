@@ -1,4 +1,3 @@
-// CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyBEsnLlMgiQVie9MXrKL4dhQ2m23tv34kg",
   authDomain: "mblarg-94390.firebaseapp.com",
@@ -12,13 +11,11 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ACCESO KAGE SUPREMO
 const EMAIL_ADMIN = "matias.moto7@gmail.com";
 let usuarioActual = "Ninja Anónimo";
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // ESTADO DE SESIÓN
     auth.onAuthStateChanged(user => {
         const userBtn = document.getElementById('user-btn');
         const heroName = document.getElementById('hero-user-name');
@@ -31,13 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             userBtn.href = "javascript:void(0)";
             if(heroName) heroName.innerText = usuarioActual;
 
-            // VERIFICACIÓN DE PODER KAGE
             if(user.email === EMAIL_ADMIN) {
                 if(adminSection) adminSection.style.display = 'block';
                 if(navAdminLink) navAdminLink.style.display = 'block';
-            } else {
-                if(adminSection) adminSection.style.display = 'none';
-                if(navAdminLink) navAdminLink.style.display = 'none';
             }
         } else {
             usuarioActual = "Ninja Anónimo";
@@ -45,22 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
             userBtn.href = "#modal-login";
             if(heroName) heroName.innerText = "Ninja";
             if(adminSection) adminSection.style.display = 'none';
-            if(navAdminLink) navAdminLink.style.display = 'none';
         }
     });
 
-    // LOGIN GOOGLE
     const btnGoogle = document.getElementById('btn-login-google');
     if(btnGoogle) {
         btnGoogle.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(() => {
-                window.location.hash = '#';
-            }).catch(err => alert("Error de Aldea: " + err.message));
+            auth.signInWithPopup(provider).then(() => window.location.hash = '#');
         });
     }
 
-    // CARGAR TORNEOS (ARENA)
     const contenedorTorneos = document.getElementById('contenedor-torneos');
     if(contenedorTorneos) {
         db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
@@ -68,20 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
             snap.forEach(doc => {
                 const data = doc.data();
                 contenedorTorneos.innerHTML += `
-                    <div class="torneo-card">
-                        <span style="color:var(--rasengan-blue); font-weight:900;">${data.formato.toUpperCase()}</span>
-                        <h3 style="margin:15px 0; font-size:1.5rem;">${data.nombre}</h3>
-                        <p><i class="fas fa-calendar-alt" style="color:var(--rasengan-blue);"></i> ${data.fecha}</p>
-                        <p><i class="fas fa-users" style="color:var(--rasengan-blue);"></i> Cupos: ${data.cuposTotales}</p>
-                        <p><i class="fas fa-trophy" style="color:var(--success-green);"></i> Premio: ${data.premio || 'A definir'}</p>
-                        <button class="btn-submit" style="margin-top:20px;" onclick="alert('¡Inscripción recibida!')">Inscribirse</button>
+                    <div class="torneo-card shadow-fix">
+                        <span style="color:var(--rasengan-blue); font-weight:bold;">${data.formato.toUpperCase()}</span>
+                        <h3 style="margin:10px 0;">${data.nombre}</h3>
+                        <p>Fecha: ${data.fecha}</p>
+                        <p>Cupos: ${data.cuposTotales}</p>
+                        <p style="color:var(--success-green);">Premio: ${data.premio || 'A definir'}</p>
+                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscripto!')">Inscribirse</button>
                     </div>
                 `;
             });
         });
     }
 
-    // CREAR TORNEO (ADMIN PANEL)
     const formTorneo = document.getElementById('form-crear-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
@@ -95,26 +82,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formTorneo.reset();
-                alert("¡Torneo enviado a la nube con éxito!");
+                alert("¡Torneo publicado!");
             });
         });
     }
 
-    // TABERNA (CHAT EN VIVO)
     const btnChat = document.getElementById('btn-send-chat');
-    const inputChat = document.getElementById('chat-input-text');
     const boxChat = document.getElementById('chat-messages-container');
-
     if(btnChat) {
         btnChat.addEventListener('click', () => {
-            const txt = inputChat.value.trim();
+            const txt = document.getElementById('chat-input-text').value.trim();
             if(txt && usuarioActual !== "Ninja Anónimo") {
                 db.collection('taberna').add({
                     usuario: usuarioActual,
                     texto: txt,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                inputChat.value = '';
+                document.getElementById('chat-input-text').value = '';
             }
         });
         db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
