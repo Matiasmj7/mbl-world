@@ -12,13 +12,13 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// TU EMAIL DE ADMINISTRADOR
+// ACCESO KAGE SUPREMO
 const EMAIL_ADMIN = "matias.moto7@gmail.com";
 let usuarioActual = "Ninja Anónimo";
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // CONTROL DE SESIÓN Y PERMISOS
+    // ESTADO DE SESIÓN
     auth.onAuthStateChanged(user => {
         const userBtn = document.getElementById('user-btn');
         const heroName = document.getElementById('hero-user-name');
@@ -31,16 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
             userBtn.href = "javascript:void(0)";
             if(heroName) heroName.innerText = usuarioActual;
 
-            // VERIFICAR SI ES EL ADMIN
+            // VERIFICACIÓN DE PODER KAGE
             if(user.email === EMAIL_ADMIN) {
                 if(adminSection) adminSection.style.display = 'block';
                 if(navAdminLink) navAdminLink.style.display = 'block';
-                console.log("¡Bienvenido, Kage Supremo!");
             } else {
                 if(adminSection) adminSection.style.display = 'none';
                 if(navAdminLink) navAdminLink.style.display = 'none';
             }
-
         } else {
             usuarioActual = "Ninja Anónimo";
             userBtn.innerText = "Ingresar";
@@ -58,11 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then(() => {
                 window.location.hash = '#';
-            }).catch(err => alert("Error: " + err.message));
+            }).catch(err => alert("Error de Aldea: " + err.message));
         });
     }
 
-    // CARGAR TORNEOS
+    // CARGAR TORNEOS (ARENA)
     const contenedorTorneos = document.getElementById('contenedor-torneos');
     if(contenedorTorneos) {
         db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
@@ -71,19 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = doc.data();
                 contenedorTorneos.innerHTML += `
                     <div class="torneo-card">
-                        <span style="color:var(--rasengan-blue); font-weight:bold;">${data.formato.toUpperCase()}</span>
-                        <h3 style="margin:10px 0;">${data.nombre}</h3>
-                        <p style="font-size:0.9rem; color:#ccc;">Fecha: ${data.fecha}</p>
-                        <p style="font-size:0.9rem; color:#ccc;">Cupos: ${data.cuposTotales}</p>
-                        <p style="font-size:0.9rem; color:var(--success-green);">Premio: ${data.premio || 'A definir'}</p>
-                        <button class="btn-submit" style="margin-top:15px;" onclick="alert('¡Inscripto!')">Inscribirse</button>
+                        <span style="color:var(--rasengan-blue); font-weight:900;">${data.formato.toUpperCase()}</span>
+                        <h3 style="margin:15px 0; font-size:1.5rem;">${data.nombre}</h3>
+                        <p><i class="fas fa-calendar-alt" style="color:var(--rasengan-blue);"></i> ${data.fecha}</p>
+                        <p><i class="fas fa-users" style="color:var(--rasengan-blue);"></i> Cupos: ${data.cuposTotales}</p>
+                        <p><i class="fas fa-trophy" style="color:var(--success-green);"></i> Premio: ${data.premio || 'A definir'}</p>
+                        <button class="btn-submit" style="margin-top:20px;" onclick="alert('¡Inscripción recibida!')">Inscribirse</button>
                     </div>
                 `;
             });
         });
     }
 
-    // CREAR TORNEO (ADMIN)
+    // CREAR TORNEO (ADMIN PANEL)
     const formTorneo = document.getElementById('form-crear-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
@@ -97,12 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formTorneo.reset();
-                alert("¡Torneo en la nube!");
+                alert("¡Torneo enviado a la nube con éxito!");
             });
         });
     }
 
-    // CHAT TABERNA
+    // TABERNA (CHAT EN VIVO)
     const btnChat = document.getElementById('btn-send-chat');
     const inputChat = document.getElementById('chat-input-text');
     const boxChat = document.getElementById('chat-messages-container');
@@ -117,11 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 inputChat.value = '';
-            } else if (usuarioActual === "Ninja Anónimo") {
-                alert("Debes ingresar para hablar.");
             }
         });
-        
         db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
             boxChat.innerHTML = '';
             snap.forEach(doc => {
