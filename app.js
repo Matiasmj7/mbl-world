@@ -11,6 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage(); // Inicializado el servicio de archivos para el Abismo
 
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
@@ -21,7 +22,7 @@ let kageStreamUser = 'matias_mj7';
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. ESTADO DE SESIÓN CON SISTEMA DE NICKNAME
+    // 1. ESTADO DE SESIÓN CON NICKNAME
     auth.onAuthStateChanged(user => {
         const adminNav = document.getElementById('admin-nav');
         const adminSection = document.getElementById('admin');
@@ -30,17 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(user) {
             currentUserId = user.uid;
-            
-            // Buscar si ya tiene un "Nick" registrado en la base de datos
             db.collection('ninjas').doc(user.uid).get().then(doc => {
                 if (doc.exists) {
                     const data = doc.data();
-                    currentUserName = data.nick; // Usa el Nick del juego, no el correo
+                    currentUserName = data.nick;
                     
                     if(userDisplay) { userDisplay.innerText = currentUserName; userDisplay.href = "#"; }
                     if(userGreeting) userGreeting.innerText = currentUserName;
                     
-                    // Actualizar UI del Bingo
                     document.getElementById('mi-nick-bingo').innerText = currentUserName;
                     document.getElementById('mi-xp-bingo').innerText = `${data.xp || 0} XP`;
                     document.getElementById('mi-rango-bingo').innerText = data.rango || 'Guerrero';
@@ -51,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         cargarTorneosParaAdminLlaves();
                     }
                 } else {
-                    // Es un usuario nuevo, forzar que elija un Nickname
                     window.location.hash = "#modal-registro-nick";
                 }
             });
@@ -67,36 +64,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. CREAR IDENTIDAD NINJA (Guarda el Nick con símbolos)
     const formNick = document.getElementById('form-registro-nick');
     if(formNick) {
         formNick.addEventListener('submit', (e) => {
             e.preventDefault();
             const nuevoNick = document.getElementById('nuevo-nick').value.trim();
-            
             db.collection('ninjas').doc(currentUserId).set({
-                nick: nuevoNick,
-                xp: 0,
-                ryos: 0,
-                rango: "Guerrero",
-                email_oculto: auth.currentUser.email, // Guardamos el correo pero no lo mostramos a nadie
-                fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
+                nick: nuevoNick, xp: 0, ryos: 0, rango: "Guerrero", email_oculto: auth.currentUser.email, fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("¡Identidad Ninja creada exitosamente!");
                 window.location.hash = "#";
-                window.location.reload(); // Recarga para aplicar el nombre en toda la web
+                window.location.reload();
             });
         });
     }
 
     const loginBtn = document.getElementById('login-google');
-    if(loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-        });
-    }
+    if(loginBtn) { loginBtn.addEventListener('click', () => { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }); }
 
-    // 3. BYAKUGAN
+    // 2. BYAKUGAN
     db.collection('configuracion').doc('stream').onSnapshot(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -112,32 +98,27 @@ document.addEventListener('DOMContentLoaded', () => {
         formConfigStream.addEventListener('submit', (e) => {
             e.preventDefault();
             db.collection('configuracion').doc('stream').set({
-                plataforma: document.getElementById('stream-plataforma').value,
-                usuario: document.getElementById('stream-usuario').value.trim(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                plataforma: document.getElementById('stream-plataforma').value, usuario: document.getElementById('stream-usuario').value.trim(), timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => alert("¡Visión del Byakugan Actualizada para toda la aldea!"));
         });
     }
 
-    // CARGAR LIBRO BINGO DINÁMICO (Basado en XP)
+    // 3. LIBRO BINGO Y ASCENSOS ADMIN
     db.collection('ninjas').orderBy('xp', 'desc').limit(30).onSnapshot(snap => {
         const rankingContainer = document.getElementById('ranking-dinamico');
         if(rankingContainer) {
             rankingContainer.innerHTML = '';
-            if(snap.empty) {
-                rankingContainer.innerHTML = '<p style="color: #666; text-align: center;">El Libro Bingo está vacío.</p>';
-            }
+            if(snap.empty) { rankingContainer.innerHTML = '<p style="color: #666; text-align: center;">El Libro Bingo está vacío.</p>'; }
             let puesto = 1;
             snap.forEach(doc => {
                 const data = doc.data();
                 let colorBorde = '#333';
-                if(puesto === 1) colorBorde = 'gold';
-                else if(puesto === 2) colorBorde = 'silver';
-                else if(puesto === 3) colorBorde = '#cd7f32';
+                if(puesto === 1) colorBorde = 'gold'; else if(puesto === 2) colorBorde = 'silver'; else if(puesto === 3) colorBorde = '#cd7f32';
 
+                // Añadida la función onclick abrirPerfil
                 rankingContainer.innerHTML += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid ${colorBorde};">
-                        <div><strong>${puesto}. ${data.nick}</strong></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid ${colorBorde}; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${data.nick}')" onmouseover="this.style.background='#111'" onmouseout="this.style.background='#000'">
+                        <div><strong>${puesto}. <span style="color: var(--blue);">${data.nick}</span></strong></div>
                         <div style="font-size: 0.8rem; color: #aaa; text-align: right;">${data.xp || 0} XP<br><span style="color: var(--blue);">${data.rango || 'Guerrero'}</span></div>
                     </div>
                 `;
@@ -146,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ADMIN: ASCENSO DE PAGOS
     const formAscenso = document.getElementById('form-ascenso');
     if(formAscenso) {
         formAscenso.addEventListener('submit', (e) => {
@@ -176,16 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
         formT.addEventListener('submit', (e) => {
             e.preventDefault();
             db.collection('torneos').add({
-                nombre: document.getElementById('t-nombre').value,
-                formato: document.getElementById('t-formato').value,
-                fecha: document.getElementById('t-fecha').value,
-                cuposTotales: parseInt(document.getElementById('t-cupos').value), 
-                lista_inscriptos: [], premio: document.getElementById('t-premio').value, privado: document.getElementById('t-privado').checked, estado: "abierto", timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                nombre: document.getElementById('t-nombre').value, formato: document.getElementById('t-formato').value, fecha: document.getElementById('t-fecha').value,
+                cuposTotales: parseInt(document.getElementById('t-cupos').value), lista_inscriptos: [], premio: document.getElementById('t-premio').value, privado: document.getElementById('t-privado').checked, estado: "abierto", timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => { formT.reset(); alert("Torneo Creado en la Arena"); });
         });
     }
 
-    // 5. CHAT Y GREMIO (Usando el nuevo Nick)
+    // 5. CHAT Y GREMIO (Nombres con abrirPerfil)
     const btnSendChat = document.getElementById('btn-send-chat');
     if(btnSendChat) {
         btnSendChat.addEventListener('click', () => {
@@ -193,9 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(input.value.trim() && currentUserName !== "Ninja Anónimo") {
                 db.collection('taberna').add({ usuario: currentUserName, texto: input.value.trim(), timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 input.value = '';
-            } else if (currentUserName === "Ninja Anónimo") {
-                alert("Debes identificarte (Ingresar) para hablar en la Taberna.");
-            }
+            } else if (currentUserName === "Ninja Anónimo") { alert("Debes identificarte (Ingresar)."); }
         });
     }
 
@@ -205,8 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chatContainer.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                const nameColor = (d.usuario === 'Matías') ? 'var(--red)' : 'var(--blue)'; // Si tú mantienes tu nick 'Matías', saldrá rojo
-                chatContainer.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px;"><strong style="color:${nameColor}; margin-right: 5px;">${d.usuario}:</strong> ${d.texto}</div>`;
+                const nameColor = (d.usuario === 'Matías') ? 'var(--red)' : 'var(--blue)';
+                chatContainer.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px;"><strong style="color:${nameColor}; margin-right: 5px; cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}:</strong> <span style="word-break: break-all;">${d.texto}</span></div>`;
             });
             chatContainer.scrollTop = chatContainer.scrollHeight;
         });
@@ -223,23 +198,145 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // 6. NUEVO: LÓGICA DEL ABISMO (FIREBASE STORAGE)
+    // ==========================================
     const videoUpload = document.getElementById('video-upload');
     if(videoUpload) {
-        videoUpload.addEventListener('click', (e) => {
+        videoUpload.addEventListener('change', async (e) => {
             if(currentUserName === "Ninja Anónimo") {
-                e.preventDefault(); alert("Atención: Debes Ingresar a la página para compartir tu jugada."); window.location.hash = "#modal-login";
+                alert("Atención: Debes Ingresar a la página para compartir tu jugada.");
+                window.location.hash = "#modal-login";
+                return;
+            }
+            
+            const file = e.target.files[0];
+            if(!file) return;
+
+            // Limite de 20MB para proteger el almacenamiento
+            if(file.size > 20 * 1024 * 1024) {
+                alert("El pergamino es demasiado pesado. El límite es de 20MB por video.");
+                videoUpload.value = "";
+                return;
+            }
+
+            document.getElementById('upload-status').style.display = 'block';
+            document.getElementById('btn-upload-video').style.display = 'none';
+
+            try {
+                // Subir a Firebase Storage
+                const storageRef = storage.ref(`abismo/${currentUserId}_${Date.now()}_${file.name}`);
+                const snapshot = await storageRef.put(file);
+                const downloadURL = await snapshot.ref.getDownloadURL();
+
+                // Guardar la URL en Firestore
+                await db.collection('abismo_videos').add({
+                    usuario: currentUserName,
+                    url: downloadURL,
+                    likes: 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert("¡Tu jugada ha sido inmortalizada en el Abismo!");
+            } catch(error) {
+                console.error("Error subiendo video:", error);
+                alert("Hubo un error de chakra al subir el video. Intenta de nuevo.");
+            } finally {
+                document.getElementById('upload-status').style.display = 'none';
+                document.getElementById('btn-upload-video').style.display = 'inline-block';
+                videoUpload.value = ""; 
             }
         });
     }
 
     cargarTorneosDesdeNube();
     cargarAnunciosGremio();
+    cargarVideosAbismo(); // Llamada a la nueva función
 });
 
 // ==========================================
-// FUNCIONES AUXILIARES
+// FUNCIONES DE PERFILES, ABISMO Y AUXILIARES
 // ==========================================
 
+function cargarVideosAbismo() {
+    const lista = document.getElementById('lista-abismo');
+    if(!lista) return;
+
+    db.collection('abismo_videos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        lista.innerHTML = '';
+        if(snap.empty) {
+            lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. ¡Sé el primero en subir una jugada!</p>';
+            return;
+        }
+        snap.forEach(doc => {
+            const d = doc.data();
+            lista.innerHTML += `
+                <div class="container-glass" style="padding: 15px; border-color: var(--blue) !important;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${d.usuario}')" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        <img src="https://ui-avatars.com/api/?name=${d.usuario}&background=random" style="width: 30px; border-radius: 50%; border: 1px solid var(--blue);">
+                        <strong style="font-size: 0.9rem; color: white;">${d.usuario}</strong>
+                    </div>
+                    <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+                        <video controls style="width: 100%; max-height: 250px;">
+                            <source src="${d.url}" type="video/mp4">
+                            Tu dispositivo no soporta la visión del Abismo.
+                        </video>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;">
+                        <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; transition: 0.2s;" onclick="darLikeVideo('${doc.id}')" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='#ccc'">
+                            <i class="fas fa-heart"></i> <span style="font-size: 0.9rem;">${d.likes || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    });
+}
+
+function darLikeVideo(videoId) {
+    if(currentUserName === "Ninja Anónimo") return alert("Debes identificarte para dar Like.");
+    db.collection('abismo_videos').doc(videoId).update({
+        likes: firebase.firestore.FieldValue.increment(1)
+    });
+}
+
+async function abrirPerfil(nick) {
+    const modal = document.getElementById('modal-perfil');
+    document.getElementById('perfil-nick').innerText = nick;
+    document.getElementById('perfil-avatar').src = `https://ui-avatars.com/api/?name=${nick}&background=random`;
+    document.getElementById('perfil-rango').innerText = "Buscando...";
+    document.getElementById('perfil-xp').innerText = "...";
+    document.getElementById('perfil-campeonatos').innerText = "...";
+
+    window.location.hash = '#modal-perfil';
+
+    try {
+        // Buscar info del ninja
+        const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
+        if(!snapshot.empty) {
+            const data = snapshot.docs[0].data();
+            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero';
+            document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+        } else {
+            document.getElementById('perfil-rango').innerText = 'Sin Rango';
+            document.getElementById('perfil-xp').innerText = `0 XP`;
+        }
+
+        // Buscar campeonatos ganados
+        const torneosSnap = await db.collection('torneos').where('campeon', '==', nick).get();
+        document.getElementById('perfil-campeonatos').innerText = torneosSnap.size;
+
+    } catch(error) {
+        console.error("Error cargando perfil:", error);
+    }
+}
+
+function cerrarModalPerfil(e) {
+    e.preventDefault();
+    history.back(); // Regresa para no perder el hash si estaba en otra sección
+}
+
+// RESTO DE FUNCIONES GLOBALES
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar primero."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
 
@@ -312,9 +409,11 @@ function cargarTorneosDesdeNube() {
                 else if (estaLleno) { btnTexto = "LLENO"; btnColor = "gray"; }
 
                 const etiquetaPrivado = data.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
+                
+                // Nombres clickeables en los participantes
                 let nombresPreview = "";
                 if(inscritos > 0) {
-                    const primerosNombres = data.lista_inscriptos.slice(0, 3).join(", ");
+                    const primerosNombres = data.lista_inscriptos.slice(0, 3).map(n => `<span style="cursor:pointer; color:var(--blue);" onclick="abrirPerfil('${n}')">${n}</span>`).join(", ");
                     nombresPreview = `<p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">Participantes: ${primerosNombres}${inscritos > 3 ? '...' : ''}</p>`;
                 }
 
@@ -364,7 +463,7 @@ function cargarAnunciosGremio() {
             const date = d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Recién';
             listaAnuncios.innerHTML += `
                 <div style="background: #0a0a0f; border: 1px solid #333; padding: 15px; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><strong style="color: var(--blue);">${d.usuario}</strong><span style="font-size: 0.7rem; color: #888;">${date}</span></div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><strong style="color: var(--blue); cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}</strong><span style="font-size: 0.7rem; color: #888;">${date}</span></div>
                     <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;"><span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #00d2ff;">Busco: ${d.busco}</span><span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #ff0040;">Soy: ${d.soy}</span></div>
                     <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 15px;">${d.mensaje}</p>
                     <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="alert('Dile a ${d.usuario} por la Taberna Global que te interesa su equipo.')"><i class="fas fa-paper-plane"></i> Contactar</button>
@@ -383,10 +482,7 @@ function mostrarTabAdmin(tabId) {
     event.target.classList.add('active');
 }
 
-// ==========================================
-// MANDO DE JUEZ Y XP AUTOMÁTICA
-// ==========================================
-
+// LOGICA DE MANDO KAGE Y LLAVES
 function cargarTorneosParaAdminLlaves() {
     const lista = document.getElementById('admin-lista-torneos-llaves');
     db.collection('torneos').onSnapshot(snap => {
@@ -394,58 +490,37 @@ function cargarTorneosParaAdminLlaves() {
         snap.forEach(doc => {
             const d = doc.data();
             const id = doc.id;
-            
             let botonesHTML = '';
             if(d.estado === 'iniciado') {
-                botonesHTML = `
-                    <button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}')">ADMINISTRAR</button>
-                    <button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>
-                `;
+                botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}')">ADMINISTRAR</button><button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>`;
             } else if (d.estado === 'finalizado') {
                 botonesHTML = `<span style="color: gold; font-weight: bold;"><i class="fas fa-crown"></i> CAMPEÓN: ${d.campeon}</span>`;
             } else {
                 botonesHTML = `<button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`;
             }
-
-            lista.innerHTML += `
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222;">
-                    <div><strong>${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${d.lista_inscriptos?.length || 0} inscritos</span></div>
-                    <div>${botonesHTML}</div>
-                </div>
-            `;
+            lista.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222;"><div><strong>${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${d.lista_inscriptos?.length || 0} inscritos</span></div><div>${botonesHTML}</div></div>`;
         });
     });
 }
 
 async function generarLlaves(torneoId, torneoNombre) {
     if(!confirm(`¿Generar cruces de Ronda 1 para ${torneoNombre}?`)) return;
-
     const torneoRef = db.collection('torneos').doc(torneoId);
     const doc = await torneoRef.get();
     const data = doc.data();
     let jugadores = data.lista_inscriptos || [];
-
     if(jugadores.length < 2) { alert("Mínimo 2 ninjas."); return; }
-
     jugadores = jugadores.sort(() => Math.random() - 0.5);
     const partidos = [];
-    
     for (let i = 0; i < jugadores.length; i += 2) {
         if (jugadores[i + 1]) { partidos.push({ p1: jugadores[i], p2: jugadores[i + 1], ganador: "", ronda: 1 }); } 
         else { partidos.push({ p1: jugadores[i], p2: "BYE", ganador: jugadores[i], ronda: 1 }); }
     }
-
     const batch = db.batch();
     const llavesRef = torneoRef.collection('llaves');
-
     const viejas = await llavesRef.get();
     viejas.forEach(v => batch.delete(v.ref));
-
-    partidos.forEach((p, index) => {
-        const newDoc = llavesRef.doc(`partido_${index + 1}`);
-        batch.set(newDoc, p);
-    });
-
+    partidos.forEach((p, index) => { const newDoc = llavesRef.doc(`partido_${index + 1}`); batch.set(newDoc, p); });
     batch.update(torneoRef, { estado: "iniciado", campeon: "" });
     await batch.commit();
     alert("¡Los pergaminos de batalla han sido repartidos!");
@@ -454,75 +529,35 @@ async function generarLlaves(torneoId, torneoNombre) {
 function abrirAdminPartidos(torneoId, torneoNombre) {
     document.getElementById('admin-partidos-titulo').innerText = `Juez: ${torneoNombre}`;
     window.location.hash = "#modal-admin-partidos";
-
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
         const contenedor = document.getElementById('contenedor-admin-partidos');
         const btnSiguiente = document.getElementById('btn-siguiente-ronda');
         contenedor.innerHTML = "";
-
-        if(snap.empty) {
-            contenedor.innerHTML = "<p>No hay llaves.</p>";
-            btnSiguiente.style.display = "none";
-            return;
-        }
-
-        let rondaMaxima = 1;
-        let partidosRondaActiva = [];
-        let todosTienenGanador = true;
-
+        if(snap.empty) { contenedor.innerHTML = "<p>No hay llaves.</p>"; btnSiguiente.style.display = "none"; return; }
+        let rondaMaxima = 1; let partidosRondaActiva = []; let todosTienenGanador = true;
         snap.forEach(doc => { const p = doc.data(); if(p.ronda > rondaMaxima) rondaMaxima = p.ronda; });
-        snap.forEach(doc => {
-            const p = doc.data();
-            if(p.ronda === rondaMaxima) { partidosRondaActiva.push({id: doc.id, ...p}); if(p.ganador === "") todosTienenGanador = false; }
-        });
-
+        snap.forEach(doc => { const p = doc.data(); if(p.ronda === rondaMaxima) { partidosRondaActiva.push({id: doc.id, ...p}); if(p.ganador === "") todosTienenGanador = false; } });
         contenedor.innerHTML = `<h4 style="color: var(--blue); margin-bottom: 10px;">RONDA ${rondaMaxima}</h4>`;
-
         partidosRondaActiva.forEach(p => {
             if(p.ganador !== "") {
-                contenedor.innerHTML += `
-                    <div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);">
-                        <span style="color: #888;">${p.p1} vs ${p.p2}</span><br>
-                        <strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong>
-                    </div>
-                `;
+                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);"><span style="color: #888;">${p.p1} vs ${p.p2}</span><br><strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong></div>`;
             } else {
-                contenedor.innerHTML += `
-                    <div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);">
-                        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div>
-                        <div style="display: flex; gap: 5px;">
-                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">GANA ${p.p1}</button>
-                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">GANA ${p.p2}</button>
-                        </div>
-                    </div>
-                `;
+                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);"><div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div><div style="display: flex; gap: 5px;"><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">GANA ${p.p1}</button><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">GANA ${p.p2}</button></div></div>`;
             }
         });
-
-        if(todosTienenGanador) {
-            btnSiguiente.style.display = "block";
-            btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva);
-        } else {
-            btnSiguiente.style.display = "none";
-        }
+        if(todosTienenGanador) { btnSiguiente.style.display = "block"; btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva); } else { btnSiguiente.style.display = "none"; }
     });
 }
 
 function setGanador(torneoId, partidoId, ganador) {
-    if(confirm(`¿Confirmas que ${ganador} es el vencedor?`)) {
-        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador });
-    }
+    if(confirm(`¿Confirmas que ${ganador} es el vencedor?`)) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador }); }
 }
 
 async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     const ganadores = partidos.map(p => p.ganador);
-
     if(ganadores.length === 1) {
-        // TENEMOS UN CAMPEÓN - Otorgar XP
         const campeon = ganadores[0];
         await db.collection('torneos').doc(torneoId).update({ estado: 'finalizado', campeon: campeon });
-        
-        // Sumar 100 XP al campeón buscando su nick en la base de datos
         db.collection('ninjas').where('nick', '==', campeon).get().then(snap => {
             if(!snap.empty) {
                 const docId = snap.docs[0].id;
@@ -530,68 +565,37 @@ async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
                 db.collection('ninjas').doc(docId).update({ xp: xpActual + 100 });
             }
         });
-
         alert(`¡EL TORNEO HA FINALIZADO! CAMPEÓN: ${campeon}. Se le han otorgado +100 XP.`);
         window.location.hash = "#admin";
         return;
     }
-
     const nuevosPartidos = [];
     for (let i = 0; i < ganadores.length; i += 2) {
         if (ganadores[i + 1]) { nuevosPartidos.push({ p1: ganadores[i], p2: ganadores[i + 1], ganador: "", ronda: rondaActual + 1 }); } 
         else { nuevosPartidos.push({ p1: ganadores[i], p2: "BYE", ganador: ganadores[i], ronda: rondaActual + 1 }); }
     }
-
-    const batch = db.batch();
-    const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves');
-    const time = new Date().getTime();
-    
-    nuevosPartidos.forEach((p, index) => {
-        const newDoc = llavesRef.doc(`partido_r${rondaActual + 1}_${index}_${time}`);
-        batch.set(newDoc, p);
-    });
-
-    await batch.commit();
-    alert(`¡Ronda ${rondaActual + 1} generada con éxito!`);
+    const batch = db.batch(); const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves'); const time = new Date().getTime();
+    nuevosPartidos.forEach((p, index) => { const newDoc = llavesRef.doc(`partido_r${rondaActual + 1}_${index}_${time}`); batch.set(newDoc, p); });
+    await batch.commit(); alert(`¡Ronda ${rondaActual + 1} generada con éxito!`);
 }
 
 function verLlaves(torneoId, torneoNombre) {
-    const contenedor = document.getElementById('contenedor-llaves-texto');
-    const contenedorCampeon = document.getElementById('contenedor-campeon');
+    const contenedor = document.getElementById('contenedor-llaves-texto'); const contenedorCampeon = document.getElementById('contenedor-campeon');
     document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`;
-    contenedor.innerHTML = '<p style="color: #888;">Leyendo los pergaminos...</p>';
-    contenedorCampeon.innerHTML = '';
+    contenedor.innerHTML = '<p style="color: #888;">Leyendo los pergaminos...</p>'; contenedorCampeon.innerHTML = '';
     window.location.hash = "#modal-llaves";
-
     db.collection('torneos').doc(torneoId).get().then(doc => {
-        if(doc.exists && doc.data().estado === 'finalizado') {
-            contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem;">${doc.data().campeon}</strong></div>`;
-        }
+        if(doc.exists && doc.data().estado === 'finalizado') { contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem; cursor:pointer;" onclick="abrirPerfil('${doc.data().campeon}')">${doc.data().campeon}</strong></div>`; }
     });
-
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
         if(snap.empty) { contenedor.innerHTML = '<p style="color: var(--red);">El Kage aún no ha generado los cruces.</p>'; return; }
-
-        contenedor.innerHTML = "";
-        let currentRonda = 0;
-        
+        contenedor.innerHTML = ""; let currentRonda = 0;
         snap.forEach(doc => {
             const p = doc.data();
-            if (p.ronda !== currentRonda) {
-                contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px; text-transform: uppercase;">RONDA ${p.ronda}</div>`;
-                currentRonda = p.ronda;
-            }
-
+            if (p.ronda !== currentRonda) { contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px; text-transform: uppercase;">RONDA ${p.ronda}</div>`; currentRonda = p.ronda; }
             const colorP1 = p.ganador === p.p1 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
             const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
-
-            contenedor.innerHTML += `
-                <div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="${colorP1}">${p.p1}</span>
-                    <span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span>
-                    <span style="${colorP2}">${p.p2}</span>
-                </div>
-            `;
+            contenedor.innerHTML += `<div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center;"><span style="${colorP1}; cursor:pointer;" onclick="abrirPerfil('${p.p1}')">${p.p1}</span><span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span><span style="${colorP2}; cursor:pointer;" onclick="abrirPerfil('${p.p2}')">${p.p2}</span></div>`;
         });
     });
 }
