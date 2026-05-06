@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.13"> 
+    <link rel="stylesheet" href="style.css?v=3.14"> 
 </head>
 <body>
 
@@ -134,10 +134,12 @@
 
         <section id="abismo" class="section">
             <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <input type="file" id="video-upload" style="display: none;" accept="video/*">
-                <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;" id="btn-upload-video"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
-                <div id="upload-status" style="color: var(--green); margin-top: 10px; font-size: 0.9rem; display: none;"><i class="fas fa-spinner fa-spin"></i> Subiendo pergamino visual... por favor espera.</div>
+            <div style="text-align: center; margin-bottom: 30px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Sube tu video a <strong>YouTube</strong> o <strong>TikTok</strong> y pega el enlace aquí para inmortalizar tu jugada en la aldea.</p>
+                <form id="form-abismo" style="display: flex; gap: 10px; max-width: 600px; margin: 0 auto; flex-wrap: wrap;">
+                    <input type="url" id="video-url" placeholder="Pega el link aquí (Ej: https://youtu.be/... o https://vm.tiktok.com/...)" required style="flex: 1; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; min-width: 250px;">
+                    <button type="submit" class="btn-primary" style="border: none; padding: 12px 20px;"><i class="fas fa-plus"></i> Compartir</button>
+                </form>
             </div>
             <div id="lista-abismo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <p style="color: #ccc; text-align: center; width: 100%;">Cargando grabaciones del abismo...</p>
@@ -239,7 +241,7 @@
     <div id="modal-registro-nick" class="modal">
         <div class="modal-box container-glass" style="border-color: var(--green) !important;">
             <h3 style="color: var(--green); margin-bottom: 15px;">Elige tu Identidad Ninja</h3>
-            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Hemos protegido tu privacidad. ¿Con qué Nick quieres ser conocido en la aldea? (Puedes usar fuentes especiales y símbolos).</p>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Hemos protegido tu privacidad. ¿Con qué Nick quieres ser conocido en la aldea?</p>
             <form id="form-registro-nick">
                 <input type="text" id="nuevo-nick" placeholder="Tu Nick in-game (Ej: 𝕴𝖙𝖆𝖈𝖍𝖎 ॐ)" required style="width: 100%; padding: 15px; margin-bottom: 20px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; font-size: 1.1rem; text-align: center;">
                 <button type="submit" class="btn-save" style="background: var(--green); color: black;">CONFIRMAR IDENTIDAD</button>
@@ -302,7 +304,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
-    <script src="app.js?v=3.13"></script>
+    <script src="app.js?v=3.14"></script>
 </body>
 </html>
