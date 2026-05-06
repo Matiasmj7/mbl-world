@@ -16,7 +16,6 @@ const db = firebase.firestore();
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
 let currentFilter = 'todos'; 
-// Variable para recordar qué plataforma forzó el admin
 let kageStreamPlat = 'twitch'; 
 let kageStreamUser = 'matias_mj7';
 
@@ -55,29 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. --- LÓGICA DINÁMICA DEL BYAKUGAN (CORREGIDO ERROR TWITCH) ---
+    // 3. LÓGICA DINÁMICA DEL BYAKUGAN (EXTRACTOR INTELIGENTE)
     db.collection('configuracion').doc('stream').onSnapshot(doc => {
         if (doc.exists) {
             const data = doc.data();
-            kageStreamUser = data.usuario;
             kageStreamPlat = data.plataforma;
-
-            // Extraer solo ID/Usuario si pegaron la URL completa
-            if (kageStreamUser.includes('twitch.tv/')) kageStreamUser = kageStreamUser.split('twitch.tv/')[1].split('?')[0];
-            if (kageStreamUser.includes('kick.com/')) kageStreamUser = kageStreamUser.split('kick.com/')[1].split('?')[0];
-            if (kageStreamUser.includes('tiktok.com/@')) kageStreamUser = kageStreamUser.split('@')[1].split('/')[0];
-            if (kageStreamUser.includes('youtube.com/watch?v=')) kageStreamUser = kageStreamUser.split('v=')[1].split('&')[0];
+            kageStreamUser = extraerIdLimpio(data.usuario, kageStreamPlat);
 
             document.getElementById('status-stream').innerText = `SEÑAL ACTUALIZADA POR EL KAGE: ${kageStreamPlat.toUpperCase()}`;
-            
-            // Forzar carga de la plataforma dictada por el Kage
             cambiarStreamLocal(kageStreamPlat, kageStreamUser);
         } else {
             document.getElementById('status-stream').innerText = "ESPERANDO ÓRDENES DEL KAGE...";
         }
     });
 
-    // GUARDAR NUEVA CONFIGURACIÓN DE STREAM (ADMIN)
     const formConfigStream = document.getElementById('form-config-stream');
     if(formConfigStream) {
         formConfigStream.addEventListener('submit', (e) => {
@@ -90,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3B. NUEVA PESTAÑA: ASCENDER NINJAS (PAGOS)
+    // PESTAÑA: ASCENDER NINJAS (PAGOS)
     const formAscenso = document.getElementById('form-ascenso');
     if(formAscenso) {
         formAscenso.addEventListener('submit', (e) => {
@@ -108,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // CARGAR LISTA DE ASCENDIDOS AL PANEL ADMIN
     db.collection('usuarios_rango').orderBy('fecha_ascenso', 'desc').onSnapshot(snap => {
         const listaRangos = document.getElementById('lista-rangos');
         if(listaRangos) {
@@ -199,7 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// FUNCIONES AUXILIARES
+// ==========================================
+// FUNCIONES AUXILIARES Y EXTRACTOR INTELIGENTE
+// ==========================================
+
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 
 function abrirModalAnuncio(e) {
@@ -212,21 +204,34 @@ function abrirModalAnuncio(e) {
     }
 }
 
-// FUNCIÓN PARA QUE LOS BOTONES CAMBIEN EL STREAM LOCALMENTE
-// También arregla el error de conexión de Twitch obteniendo el dominio real
+function extraerIdLimpio(urlCruda, plataforma) {
+    let id = urlCruda.trim();
+    try {
+        if (plataforma === 'twitch') {
+            if (id.includes('twitch.tv/')) id = id.split('twitch.tv/')[1].split('?')[0].replace('/', '');
+        } else if (plataforma === 'youtube') {
+            if (id.includes('v=')) id = id.split('v=')[1].split('&')[0];
+            else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0];
+            else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0];
+        } else if (plataforma === 'kick') {
+            if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', '');
+        } else if (plataforma === 'tiktok') {
+            if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0];
+        }
+    } catch(e) {
+        console.log("Error filtrando enlace:", e);
+    }
+    return id;
+}
+
 function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
     const iframe = document.getElementById('stream-frame');
     const botones = document.querySelectorAll('.plat-btn');
     
-    // Si no se le pasa usuario (es decir, el usuario tocó el botón manualmente),
-    // usa el canal que el Admin haya configurado en base de datos.
-    const canalAUsar = usuarioFuerza || kageStreamUser;
-    
-    // Detecta automáticamente en qué dominio web estamos (Vercel, localhost, etc)
-    // ESTO ARREGLA EL ERROR DE TWITCH
+    let canalAUsar = usuarioFuerza ? usuarioFuerza : extraerIdLimpio(kageStreamUser, kageStreamPlat);
     const currentDomain = window.location.hostname;
-
     let finalSrc = "";
+
     if (plataforma === 'twitch') {
         finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`;
     } else if (plataforma === 'youtube') {
@@ -239,14 +244,12 @@ function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
     
     if(iframe) iframe.src = finalSrc;
 
-    // Colorear el botón activo
     botones.forEach(btn => {
         btn.style.background = '#111';
         btn.style.color = 'white';
         btn.style.border = '1px solid #444';
     });
     
-    // Buscar el botón correspondiente y pintarlo
     let btnActivo = null;
     if(plataforma === 'twitch') btnActivo = botones[0];
     if(plataforma === 'youtube') btnActivo = botones[1];
