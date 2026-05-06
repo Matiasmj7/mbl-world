@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 formato: document.getElementById('t-formato').value,
                 fecha: document.getElementById('t-fecha').value,
                 cuposTotales: parseInt(document.getElementById('t-cupos').value), 
-                lista_inscriptos: [], // Cambiado a array para guardar nombres
+                lista_inscriptos: [], 
                 premio: document.getElementById('t-premio').value,
                 privado: esPrivado,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -134,9 +134,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formAnuncio.reset();
-                window.location.hash = '#gremio'; // Cierra el modal
+                window.location.hash = '#gremio'; 
                 alert("Anuncio publicado en el tablón.");
             });
+        });
+    }
+
+    // 8. BLOQUEAR SUBIDA DE VIDEO SI NO ESTÁ LOGUEADO (ABISMO)
+    const videoUpload = document.getElementById('video-upload');
+    if(videoUpload) {
+        videoUpload.addEventListener('click', (e) => {
+            if(currentUserName === "Ninja Anónimo") {
+                e.preventDefault(); // Detiene que se abra la ventana de archivos
+                alert("Atención: Debes Ingresar a la página con Google para compartir tu jugada.");
+                window.location.hash = "#modal-login";
+            }
         });
     }
 });
@@ -149,12 +161,14 @@ function cerrarSesion() {
     firebase.auth().signOut().then(() => window.location.reload());
 }
 
-function verificarLogin() {
+// Nueva función exclusiva para el botón del Gremio
+function abrirModalAnuncio(e) {
+    if(e) e.preventDefault();
     if(currentUserName === "Ninja Anónimo") {
-        alert("Atención: Debes Ingresar a la página con Google para usar esta función.");
+        alert("Atención: Debes Ingresar a la página con Google para publicar en el Tablón.");
         window.location.hash = "#modal-login";
     } else {
-        window.location.hash = "#modal-anuncio"; // Abre el modal de anuncio si está logueado
+        window.location.hash = "#modal-anuncio"; 
     }
 }
 
@@ -199,7 +213,6 @@ function cargarTorneosDesdeNube() {
 
                 const etiquetaPrivado = data.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
                 
-                // Mostrar pequeña lista de nombres si hay inscriptos (máximo 3 para no saturar)
                 let nombresPreview = "";
                 if(inscritos > 0) {
                     const primerosNombres = data.lista_inscriptos.slice(0, 3).join(", ");
@@ -231,7 +244,6 @@ function cargarTorneosDesdeNube() {
     });
 }
 
-// Función para inscribirse en la base de datos
 function unirseTorneo(torneoId) {
     if(currentUserName === "Ninja Anónimo") {
         alert("Debes ingresar con tu cuenta para unirte a un torneo.");
@@ -241,7 +253,6 @@ function unirseTorneo(torneoId) {
 
     const torneoRef = db.collection('torneos').doc(torneoId);
     
-    // Obtenemos el torneo para validar cupos antes de escribir
     torneoRef.get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -250,7 +261,6 @@ function unirseTorneo(torneoId) {
             if (inscritos >= data.cuposTotales) {
                 alert("Lo sentimos, este torneo ya está lleno.");
             } else {
-                // Agrega al usuario al array de inscriptos (evita duplicados automáticamente)
                 torneoRef.update({
                     lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName)
                 }).then(() => {
@@ -261,7 +271,6 @@ function unirseTorneo(torneoId) {
     });
 }
 
-// Renderizar Anuncios del Gremio
 function cargarAnunciosGremio() {
     const listaAnuncios = document.getElementById('lista-anuncios');
     if(!listaAnuncios) return;
