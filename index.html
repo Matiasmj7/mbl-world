@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.12"> 
+    <link rel="stylesheet" href="style.css?v=3.13"> 
 </head>
 <body>
 
@@ -136,15 +136,11 @@
             <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
             <div style="text-align: center; margin-bottom: 30px;">
                 <input type="file" id="video-upload" style="display: none;" accept="video/*">
-                <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
+                <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;" id="btn-upload-video"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
+                <div id="upload-status" style="color: var(--green); margin-top: 10px; font-size: 0.9rem; display: none;"><i class="fas fa-spinner fa-spin"></i> Subiendo pergamino visual... por favor espera.</div>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <div class="container-glass" style="padding: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><img src="https://ui-avatars.com/api/?name=Sasuke" style="width: 30px; border-radius: 50%;"><strong style="font-size: 0.9rem;">SasukePro</strong></div>
-                    <div style="height: 180px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #333; margin-bottom: 10px;"><i class="fas fa-play"></i></div>
-                    <p style="font-size: 0.9rem; margin-bottom: 10px;">Savage épico defendiendo el nexo 🔥</p>
-                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;"><button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-heart" style="color: var(--red);"></i> 45</button><button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-comment"></i> 12</button></div>
-                </div>
+            <div id="lista-abismo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <p style="color: #ccc; text-align: center; width: 100%;">Cargando grabaciones del abismo...</p>
             </div>
         </section>
 
@@ -281,9 +277,32 @@
         </div>
     </div>
 
+    <div id="modal-perfil" class="modal">
+        <div class="modal-box container-glass" style="border-color: var(--blue) !important; max-width: 400px;">
+            <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)"><i class="fas fa-times"></i></a>
+            <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-id-card"></i> Identidad Ninja</h3>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://ui-avatars.com/api/?name=Ninja&background=random" id="perfil-avatar" style="width: 80px; border-radius: 50%; border: 2px solid var(--blue); margin-bottom: 10px;">
+                <h2 id="perfil-nick" style="color: white; margin-bottom: 5px;">Cargando...</h2>
+                <span id="perfil-rango" style="background: var(--blue); color: black; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">Rango</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                <div style="background: #111; padding: 10px; border-radius: 5px; border: 1px solid #333; text-align: center;">
+                    <span style="color: #888; font-size: 0.8rem;">Experiencia</span><br>
+                    <strong style="color: gold; font-size: 1.2rem;" id="perfil-xp">0 XP</strong>
+                </div>
+                <div style="background: #111; padding: 10px; border-radius: 5px; border: 1px solid #333; text-align: center;">
+                    <span style="color: #888; font-size: 0.8rem;">Campeonatos</span><br>
+                    <strong style="color: var(--green); font-size: 1.2rem;" id="perfil-campeonatos">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.12"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+    <script src="app.js?v=3.13"></script>
 </body>
 </html>
