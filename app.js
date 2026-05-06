@@ -15,7 +15,7 @@ const db = firebase.firestore();
 // ACCESO KAGE
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
-let currentFilter = 'todos'; // Filtro de torneos por defecto
+let currentFilter = 'todos'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(userDisplay) { userDisplay.innerText = currentUserName; userDisplay.href = "#"; }
             if(userGreeting) userGreeting.innerText = currentUserName;
 
-            // Privilegios Kage
             if(user.email === ADMIN_EMAIL) {
                 if(adminNav) adminNav.style.display = 'block';
                 if(adminSection) adminSection.style.display = 'block';
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. CARGAR TORNEOS Y APLICAR FILTROS EN TIEMPO REAL
+    // 3. CARGAR TORNEOS
     cargarTorneosDesdeNube();
 
     // 4. CREAR TORNEOS (Kage)
@@ -71,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombre: document.getElementById('t-nombre').value,
                 formato: document.getElementById('t-formato').value,
                 fecha: document.getElementById('t-fecha').value,
-                cuposTotales: document.getElementById('t-cupos').value, // Renombrado a cuposTotales
-                inscriptos: 0, // Inicia en 0
+                cuposTotales: document.getElementById('t-cupos').value, 
+                inscriptos: 0, 
                 premio: document.getElementById('t-premio').value,
                 privado: esPrivado,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -109,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
             chatContainer.innerHTML = '';
             snap.forEach(doc => { 
                 const d = doc.data(); 
-                // Colorear el nombre de Matías de rojo para distinguirlo
                 const nameColor = (d.usuario === 'Matías') ? 'var(--red)' : 'var(--blue)';
                 chatContainer.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px;"><strong style="color:${nameColor}; margin-right: 5px;">${d.usuario}:</strong> ${d.texto}</div>`; 
             });
@@ -117,8 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-// FUNCIONES AUXILIARES
 
 function cerrarSesion() {
     firebase.auth().signOut().then(() => window.location.reload());
@@ -131,16 +127,13 @@ function verificarLogin() {
     }
 }
 
-// Lógica de Filtros de Torneos
 function filtrarTorneos(formato) {
     currentFilter = formato;
     
-    // Cambiar clases visuales de los botones
     const botones = document.querySelectorAll('.btn-filter');
     botones.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 
-    // Recargar la lista
     cargarTorneosDesdeNube();
 }
 
@@ -155,7 +148,6 @@ function cargarTorneosDesdeNube() {
         snap.forEach(doc => {
             const d = doc.data();
             
-            // Aplicar filtro lógico
             if(currentFilter === 'todos' || d.formato === currentFilter) {
                 hayTorneosVisibles = true;
                 const etiquetaPrivado = d.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
@@ -184,7 +176,6 @@ function cargarTorneosDesdeNube() {
     });
 }
 
-// Lógica de Tabs del Admin
 function mostrarTabAdmin(tabId) {
     document.getElementById('tab-torneos').style.display = 'none';
     document.getElementById('tab-pagos').style.display = 'none';
@@ -196,7 +187,6 @@ function mostrarTabAdmin(tabId) {
     event.target.classList.add('active');
 }
 
-// Selector de Stream
 function cambiarStream(plataforma) {
     const iframe = document.getElementById('stream-frame');
     const botones = document.querySelectorAll('.plat-btn');
