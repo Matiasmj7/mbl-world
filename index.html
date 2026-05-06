@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.18"> 
+    <link rel="stylesheet" href="style.css?v=3.19"> 
 </head>
 <body>
 
@@ -148,7 +148,7 @@
                     <span style="color: #888; font-size: 0.9rem;">Billetera:</span> 
                     <strong style="color: #ff9900; font-size: 1.2rem;" id="tienda-mis-ryos"><i class="fas fa-coins"></i> 0 Ryos</strong>
                 </div>
-                <button class="btn-secondary" style="margin-left: 10px; padding: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
+                <button id="btn-trabajar" class="btn-secondary" style="margin-left: 10px; padding: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
             </div>
             
             <div id="catalogo-tienda" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
@@ -209,9 +209,10 @@
             <div class="container-glass">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Torneos</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-byakugan')">Control Byakugan</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Gestionar Llaves</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Otorgar Permisos</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-byakugan')">Byakugan</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Llaves</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Ascensos</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-banco')" style="color: gold; border-color: gold;"><i class="fas fa-coins"></i> Banco Kage</button>
                 </div>
 
                 <div id="tab-torneos">
@@ -257,6 +258,16 @@
                         <h4 style="color: var(--blue); margin-bottom: 15px;">Ninjas con Plan Activo</h4>
                         <div id="lista-rangos" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; min-height: 50px;"></div>
                     </div>
+                </div>
+
+                <div id="tab-banco" style="display: none;">
+                    <h3 style="color: gold; margin-bottom: 15px;"><i class="fas fa-coins"></i> Tesorería Central</h3>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Transfiere fondos ilimitados a cualquier usuario de la aldea.</p>
+                    <form id="form-banco-kage" class="admin-form">
+                        <input type="text" id="banco-usuario" placeholder="Nick exacto del ninja..." required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;">
+                        <input type="number" id="banco-monto" placeholder="Cantidad de Ryos a enviar..." required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;">
+                        <button type="submit" class="btn-save" style="background: gold; color: black;"><i class="fas fa-paper-plane"></i> ENVIAR RYOS</button>
+                    </form>
                 </div>
             </div>
         </section>
@@ -304,7 +315,7 @@
         <div class="modal-box container-glass">
             <a href="#modal-llaves" class="btn-close" onclick="document.getElementById('modal-reporte').style.display='none';"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-flag"></i> Reportar Resultado</h3>
-            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 20px;">Indica el ganador. Puedes pegar un enlace de tu captura de pantalla, o si arreglaste con el Kage por WhatsApp, déjalo en blanco.</p>
+            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 20px;">Indica el ganador. Puedes pegar un enlace de tu captura de pantalla.</p>
             <form id="form-reporte">
                 <input type="hidden" id="rep-torneo-id">
                 <input type="hidden" id="rep-partido-id">
@@ -333,7 +344,7 @@
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;"><span style="color: var(--blue); font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA PESOS (ARS)</span><br><strong style="font-size: 1.1rem;">Alias: matias.mj7</strong></div>
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;"><span style="color: #28a745; font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA DÓLARES (USD)</span><br><strong style="font-size: 1.1rem;">Alias: matias.mj7.usd</strong></div>
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-all;"><span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT BEP20)</span><br><strong style="font-size: 0.9rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
-            <a href="https://wa.me/541165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20un%20pago%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante%20y%20el%20plan%20que%20deseo%20contratar." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;"><i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE</a>
+            <a href="https://wa.me/541165658881" target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;"><i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE</a>
         </div>
     </div>
 
@@ -395,6 +406,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.18"></script>
+    <script src="app.js?v=3.19"></script>
 </body>
 </html>
