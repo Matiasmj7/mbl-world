@@ -11,7 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage(); // Inicializado el servicio de archivos para el Abismo
+// Nota: Eliminamos la inicialización de Firebase Storage para ahorrar costos y recursos.
 
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
@@ -115,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let colorBorde = '#333';
                 if(puesto === 1) colorBorde = 'gold'; else if(puesto === 2) colorBorde = 'silver'; else if(puesto === 3) colorBorde = '#cd7f32';
 
-                // Añadida la función onclick abrirPerfil
                 rankingContainer.innerHTML += `
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid ${colorBorde}; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${data.nick}')" onmouseover="this.style.background='#111'" onmouseout="this.style.background='#000'">
                         <div><strong>${puesto}. <span style="color: var(--blue);">${data.nick}</span></strong></div>
@@ -162,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. CHAT Y GREMIO (Nombres con abrirPerfil)
+    // 5. CHAT Y GREMIO
     const btnSendChat = document.getElementById('btn-send-chat');
     if(btnSendChat) {
         btnSendChat.addEventListener('click', () => {
@@ -199,59 +198,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 6. NUEVO: LÓGICA DEL ABISMO (FIREBASE STORAGE)
+    // 6. NUEVO ABISMO: LÓGICA DE ENLACES EXTERNOS
     // ==========================================
-    const videoUpload = document.getElementById('video-upload');
-    if(videoUpload) {
-        videoUpload.addEventListener('change', async (e) => {
+    const formAbismo = document.getElementById('form-abismo');
+    if(formAbismo) {
+        formAbismo.addEventListener('submit', (e) => {
+            e.preventDefault();
             if(currentUserName === "Ninja Anónimo") {
                 alert("Atención: Debes Ingresar a la página para compartir tu jugada.");
                 window.location.hash = "#modal-login";
                 return;
             }
             
-            const file = e.target.files[0];
-            if(!file) return;
-
-            // Limite de 20MB para proteger el almacenamiento
-            if(file.size > 20 * 1024 * 1024) {
-                alert("El pergamino es demasiado pesado. El límite es de 20MB por video.");
-                videoUpload.value = "";
+            const urlInput = document.getElementById('video-url').value.trim();
+            let embedUrl = "";
+            let plataforma = "desconocida";
+            
+            if(urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
+                plataforma = "youtube";
+                const id = extraerIdLimpio(urlInput, 'youtube');
+                embedUrl = `https://www.youtube.com/embed/${id}`;
+            } else if(urlInput.includes('tiktok.com')) {
+                plataforma = "tiktok";
+                const id = extraerIdLimpio(urlInput, 'tiktok');
+                if(id) {
+                    embedUrl = `https://www.tiktok.com/embed/v2/${id}`;
+                } else {
+                    embedUrl = urlInput; // Por si pegan un link acortado
+                }
+            } else {
+                alert("Error de chakra: Por ahora solo puedes compartir enlaces de YouTube o TikTok.");
                 return;
             }
 
-            document.getElementById('upload-status').style.display = 'block';
-            document.getElementById('btn-upload-video').style.display = 'none';
-
-            try {
-                // Subir a Firebase Storage
-                const storageRef = storage.ref(`abismo/${currentUserId}_${Date.now()}_${file.name}`);
-                const snapshot = await storageRef.put(file);
-                const downloadURL = await snapshot.ref.getDownloadURL();
-
-                // Guardar la URL en Firestore
-                await db.collection('abismo_videos').add({
-                    usuario: currentUserName,
-                    url: downloadURL,
-                    likes: 0,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                alert("¡Tu jugada ha sido inmortalizada en el Abismo!");
-            } catch(error) {
-                console.error("Error subiendo video:", error);
-                alert("Hubo un error de chakra al subir el video. Intenta de nuevo.");
-            } finally {
-                document.getElementById('upload-status').style.display = 'none';
-                document.getElementById('btn-upload-video').style.display = 'inline-block';
-                videoUpload.value = ""; 
-            }
+            db.collection('abismo_videos').add({
+                usuario: currentUserName,
+                url: embedUrl,
+                urlCruda: urlInput,
+                plataforma: plataforma,
+                likes: 0,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("¡Tu pergamino visual ha sido publicado en el Abismo!");
+                formAbismo.reset();
+            }).catch(err => {
+                alert("Hubo un error al publicar: " + err.message);
+            });
         });
     }
 
     cargarTorneosDesdeNube();
     cargarAnunciosGremio();
-    cargarVideosAbismo(); // Llamada a la nueva función
+    cargarVideosAbismo(); 
 });
 
 // ==========================================
@@ -265,23 +263,35 @@ function cargarVideosAbismo() {
     db.collection('abismo_videos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         lista.innerHTML = '';
         if(snap.empty) {
-            lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. ¡Sé el primero en subir una jugada!</p>';
+            lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. ¡Copia el link de tu mejor jugada y sé el primero en publicarla!</p>';
             return;
         }
         snap.forEach(doc => {
             const d = doc.data();
+            let reproductorHTML = "";
+            
+            // Si tiene 'embed', lo ponemos en un iframe para que se vea dentro de tu página.
+            if(d.url && d.url.includes('embed')) {
+                reproductorHTML = `<iframe src="${d.url}" style="width: 100%; height: 350px; border: none; border-radius: 8px;" allowfullscreen></iframe>`;
+            } else {
+                // Si es un link muy raro o acortado, ponemos un botón para abrirlo en otra pestaña.
+                reproductorHTML = `
+                <div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #111; border-radius: 8px;">
+                    <a href="${d.urlCruda}" target="_blank" class="btn-secondary" style="text-decoration: none;"><i class="fas fa-external-link-alt"></i> Ver jugada en TikTok</a>
+                </div>`;
+            }
+
             lista.innerHTML += `
                 <div class="container-glass" style="padding: 15px; border-color: var(--blue) !important;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${d.usuario}')" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                         <img src="https://ui-avatars.com/api/?name=${d.usuario}&background=random" style="width: 30px; border-radius: 50%; border: 1px solid var(--blue);">
                         <strong style="font-size: 0.9rem; color: white;">${d.usuario}</strong>
                     </div>
-                    <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
-                        <video controls style="width: 100%; max-height: 250px;">
-                            <source src="${d.url}" type="video/mp4">
-                            Tu dispositivo no soporta la visión del Abismo.
-                        </video>
+                    
+                    <div style="margin-bottom: 10px;">
+                        ${reproductorHTML}
                     </div>
+
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;">
                         <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; transition: 0.2s;" onclick="darLikeVideo('${doc.id}')" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='#ccc'">
                             <i class="fas fa-heart"></i> <span style="font-size: 0.9rem;">${d.likes || 0}</span>
@@ -294,7 +304,7 @@ function cargarVideosAbismo() {
 }
 
 function darLikeVideo(videoId) {
-    if(currentUserName === "Ninja Anónimo") return alert("Debes identificarte para dar Like.");
+    if(currentUserName === "Ninja Anónimo") return alert("Debes identificarte en la aldea para dar Like.");
     db.collection('abismo_videos').doc(videoId).update({
         likes: firebase.firestore.FieldValue.increment(1)
     });
@@ -311,7 +321,6 @@ async function abrirPerfil(nick) {
     window.location.hash = '#modal-perfil';
 
     try {
-        // Buscar info del ninja
         const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
         if(!snapshot.empty) {
             const data = snapshot.docs[0].data();
@@ -322,7 +331,6 @@ async function abrirPerfil(nick) {
             document.getElementById('perfil-xp').innerText = `0 XP`;
         }
 
-        // Buscar campeonatos ganados
         const torneosSnap = await db.collection('torneos').where('campeon', '==', nick).get();
         document.getElementById('perfil-campeonatos').innerText = torneosSnap.size;
 
@@ -331,12 +339,8 @@ async function abrirPerfil(nick) {
     }
 }
 
-function cerrarModalPerfil(e) {
-    e.preventDefault();
-    history.back(); // Regresa para no perder el hash si estaba en otra sección
-}
+function cerrarModalPerfil(e) { e.preventDefault(); history.back(); }
 
-// RESTO DE FUNCIONES GLOBALES
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar primero."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
 
@@ -410,7 +414,6 @@ function cargarTorneosDesdeNube() {
 
                 const etiquetaPrivado = data.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
                 
-                // Nombres clickeables en los participantes
                 let nombresPreview = "";
                 if(inscritos > 0) {
                     const primerosNombres = data.lista_inscriptos.slice(0, 3).map(n => `<span style="cursor:pointer; color:var(--blue);" onclick="abrirPerfil('${n}')">${n}</span>`).join(", ");
