@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.16"> 
+    <link rel="stylesheet" href="style.css?v=3.17"> 
 </head>
 <body>
 
@@ -28,7 +28,11 @@
                 <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin"><i class="fas fa-user-shield"></i> Mando Kage</a></li>
             </ul>
         </nav>
-        <div class="auth-zone">
+        <div class="auth-zone" style="display: flex; align-items: center; gap: 15px;">
+            <a href="#" onclick="abrirNotificaciones(event)" id="btn-notif" style="display:none; color: white; position: relative; font-size: 1.2rem; transition: 0.3s;">
+                <i class="fas fa-bell"></i>
+                <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-10px; background:var(--red); color:white; border-radius:50%; padding:2px 5px; font-size:0.6rem; font-weight:bold;">0</span>
+            </a>
             <a href="#modal-login" class="btn-auth" id="user-display">Ingresar</a>
             <div class="user-popover" id="user-dropdown">
                 <button onclick="cerrarSesion()" class="btn-exit"><i class="fas fa-sign-out-alt"></i> Salir</button>
@@ -219,7 +223,7 @@
 
                 <div id="tab-llaves-admin" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Mando de Batalla</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o revisar los reportes de los jugadores.</p>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces, revisar los reportes o eliminar registros.</p>
                     <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;"></div>
                 </div>
 
@@ -244,6 +248,16 @@
             <a href="#" class="btn-close"><i class="fas fa-times"></i></a>
             <h3>IDENTIFICACIÓN NINJA</h3>
             <button class="btn-google" id="login-google"><i class="fab fa-google"></i> Google Login</button>
+        </div>
+    </div>
+
+    <div id="modal-notificaciones" class="modal">
+        <div class="modal-box container-glass" style="max-width: 450px; border-color: var(--blue) !important;">
+            <a href="#" class="btn-close" onclick="document.getElementById('modal-notificaciones').style.display='none';"><i class="fas fa-times"></i></a>
+            <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-bell"></i> Avisos de la Aldea</h3>
+            <div id="lista-notificaciones-contenido" style="max-height: 350px; overflow-y: auto; text-align: left;">
+                <p style="color:#888; text-align:center;">El viento está en calma. No hay mensajes.</p>
+            </div>
         </div>
     </div>
 
@@ -354,8 +368,7 @@
                 <p style="color: gold; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem;"><i class="fas fa-star"></i> <span id="clan-xp-display">0</span> XP Total</p>
                 <div style="text-align: left; background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333;">
                     <h4 style="color: #888; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px;">Camaradas</h4>
-                    <ul id="lista-miembros-clan" style="list-style: none; color: #ccc; font-size: 0.9rem; max-height: 150px; overflow-y: auto;">
-                        </ul>
+                    <ul id="lista-miembros-clan" style="list-style: none; color: #ccc; font-size: 0.9rem; max-height: 150px; overflow-y: auto;"></ul>
                 </div>
                 <button class="btn-secondary" style="border: 1px solid var(--red); color: var(--red); background: transparent; padding: 10px 20px;" onclick="abandonarClan()"><i class="fas fa-door-open"></i> Abandonar Escuadrón</button>
             </div>
@@ -365,6 +378,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.16"></script>
+    <script src="app.js?v=3.17"></script>
 </body>
 </html>
