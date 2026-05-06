@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.14"> 
+    <link rel="stylesheet" href="style.css?v=3.15"> 
 </head>
 <body>
 
@@ -210,7 +210,7 @@
 
                 <div id="tab-llaves-admin" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Mando de Batalla</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o administrar los resultados.</p>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o revisar los reportes de los jugadores.</p>
                     <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;"></div>
                 </div>
 
@@ -255,6 +255,24 @@
             <h3 style="color: var(--blue); margin-bottom: 20px;" id="llaves-titulo">Llaves del Torneo</h3>
             <div id="contenedor-campeon" style="margin-bottom: 15px;"></div>
             <div id="contenedor-llaves-texto" style="text-align: left; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <div id="modal-reporte" class="modal">
+        <div class="modal-box container-glass">
+            <a href="#modal-llaves" class="btn-close" onclick="document.getElementById('modal-reporte').style.display='none';"><i class="fas fa-times"></i></a>
+            <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-flag"></i> Reportar Resultado</h3>
+            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 20px;">Indica el ganador. Puedes pegar un enlace de tu captura de pantalla, o si arreglaste con el Kage por WhatsApp, déjalo en blanco.</p>
+            <form id="form-reporte">
+                <input type="hidden" id="rep-torneo-id">
+                <input type="hidden" id="rep-partido-id">
+                <label style="color: #aaa; font-size: 0.8rem;">¿Quién ganó la batalla?</label>
+                <select id="rep-ganador" required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                    </select>
+                <label style="color: #aaa; font-size: 0.8rem;">Prueba (URL de imagen - Opcional)</label>
+                <input type="text" id="rep-prueba" placeholder="Ej: https://imgur.com/tu_foto" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                <button type="submit" class="btn-primary" style="width: 100%; border: none;">ENVIAR REPORTE AL KAGE</button>
+            </form>
         </div>
     </div>
 
@@ -304,6 +322,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.14"></script>
+    <script src="app.js?v=3.15"></script>
 </body>
 </html>
