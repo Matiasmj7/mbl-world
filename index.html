@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.5"> 
+    <link rel="stylesheet" href="style.css?v=3.6"> 
 </head>
 <body>
 
@@ -49,11 +49,15 @@
         <section id="stream" class="section">
             <h2 class="section-head"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
             <div class="container-glass stream-box">
-                <div class="platform-selector" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
-                    <span style="color: #888; font-size: 0.8rem; align-self: center; margin-right: 10px;">SEÑAL ACTUALIZADA POR EL KAGE:</span>
-                </div>
                 
-                <div id="status-stream" style="text-align: center; font-size: 0.8rem; color: var(--blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">Sincronizando señal...</div>
+                <div class="platform-selector" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="plat-btn active" onclick="cambiarStreamLocal('twitch')" style="background: var(--blue); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-twitch"></i> Twitch</button>
+                    <button class="plat-btn" onclick="cambiarStreamLocal('youtube')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-youtube"></i> YouTube</button>
+                    <button class="plat-btn" onclick="cambiarStreamLocal('kick')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fas fa-bolt"></i> Kick</button>
+                    <button class="plat-btn" onclick="cambiarStreamLocal('tiktok')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-tiktok"></i> TikTok</button>
+                </div>
+
+                <div id="status-stream" style="text-align: center; font-size: 0.8rem; color: var(--blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">Sincronizando señal del Kage...</div>
 
                 <div class="stream-grid">
                     <div class="video-container">
@@ -61,7 +65,7 @@
                     </div>
                     <div class="chat-container">
                         <div class="chat-head"><i class="fab fa-discord"></i> Chat de la Aldea</div>
-                        <iframe class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473"></iframe>
+                        <iframe class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" style="min-height: 450px; flex-grow: 1;"></iframe>
                     </div>
                 </div>
             </div>
@@ -170,7 +174,6 @@
                     <div class="container-glass" style="margin-bottom: 20px;">
                         <h3 style="color: var(--green); margin-bottom: 15px;">Tablón de Anuncios</h3>
                         <a href="#" onclick="abrirModalAnuncio(event)" class="btn-secondary" style="display: block; text-align: center; margin-bottom: 20px;"><i class="fas fa-edit"></i> Publicar Solicitud de Escuadrón</a>
-                        
                         <div id="lista-anuncios" style="display: flex; flex-direction: column; gap: 15px;">
                             <p style="color: #666; text-align: center;">Buscando pergaminos en el tablón...</p>
                         </div>
@@ -195,7 +198,7 @@
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Torneos</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-byakugan')">Control Byakugan</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Pagos</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Otorgar Permisos</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-ban')">Banear</button>
                 </div>
 
@@ -231,15 +234,31 @@
                             <option value="kick">Kick</option>
                             <option value="tiktok">TikTok (ID del Video)</option>
                         </select>
-                        
                         <label style="font-size: 0.8rem; color: #aaa;">Nombre de Usuario o ID</label>
                         <input type="text" id="stream-usuario" placeholder="Ej: matias_mj7" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 20px;">
-                        
                         <button type="submit" class="btn-save" style="background: var(--blue); color: black;"><i class="fas fa-sync-alt"></i> ACTUALIZAR SEÑAL DEL BYAKUGAN</button>
                     </form>
                 </div>
 
-                <div id="tab-pagos" style="display: none;"><p>Gestión de pagos...</p></div>
+                <div id="tab-pagos" style="display: none;">
+                    <h3 style="color: var(--green); margin-bottom: 15px;"><i class="fas fa-arrow-up"></i> Otorgar Rango (Post-Pago)</h3>
+                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Una vez que verifiques el comprobante en tu WhatsApp, escribe el Nick del usuario para ascenderlo y darle permisos.</p>
+                    <form id="form-ascenso" class="admin-form">
+                        <input type="text" id="p-usuario" placeholder="Nick exacto del usuario..." required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;">
+                        <select id="p-rango" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;">
+                            <option value="Aliado">Plan Aliado</option>
+                            <option value="Kage Elite">Plan Kage Elite</option>
+                        </select>
+                        <button type="submit" class="btn-save" style="background: var(--green); color: black;"><i class="fas fa-star"></i> ASCENDER NINJA</button>
+                    </form>
+
+                    <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
+                        <h4 style="color: var(--blue); margin-bottom: 15px;">Ninjas con Plan Activo</h4>
+                        <div id="lista-rangos" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; min-height: 50px;">
+                            </div>
+                    </div>
+                </div>
+
                 <div id="tab-ban" style="display: none;"><input type="text" placeholder="Nick a banear..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"><button class="btn-primary" style="width: 100%; margin-top: 10px;">BANEAR</button></div>
             </div>
         </section>
@@ -281,6 +300,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.5"></script>
+    <script src="app.js?v=3.6"></script>
 </body>
 </html>
