@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.0"> 
+    <link rel="stylesheet" href="style.css?v=3.1"> 
 </head>
 <body>
 
@@ -90,21 +90,26 @@
                 <div class="plan-card container-glass">
                     <h3>PLAN ALIADO</h3>
                     <div class="price">$4.000 ARS</div>
-                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc;">
-                        <li><i class="fas fa-check" style="color: var(--blue);"></i> Crea Torneos 1v1 y 2v2</li>
-                        <li><i class="fas fa-check" style="color: var(--blue);"></i> Panel de Llaves</li>
+                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc; text-align: left; padding-left: 10px;">
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--blue);"></i> Crea Torneos formato 1v1 y 2v2</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--blue);"></i> Gestión básica de participantes</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--blue);"></i> Acceso al Panel de Llaves</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--blue);"></i> Permiso de publicación en la Taberna</li>
                     </ul>
-                    <button onclick="abrirModalPago('aliado')" class="btn-submit" style="display: block; text-align: center;">Contratar</button>
+                    <a href="#modal-pago" class="btn-submit" style="display: block; text-align: center;">Contratar</a>
                 </div>
+                
                 <div class="plan-card container-glass" style="border-color: var(--red) !important; background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.95) 100%) !important;">
                     <div style="background: var(--red); color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">ELITE</div>
                     <h3>KAGE ELITE</h3>
                     <div class="price">$10.000 ARS</div>
-                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc;">
-                        <li><i class="fas fa-check" style="color: var(--red);"></i> Todos los formatos (hasta 5v5)</li>
-                        <li><i class="fas fa-check" style="color: var(--red);"></i> Torneos Privados</li>
+                    <ul style="list-style: none; margin-bottom: 20px; color: #ccc; text-align: left; padding-left: 10px;">
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--red);"></i> Todos los formatos (hasta 5v5)</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--red);"></i> Opción de Torneos Privados (con clave)</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--red);"></i> Gestión total de llaves y usuarios</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check" style="color: var(--red);"></i> Reserva de fechas exclusivas en la Arena</li>
                     </ul>
-                    <button onclick="abrirModalPago('kage')" class="btn-primary" style="display: block; text-align: center; width: 100%;">Convertirme en Kage</button>
+                    <a href="#modal-pago" class="btn-primary" style="display: block; text-align: center; width: 100%;">Convertirme en Kage</a>
                 </div>
             </div>
         </section>
@@ -285,7 +290,6 @@
                     <input type="text" placeholder="Ingresar Nick o Email del usuario a expulsar..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;">
                     <button class="btn-primary" style="width: 100%;">APLICAR BAN DEFINITIVO</button>
                 </div>
-
             </div>
         </section>
     </main>
@@ -305,18 +309,23 @@
             <a href="#planes" class="btn-close"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 20px;"><i class="fas fa-vault"></i> Bóveda de Pagos</h3>
             
-            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left;">
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;">
                 <span style="color: var(--blue); font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA PESOS (ARS)</span><br>
-                <strong style="font-size: 1.2rem;">Alias: matias.mj7</strong>
+                <strong style="font-size: 1.1rem;">Alias: matias.mj7</strong>
+            </div>
+
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;">
+                <span style="color: #28a745; font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA DÓLARES (USD)</span><br>
+                <strong style="font-size: 1.1rem;">Alias: matias.mj7.usd</strong> 
             </div>
 
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-all;">
-                <span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT)</span><br>
+                <span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT BEP20)</span><br>
                 <strong style="font-size: 0.9rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
             </div>
 
-            <a href="https://wa.me/541165658881?text=Hola%20Kage,%20acabo%20de%20realizar%20un%20pago%20para%20un%20Plan%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE AL KAGE
+            <a href="https://wa.me/541165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20un%20pago%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante%20y%20el%20plan%20que%20deseo%20contratar." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE
             </a>
             <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">La aprobación manual puede tardar unos minutos.</p>
         </div>
@@ -325,6 +334,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.0"></script>
+    <script src="app.js?v=3.1"></script>
 </body>
 </html>
