@@ -16,6 +16,9 @@ const db = firebase.firestore();
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
 let currentFilter = 'todos'; 
+// Variable para recordar qué plataforma forzó el admin
+let kageStreamPlat = 'twitch'; 
+let kageStreamUser = 'matias_mj7';
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -52,42 +55,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. --- LÓGICA DINÁMICA DEL BYAKUGAN (CON PREVENCIÓN DE ERRORES) ---
+    // 3. --- LÓGICA DINÁMICA DEL BYAKUGAN (CORREGIDO ERROR TWITCH) ---
     db.collection('configuracion').doc('stream').onSnapshot(doc => {
         if (doc.exists) {
             const data = doc.data();
-            const iframe = document.getElementById('stream-frame');
-            const statusText = document.getElementById('status-stream');
+            kageStreamUser = data.usuario;
+            kageStreamPlat = data.plataforma;
+
+            // Extraer solo ID/Usuario si pegaron la URL completa
+            if (kageStreamUser.includes('twitch.tv/')) kageStreamUser = kageStreamUser.split('twitch.tv/')[1].split('?')[0];
+            if (kageStreamUser.includes('kick.com/')) kageStreamUser = kageStreamUser.split('kick.com/')[1].split('?')[0];
+            if (kageStreamUser.includes('tiktok.com/@')) kageStreamUser = kageStreamUser.split('@')[1].split('/')[0];
+            if (kageStreamUser.includes('youtube.com/watch?v=')) kageStreamUser = kageStreamUser.split('v=')[1].split('&')[0];
+
+            document.getElementById('status-stream').innerText = `SEÑAL ACTUALIZADA POR EL KAGE: ${kageStreamPlat.toUpperCase()}`;
             
-            let finalSrc = "";
-            let canal = data.usuario;
-            const plataforma = data.plataforma;
-
-            // PREVENCIÓN DE ERRORES: Extraer usuario si pegan una URL completa por error
-            if (canal.includes('twitch.tv/')) canal = canal.split('twitch.tv/')[1].split('?')[0];
-            if (canal.includes('kick.com/')) canal = canal.split('kick.com/')[1].split('?')[0];
-            if (canal.includes('tiktok.com/@')) canal = canal.split('@')[1].split('/')[0];
-            if (canal.includes('youtube.com/watch?v=')) canal = canal.split('v=')[1].split('&')[0];
-
-            statusText.innerText = `SEÑAL RECIBIDA: ${plataforma.toUpperCase()} [${canal}]`;
-
-            if (plataforma === 'twitch') {
-                finalSrc = `https://player.twitch.tv/?channel=${canal}&parent=mbl-world-v2.vercel.app`;
-            } else if (plataforma === 'youtube') {
-                finalSrc = `https://www.youtube.com/embed/${canal}?autoplay=1`;
-            } else if (plataforma === 'kick') {
-                finalSrc = `https://player.kick.com/${canal}`;
-            } else if (plataforma === 'tiktok') {
-                finalSrc = `https://www.tiktok.com/embed/v2/${canal}`;
-            }
-            
-            if(iframe) iframe.src = finalSrc;
+            // Forzar carga de la plataforma dictada por el Kage
+            cambiarStreamLocal(kageStreamPlat, kageStreamUser);
         } else {
             document.getElementById('status-stream').innerText = "ESPERANDO ÓRDENES DEL KAGE...";
         }
     });
 
-    // GUARDAR NUEVA CONFIGURACIÓN DE STREAM
+    // GUARDAR NUEVA CONFIGURACIÓN DE STREAM (ADMIN)
     const formConfigStream = document.getElementById('form-config-stream');
     if(formConfigStream) {
         formConfigStream.addEventListener('submit', (e) => {
@@ -100,11 +90,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. RESTO DE FUNCIONES (BACKUP 3.3 RESTAURADO COMPLETAMENTE)
+    // 3B. NUEVA PESTAÑA: ASCENDER NINJAS (PAGOS)
+    const formAscenso = document.getElementById('form-ascenso');
+    if(formAscenso) {
+        formAscenso.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userAscenso = document.getElementById('p-usuario').value.trim();
+            const rangoAscenso = document.getElementById('p-rango').value;
+            
+            db.collection('usuarios_rango').doc(userAscenso).set({
+                rango: rangoAscenso,
+                fecha_ascenso: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                formAscenso.reset();
+                alert(`¡El ninja ${userAscenso} ha sido ascendido a ${rangoAscenso}!`);
+            });
+        });
+    }
+
+    // CARGAR LISTA DE ASCENDIDOS AL PANEL ADMIN
+    db.collection('usuarios_rango').orderBy('fecha_ascenso', 'desc').onSnapshot(snap => {
+        const listaRangos = document.getElementById('lista-rangos');
+        if(listaRangos) {
+            listaRangos.innerHTML = '';
+            if(snap.empty) {
+                listaRangos.innerHTML = '<p style="color: #666; font-size: 0.8rem;">No hay ninjas con planes activos aún.</p>';
+            }
+            snap.forEach(doc => {
+                const data = doc.data();
+                const colorRango = data.rango.includes('Kage') ? 'var(--red)' : 'var(--blue)';
+                listaRangos.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.9rem;">
+                        <strong>${doc.id}</strong>
+                        <span style="color: ${colorRango}; font-weight: bold;">${data.rango}</span>
+                    </div>
+                `;
+            });
+        }
+    });
+
+    // 4. RESTO DE FUNCIONES
     cargarTorneosDesdeNube();
     cargarAnunciosGremio();
 
-    // CREAR TORNEO
     const formT = document.getElementById('form-torneo');
     if(formT) {
         formT.addEventListener('submit', (e) => {
@@ -122,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // CHAT
     const btnSendChat = document.getElementById('btn-send-chat');
     if(btnSendChat) {
         btnSendChat.addEventListener('click', () => {
@@ -136,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // LEER CHAT
     const chatContainer = document.getElementById('chat-messages-container');
     if(chatContainer) {
         db.collection('taberna').orderBy('timestamp').onSnapshot(snap => {
@@ -150,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // PUBLICAR ANUNCIO
     const formAnuncio = document.getElementById('form-anuncio');
     if(formAnuncio) {
         formAnuncio.addEventListener('submit', (e) => {
@@ -162,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // BLOQUEAR SUBIDA DE VIDEO (ABISMO)
     const videoUpload = document.getElementById('video-upload');
     if(videoUpload) {
         videoUpload.addEventListener('click', (e) => {
@@ -185,6 +209,55 @@ function abrirModalAnuncio(e) {
         window.location.hash = "#modal-login";
     } else {
         window.location.hash = "#modal-anuncio"; 
+    }
+}
+
+// FUNCIÓN PARA QUE LOS BOTONES CAMBIEN EL STREAM LOCALMENTE
+// También arregla el error de conexión de Twitch obteniendo el dominio real
+function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
+    const iframe = document.getElementById('stream-frame');
+    const botones = document.querySelectorAll('.plat-btn');
+    
+    // Si no se le pasa usuario (es decir, el usuario tocó el botón manualmente),
+    // usa el canal que el Admin haya configurado en base de datos.
+    const canalAUsar = usuarioFuerza || kageStreamUser;
+    
+    // Detecta automáticamente en qué dominio web estamos (Vercel, localhost, etc)
+    // ESTO ARREGLA EL ERROR DE TWITCH
+    const currentDomain = window.location.hostname;
+
+    let finalSrc = "";
+    if (plataforma === 'twitch') {
+        finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`;
+    } else if (plataforma === 'youtube') {
+        finalSrc = `https://www.youtube.com/embed/${canalAUsar}?autoplay=1`;
+    } else if (plataforma === 'kick') {
+        finalSrc = `https://player.kick.com/${canalAUsar}`;
+    } else if (plataforma === 'tiktok') {
+        finalSrc = `https://www.tiktok.com/embed/v2/${canalAUsar}`;
+    }
+    
+    if(iframe) iframe.src = finalSrc;
+
+    // Colorear el botón activo
+    botones.forEach(btn => {
+        btn.style.background = '#111';
+        btn.style.color = 'white';
+        btn.style.border = '1px solid #444';
+    });
+    
+    // Buscar el botón correspondiente y pintarlo
+    let btnActivo = null;
+    if(plataforma === 'twitch') btnActivo = botones[0];
+    if(plataforma === 'youtube') btnActivo = botones[1];
+    if(plataforma === 'kick') btnActivo = botones[2];
+    if(plataforma === 'tiktok') btnActivo = botones[3];
+
+    if(btnActivo) {
+        if (plataforma === 'twitch') { btnActivo.style.background = 'var(--blue)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
+        if (plataforma === 'youtube') { btnActivo.style.background = 'var(--red)'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
+        if (plataforma === 'kick') { btnActivo.style.background = 'var(--green)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
+        if (plataforma === 'tiktok') { btnActivo.style.background = '#ff0050'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
     }
 }
 
