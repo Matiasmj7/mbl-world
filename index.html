@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.1"> 
+    <link rel="stylesheet" href="style.css?v=3.2"> 
 </head>
 <body>
 
@@ -98,7 +98,6 @@
                     </ul>
                     <a href="#modal-pago" class="btn-submit" style="display: block; text-align: center;">Contratar</a>
                 </div>
-                
                 <div class="plan-card container-glass" style="border-color: var(--red) !important; background: linear-gradient(180deg, rgba(255,0,64,0.1) 0%, rgba(10,10,15,0.95) 100%) !important;">
                     <div style="background: var(--red); color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">ELITE</div>
                     <h3>KAGE ELITE</h3>
@@ -116,65 +115,34 @@
 
         <section id="registro-bingo" class="section">
             <h2 class="section-head"><i class="fas fa-scroll"></i> Libro Bingo</h2>
-            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                 <div class="container-glass">
                     <h3 style="margin-bottom: 20px; color: var(--blue);">Registrar Rango</h3>
                     <form id="bingo-form" onsubmit="event.preventDefault(); alert('Registro enviado para validación.');">
                         <label style="color: #aaa; font-size: 0.8rem;">Nick en el Juego</label>
                         <input type="text" placeholder="Ej: Itachi_7" required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                        
                         <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div style="flex: 1;">
-                                <label style="color: #aaa; font-size: 0.8rem;">ID Jugador</label>
-                                <input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <label style="color: #aaa; font-size: 0.8rem;">Server</label>
-                                <input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                            </div>
+                            <div style="flex: 1;"><label style="color: #aaa; font-size: 0.8rem;">ID Jugador</label><input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"></div>
+                            <div style="flex: 1;"><label style="color: #aaa; font-size: 0.8rem;">Server</label><input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"></div>
                         </div>
-
                         <label style="color: #aaa; font-size: 0.8rem;">Rango Actual</label>
                         <select required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                            <option value="inmortal">Mítico Inmortal (100+)</option>
-                            <option value="gloria">Mítico Gloria (50-99)</option>
-                            <option value="honor">Mítico Honor (25-49)</option>
-                            <option value="mitico">Mítico (0-24)</option>
-                            <option value="leyenda">Leyenda (V - I)</option>
-                            <option value="epico">Épico (V - I)</option>
-                            <option value="gm">Gran Maestro (IV - I)</option>
-                            <option value="maestro">Maestro (IV - I)</option>
-                            <option value="elite">Élite (III - I)</option>
-                            <option value="guerrero">Guerrero (III - I)</option>
+                            <option value="inmortal">Mítico Inmortal (100+)</option><option value="gloria">Mítico Gloria (50-99)</option><option value="honor">Mítico Honor (25-49)</option><option value="mitico">Mítico (0-24)</option><option value="leyenda">Leyenda (V - I)</option><option value="epico">Épico (V - I)</option><option value="gm">Gran Maestro (IV - I)</option><option value="maestro">Maestro (IV - I)</option><option value="elite">Élite (III - I)</option><option value="guerrero">Guerrero (III - I)</option>
                         </select>
-
                         <div style="margin-bottom: 20px; border: 1px dashed var(--blue); padding: 15px; text-align: center; border-radius: 5px; background: rgba(0, 210, 255, 0.05);">
                             <label style="color: #aaa; font-size: 0.8rem; display: block; margin-bottom: 10px;">Captura de Perfil (Validación)</label>
                             <input type="file" id="rank-proof" style="display: none;">
                             <label for="rank-proof" class="btn-secondary" style="cursor: pointer; padding: 8px 15px; font-size: 0.9rem;"><i class="fas fa-camera"></i> Subir Foto</label>
                         </div>
-
                         <button type="submit" class="btn-primary" style="width: 100%; border: none;">ENVIAR REGISTRO</button>
                     </form>
                 </div>
-
                 <div class="container-glass" style="max-height: 550px; overflow-y: auto;">
                     <h3 style="margin-bottom: 20px; color: var(--red);"><i class="fas fa-trophy"></i> Top 30 Ninjas</h3>
                     <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid gold;">
-                            <div><strong>1. Matías</strong></div>
-                            <div style="font-size: 0.8rem; color: #aaa;">Mítico Inmortal (120)</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid silver;">
-                            <div><strong>2. NinjaOscuro</strong></div>
-                            <div style="font-size: 0.8rem; color: #aaa;">Mítico Gloria (85)</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid #cd7f32;">
-                            <div><strong>3. SakuraHeals</strong></div>
-                            <div style="font-size: 0.8rem; color: #aaa;">Mítico Honor (40)</div>
-                        </div>
-                        <p style="text-align: center; color: #666; font-size: 0.8rem; margin-top: 10px;">El ranking se actualiza tras la validación del Kage.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid gold;"><div><strong>1. Matías</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Inmortal (120)</div></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid silver;"><div><strong>2. NinjaOscuro</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Gloria (85)</div></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid #cd7f32;"><div><strong>3. SakuraHeals</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Honor (40)</div></div>
                     </div>
                 </div>
             </div>
@@ -182,27 +150,16 @@
 
         <section id="abismo" class="section">
             <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
-            
             <div style="text-align: center; margin-bottom: 30px;">
                 <input type="file" id="video-upload" style="display: none;">
                 <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;" onclick="verificarLogin()"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
-                <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">Solo ninjas identificados pueden subir archivos.</p>
             </div>
-
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div class="container-glass" style="padding: 15px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <img src="https://ui-avatars.com/api/?name=Sasuke" style="width: 30px; border-radius: 50%;">
-                        <strong style="font-size: 0.9rem;">SasukePro</strong>
-                    </div>
-                    <div style="height: 180px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #333; margin-bottom: 10px;">
-                        <i class="fas fa-play"></i>
-                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;"><img src="https://ui-avatars.com/api/?name=Sasuke" style="width: 30px; border-radius: 50%;"><strong style="font-size: 0.9rem;">SasukePro</strong></div>
+                    <div style="height: 180px; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #333; margin-bottom: 10px;"><i class="fas fa-play"></i></div>
                     <p style="font-size: 0.9rem; margin-bottom: 10px;">Savage épico defendiendo el nexo 🔥</p>
-                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;">
-                        <button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-heart" style="color: var(--red);"></i> 45</button>
-                        <button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-comment"></i> 12</button>
-                    </div>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;"><button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-heart" style="color: var(--red);"></i> 45</button><button style="background: none; border: none; color: #ccc; cursor: pointer;"><i class="fas fa-comment"></i> 12</button></div>
                 </div>
             </div>
         </section>
@@ -213,19 +170,10 @@
                 <div>
                     <div class="container-glass" style="margin-bottom: 20px;">
                         <h3 style="color: var(--green); margin-bottom: 15px;">Tablón de Anuncios</h3>
-                        <button class="btn-secondary" style="width: 100%; margin-bottom: 20px;" onclick="verificarLogin()"><i class="fas fa-edit"></i> Publicar Solicitud de Escuadrón</button>
+                        <a href="#modal-anuncio" class="btn-secondary" style="display: block; text-align: center; margin-bottom: 20px;"><i class="fas fa-edit"></i> Publicar Solicitud de Escuadrón</a>
                         
-                        <div style="background: #0a0a0f; border: 1px solid #333; padding: 15px; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <strong style="color: var(--blue);">Matías</strong>
-                                <span style="font-size: 0.7rem; color: #888;">Hace 2 hrs</span>
-                            </div>
-                            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                                <span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #00d2ff;">Busco: Mago/Roam</span>
-                                <span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #ff0040;">Soy: Jungla/ADC</span>
-                            </div>
-                            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 15px;">Armando equipo competitivo para torneo 5v5 de este viernes.</p>
-                            <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
+                        <div id="lista-anuncios" style="display: flex; flex-direction: column; gap: 15px;">
+                            <p style="color: #666; text-align: center;">Buscando pergaminos en el tablón...</p>
                         </div>
                     </div>
                 </div>
@@ -244,20 +192,18 @@
 
         <section id="admin" class="section" style="display: none;">
             <h2 class="section-head" style="color: gold;"><i class="fas fa-user-shield"></i> Sistema Kage Supremo</h2>
-            
             <div class="container-glass">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Crear Torneo</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Aprobar Pagos</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-ban')">Gestión de Ninjas</button>
                 </div>
-
                 <div id="tab-torneos">
                     <form id="form-torneo" class="admin-form">
                         <input type="text" id="t-nombre" placeholder="Nombre del Torneo" required>
                         <div class="form-row">
                             <input type="text" id="t-fecha" placeholder="Fecha y Hora" required>
-                            <input type="number" id="t-cupos" placeholder="Cupos" required>
+                            <input type="number" id="t-cupos" placeholder="Cupos Totales" required>
                         </div>
                         <input type="text" id="t-premio" placeholder="Premio">
                         <div class="form-row">
@@ -272,24 +218,8 @@
                         <button type="submit" class="btn-save"><i class="fas fa-cloud-upload-alt"></i> PUBLICAR TORNEO</button>
                     </form>
                 </div>
-
-                <div id="tab-pagos" style="display: none;">
-                    <p style="color: #aaa; margin-bottom: 15px;">Solicitudes pendientes de validación por WhatsApp:</p>
-                    <div style="background: #000; padding: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>Usuario123</strong> - <span style="color: var(--blue);">Plan Aliado</span>
-                        </div>
-                        <div>
-                            <button style="background: var(--green); border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Aprobar</button>
-                            <button style="background: var(--red); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Rechazar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tab-ban" style="display: none;">
-                    <input type="text" placeholder="Ingresar Nick o Email del usuario a expulsar..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;">
-                    <button class="btn-primary" style="width: 100%;">APLICAR BAN DEFINITIVO</button>
-                </div>
+                <div id="tab-pagos" style="display: none;"><p style="color: #aaa;">Solicitudes pendientes de validación por WhatsApp...</p></div>
+                <div id="tab-ban" style="display: none;"><input type="text" placeholder="Ingresar Nick o Email del usuario..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;"><button class="btn-primary" style="width: 100%;">APLICAR BAN</button></div>
             </div>
         </section>
     </main>
@@ -304,29 +234,27 @@
         </div>
     </div>
 
+    <div id="modal-anuncio" class="modal">
+        <div class="modal-box container-glass">
+            <a href="#gremio" class="btn-close"><i class="fas fa-times"></i></a>
+            <h3 style="color: var(--green); margin-bottom: 20px;">Crear Solicitud</h3>
+            <form id="form-anuncio">
+                <input type="text" id="a-busco" placeholder="¿Qué rol buscas? (Ej: Mago/Tanque)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                <input type="text" id="a-soy" placeholder="¿Qué rol eres? (Ej: Jungla/ADC)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
+                <textarea id="a-mensaje" placeholder="Escribe tu mensaje o detalles de tu escuadrón..." required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; height: 80px; resize: none;"></textarea>
+                <button type="submit" class="btn-submit" style="background: var(--green); color: black;">PUBLICAR EN EL TABLÓN</button>
+            </form>
+        </div>
+    </div>
+
     <div id="modal-pago" class="modal">
         <div class="modal-box container-glass">
             <a href="#planes" class="btn-close"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 20px;"><i class="fas fa-vault"></i> Bóveda de Pagos</h3>
-            
-            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;">
-                <span style="color: var(--blue); font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA PESOS (ARS)</span><br>
-                <strong style="font-size: 1.1rem;">Alias: matias.mj7</strong>
-            </div>
-
-            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;">
-                <span style="color: #28a745; font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA DÓLARES (USD)</span><br>
-                <strong style="font-size: 1.1rem;">Alias: matias.mj7.usd</strong> 
-            </div>
-
-            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-all;">
-                <span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT BEP20)</span><br>
-                <strong style="font-size: 0.9rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong>
-            </div>
-
-            <a href="https://wa.me/541165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20un%20pago%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante%20y%20el%20plan%20que%20deseo%20contratar." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE
-            </a>
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;"><span style="color: var(--blue); font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA PESOS (ARS)</span><br><strong style="font-size: 1.1rem;">Alias: matias.mj7</strong></div>
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;"><span style="color: #28a745; font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA DÓLARES (USD)</span><br><strong style="font-size: 1.1rem;">Alias: matias.mj7.usd</strong></div>
+            <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-all;"><span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT BEP20)</span><br><strong style="font-size: 0.9rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
+            <a href="https://wa.me/541165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20un%20pago%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante%20y%20el%20plan%20que%20deseo%20contratar." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;"><i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE</a>
             <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">La aprobación manual puede tardar unos minutos.</p>
         </div>
     </div>
@@ -334,6 +262,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.1"></script>
+    <script src="app.js?v=3.2"></script>
 </body>
 </html>
