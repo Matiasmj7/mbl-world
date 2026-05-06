@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.17"> 
+    <link rel="stylesheet" href="style.css?v=3.18"> 
 </head>
 <body>
 
@@ -25,7 +25,8 @@
                 <li><a href="#registro-bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#gremio" style="color: var(--green);"><i class="fas fa-users"></i> Gremio</a></li>
-                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin"><i class="fas fa-user-shield"></i> Mando Kage</a></li>
+                <li style="color: gold;"><a href="#tienda"><i class="fas fa-store"></i> Mercado</a></li>
+                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin"><i class="fas fa-user-shield"></i> Kage</a></li>
             </ul>
         </nav>
         <div class="auth-zone" style="display: flex; align-items: center; gap: 15px;">
@@ -120,10 +121,13 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                 <div class="container-glass">
                     <h3 style="margin-bottom: 20px; color: var(--blue);"><i class="fas fa-star"></i> Tu Rango Ninja</h3>
-                    <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Tu poder en la aldea se define por tu experiencia (XP). Ganarás XP coronándote campeón en los torneos de la Arena.</p>
+                    <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Tu poder en la aldea se define por tu experiencia (XP). Ganarás XP coronándote campeón en los torneos.</p>
                     <div style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 20px; border-radius: 8px; text-align: center;">
                         <h4 style="color: #fff; margin-bottom: 5px;">Tu Nick: <span id="mi-nick-bingo" style="color: var(--blue);">Inicia sesión</span></h4>
-                        <h2 style="color: gold; margin-bottom: 5px;" id="mi-xp-bingo">0 XP</h2>
+                        <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 5px;">
+                            <h2 style="color: gold;" id="mi-xp-bingo">0 XP</h2>
+                            <h2 style="color: #ff9900;" id="mi-ryos-bingo"><i class="fas fa-coins"></i> 0 Ryos</h2>
+                        </div>
                         <span style="color: #888; font-size: 0.9rem;" id="mi-rango-bingo">Guerrero</span>
                     </div>
                 </div>
@@ -133,6 +137,22 @@
                         <p style="color: #888; text-align: center;">Buscando en los registros de la aldea...</p>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section id="tienda" class="section">
+            <h2 class="section-head"><i class="fas fa-store"></i> Mercado de la Aldea</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 15px;">Gana Ryos triunfando en torneos y úsalos para personalizar tu Identidad Ninja.</p>
+                <div style="display: inline-block; background: #111; border: 1px solid #333; padding: 10px 20px; border-radius: 8px;">
+                    <span style="color: #888; font-size: 0.9rem;">Billetera:</span> 
+                    <strong style="color: #ff9900; font-size: 1.2rem;" id="tienda-mis-ryos"><i class="fas fa-coins"></i> 0 Ryos</strong>
+                </div>
+                <button class="btn-secondary" style="margin-left: 10px; padding: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
+            </div>
+            
+            <div id="catalogo-tienda" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <p style="color: #888; text-align: center; width: 100%;">Cargando mercancía...</p>
             </div>
         </section>
 
@@ -223,7 +243,6 @@
 
                 <div id="tab-llaves-admin" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Mando de Batalla</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces, revisar los reportes o eliminar registros.</p>
                     <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;"></div>
                 </div>
 
@@ -315,7 +334,6 @@
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: left;"><span style="color: #28a745; font-size: 0.8rem; font-weight: bold;">TRANSFERENCIA DÓLARES (USD)</span><br><strong style="font-size: 1.1rem;">Alias: matias.mj7.usd</strong></div>
             <div style="background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-all;"><span style="color: var(--green); font-size: 0.8rem; font-weight: bold;">CRIPTOMONEDAS (USDT BEP20)</span><br><strong style="font-size: 0.9rem;">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></div>
             <a href="https://wa.me/541165658881?text=Hola%20Matías,%20acabo%20de%20realizar%20un%20pago%20en%20MBL%20Arg.%20Te%20adjunto%20el%20comprobante%20y%20el%20plan%20que%20deseo%20contratar." target="_blank" class="btn-submit" style="background: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;"><i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> ENVIAR COMPROBANTE</a>
-            <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">La aprobación manual puede tardar unos minutos.</p>
         </div>
     </div>
 
@@ -324,8 +342,11 @@
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-id-card"></i> Identidad Ninja</h3>
             <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://ui-avatars.com/api/?name=Ninja&background=random" id="perfil-avatar" style="width: 80px; border-radius: 50%; border: 2px solid var(--blue); margin-bottom: 10px;">
-                <h2 id="perfil-nick" style="color: white; margin-bottom: 5px;">Cargando...</h2>
+                <div style="position: relative; display: inline-block;">
+                    <img src="https://ui-avatars.com/api/?name=Ninja&background=random" id="perfil-avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #444; margin-bottom: 10px; transition: 0.3s;">
+                    <div id="perfil-pin-container" style="position: absolute; bottom: 10px; right: -5px; font-size: 1.5rem;"></div>
+                </div>
+                <h2 id="perfil-nick" style="color: white; margin-bottom: 5px; transition: 0.3s;">Cargando...</h2>
                 <div id="perfil-clan" style="color: var(--green); font-size: 0.9rem; margin-bottom: 10px; font-weight: bold;"></div>
                 <span id="perfil-rango" style="background: var(--blue); color: black; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">Rango</span>
             </div>
@@ -346,23 +367,19 @@
         <div class="modal-box container-glass" style="max-width: 500px; border-color: var(--green) !important;">
             <a href="#gremio" class="btn-close" onclick="document.getElementById('modal-clan').style.display='none';"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--green); margin-bottom: 15px;"><i class="fas fa-shield-alt"></i> Cuartel del Escuadrón</h3>
-
             <div id="vista-sin-clan" style="display:none;">
-                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Actualmente eres un ninja solitario. Fúnda tu propio escuadrón o únete a uno existente para conquistar la aldea juntos.</p>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">Actualmente eres un ninja solitario. Fúnda tu propio escuadrón o únete a uno existente.</p>
                 <div style="display:flex; gap: 15px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                        <h4 style="color: var(--blue); margin-bottom: 10px;"><i class="fas fa-plus-circle"></i> Fundar Escuadrón</h4>
                         <input type="text" id="input-crear-clan" placeholder="Nombre del Clan..." style="width:100%; padding: 10px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 4px;">
                         <button class="btn-primary" style="width: 100%; font-size: 0.8rem; padding: 10px;" onclick="crearClan()">CREAR NUEVO</button>
                     </div>
                     <div style="flex: 1; min-width: 200px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                        <h4 style="color: var(--red); margin-bottom: 10px;"><i class="fas fa-sign-in-alt"></i> Unirse a Escuadrón</h4>
                         <input type="text" id="input-unirse-clan" placeholder="Nombre exacto del clan..." style="width:100%; padding: 10px; margin-bottom: 10px; background: #000; color: white; border: 1px solid #444; border-radius: 4px;">
                         <button class="btn-secondary" style="width: 100%; font-size: 0.8rem; padding: 10px;" onclick="unirseClan()">UNIRSE</button>
                     </div>
                 </div>
             </div>
-
             <div id="vista-con-clan" style="display:none; text-align: center;">
                 <h2 id="clan-nombre-display" style="color: var(--green); margin-bottom: 5px; text-transform: uppercase;">NOMBRE CLAN</h2>
                 <p style="color: gold; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem;"><i class="fas fa-star"></i> <span id="clan-xp-display">0</span> XP Total</p>
@@ -370,7 +387,7 @@
                     <h4 style="color: #888; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px;">Camaradas</h4>
                     <ul id="lista-miembros-clan" style="list-style: none; color: #ccc; font-size: 0.9rem; max-height: 150px; overflow-y: auto;"></ul>
                 </div>
-                <button class="btn-secondary" style="border: 1px solid var(--red); color: var(--red); background: transparent; padding: 10px 20px;" onclick="abandonarClan()"><i class="fas fa-door-open"></i> Abandonar Escuadrón</button>
+                <button class="btn-secondary" style="border: 1px solid var(--red); color: var(--red); background: transparent; padding: 10px 20px;" onclick="abandonarClan()"><i class="fas fa-door-open"></i> Abandonar</button>
             </div>
         </div>
     </div>
@@ -378,6 +395,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.17"></script>
+    <script src="app.js?v=3.18"></script>
 </body>
 </html>
