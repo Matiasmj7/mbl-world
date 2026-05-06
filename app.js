@@ -15,13 +15,14 @@ const db = firebase.firestore();
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
 let currentUserId = null;
+let miClan = ""; // NUEVO: Variable global para el clan del usuario
 let currentFilter = 'todos'; 
 let kageStreamPlat = 'twitch'; 
 let kageStreamUser = 'matias_mj7';
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. ESTADO DE SESIÓN CON NICKNAME
+    // 1. ESTADO DE SESIÓN CON NICKNAME Y CLAN
     auth.onAuthStateChanged(user => {
         const adminNav = document.getElementById('admin-nav');
         const adminSection = document.getElementById('admin');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (doc.exists) {
                     const data = doc.data();
                     currentUserName = data.nick;
+                    miClan = data.clan || ""; // Carga el clan
                     
                     if(userDisplay) { userDisplay.innerText = currentUserName; userDisplay.href = "#"; }
                     if(userGreeting) userGreeting.innerText = currentUserName;
@@ -54,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentUserName = "Ninja Anónimo";
             currentUserId = null;
+            miClan = "";
             if(userDisplay) { userDisplay.innerText = "Ingresar"; userDisplay.href = "#modal-login"; }
             if(userGreeting) userGreeting.innerText = "Ninja";
             document.getElementById('mi-nick-bingo').innerText = "Inicia sesión";
@@ -69,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const nuevoNick = document.getElementById('nuevo-nick').value.trim();
             db.collection('ninjas').doc(currentUserId).set({
-                nick: nuevoNick, xp: 0, ryos: 0, rango: "Guerrero", email_oculto: auth.currentUser.email, fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
+                nick: nuevoNick, xp: 0, ryos: 0, rango: "Guerrero", clan: "", email_oculto: auth.currentUser.email, fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("¡Identidad Ninja creada exitosamente!");
                 window.location.hash = "#";
@@ -201,11 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(formAbismo) {
         formAbismo.addEventListener('submit', (e) => {
             e.preventDefault();
-            if(currentUserName === "Ninja Anónimo") {
-                alert("Atención: Debes Ingresar a la página para compartir tu jugada.");
-                window.location.hash = "#modal-login";
-                return;
-            }
+            if(currentUserName === "Ninja Anónimo") { alert("Atención: Debes Ingresar a la página para compartir tu jugada."); window.location.hash = "#modal-login"; return; }
             
             const urlInput = document.getElementById('video-url').value.trim();
             let embedUrl = ""; let plataforma = "desconocida";
@@ -223,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NUEVO: PROCESAR EL REPORTE DE RESULTADO DE LOS USUARIOS
+    // 7. REPORTES DE RESULTADOS
     const formReporte = document.getElementById('form-reporte');
     if(formReporte) {
         formReporte.addEventListener('submit', (e) => {
@@ -234,11 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const prueba = document.getElementById('rep-prueba').value.trim() || 'No adjuntada (Revisar WS)';
 
             db.collection('torneos').doc(tId).collection('llaves').doc(pId).update({
-                reporte_pendiente: {
-                    reportadoPor: currentUserName,
-                    ganadorPropuesto: ganador,
-                    prueba: prueba
-                }
+                reporte_pendiente: { reportadoPor: currentUserName, ganadorPropuesto: ganador, prueba: prueba }
             }).then(() => {
                 alert("¡Reporte enviado exitosamente! El Kage lo revisará pronto.");
                 document.getElementById('modal-reporte').style.display = 'none';
@@ -250,7 +245,126 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarTorneosDesdeNube();
     cargarAnunciosGremio();
     cargarVideosAbismo(); 
+    cargarTopClanes(); // Inicia la tabla de escuadrones
 });
+
+// ==========================================
+// NUEVO: SISTEMA DE CLANES (ESCUADRONES)
+// ==========================================
+
+function abrirModalClan() {
+    if (currentUserName === "Ninja Anónimo") {
+        alert("Debes identificarte en la aldea para acceder a los escuadrones.");
+        window.location.hash = "#modal-login";
+        return;
+    }
+    
+    document.getElementById('modal-clan').style.display = 'flex';
+    
+    if (miClan === "") {
+        document.getElementById('vista-sin-clan').style.display = 'block';
+        document.getElementById('vista-con-clan').style.display = 'none';
+    } else {
+        document.getElementById('vista-sin-clan').style.display = 'none';
+        document.getElementById('vista-con-clan').style.display = 'block';
+        document.getElementById('clan-nombre-display').innerText = miClan;
+        
+        // Escuchar datos del clan en tiempo real
+        db.collection('clanes').doc(miClan).onSnapshot(doc => {
+            if(doc.exists) {
+                document.getElementById('clan-xp-display').innerText = doc.data().xp || 0;
+                const ul = document.getElementById('lista-miembros-clan');
+                ul.innerHTML = "";
+                const miembros = doc.data().miembros || [];
+                miembros.forEach(m => {
+                    let liderBadge = m === doc.data().lider ? '<span style="color:gold; font-size:0.7rem; float:right;"><i class="fas fa-crown"></i> Lider</span>' : '';
+                    ul.innerHTML += `<li style="padding: 8px 0; border-bottom: 1px solid #222;">${m} ${liderBadge}</li>`;
+                });
+            }
+        });
+    }
+}
+
+function crearClan() {
+    const nombre = document.getElementById('input-crear-clan').value.trim();
+    if(!nombre) return alert("Escribe un nombre para tu clan.");
+    
+    const docRef = db.collection('clanes').doc(nombre);
+    docRef.get().then(doc => {
+        if(doc.exists) {
+            alert("Ese nombre de Escuadrón ya está en uso en la aldea.");
+        } else {
+            docRef.set({
+                nombre: nombre, lider: currentUserName, xp: 0, miembros: [currentUserName], timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ clan: nombre }).then(() => {
+                    miClan = nombre;
+                    alert(`¡Has fundado el Escuadrón ${nombre}! Llévalo a la gloria.`);
+                    abrirModalClan();
+                });
+            });
+        }
+    });
+}
+
+function unirseClan() {
+    const nombre = document.getElementById('input-unirse-clan').value.trim();
+    if(!nombre) return alert("Escribe el nombre del clan al que quieres unirte.");
+    
+    const docRef = db.collection('clanes').doc(nombre);
+    docRef.get().then(doc => {
+        if(!doc.exists) {
+            alert("Ese Escuadrón no existe. Revisa las mayúsculas y minúsculas.");
+        } else {
+            docRef.update({ miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ clan: nombre }).then(() => {
+                    miClan = nombre;
+                    alert(`¡Te has unido exitosamente al Escuadrón ${nombre}!`);
+                    abrirModalClan();
+                });
+            });
+        }
+    });
+}
+
+function abandonarClan() {
+    if(!confirm("¿Estás seguro de que deseas abandonar tu Escuadrón actual?")) return;
+    
+    db.collection('clanes').doc(miClan).update({
+        miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName)
+    }).then(() => {
+        db.collection('ninjas').doc(currentUserId).update({ clan: "" }).then(() => {
+            miClan = "";
+            alert("Has dejado tu escuadrón. Eres un ninja solitario nuevamente.");
+            abrirModalClan();
+        });
+    });
+}
+
+function cargarTopClanes() {
+    const lista = document.getElementById('lista-top-clanes');
+    if(!lista) return;
+    
+    db.collection('clanes').orderBy('xp', 'desc').limit(10).onSnapshot(snap => {
+        lista.innerHTML = "";
+        if(snap.empty) { lista.innerHTML = "<p style='color:#666; text-align:center;'>Aún no hay escuadrones formados en la aldea.</p>"; return; }
+        
+        let puesto = 1;
+        snap.forEach(doc => {
+            const d = doc.data();
+            let color = "#333";
+            if(puesto === 1) color = "gold"; else if(puesto === 2) color = "silver"; else if(puesto === 3) color = "#cd7f32";
+            
+            lista.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:12px; border-radius:5px; border-left:3px solid ${color}; margin-bottom: 5px;">
+                    <div><strong style="color: white; font-size: 1.1rem;">${puesto}. ${d.nombre}</strong> <br> <span style="font-size:0.75rem; color:#888;"><i class="fas fa-users"></i> ${d.miembros.length} miembros</span></div>
+                    <div style="color:gold; font-weight:bold; font-size:1rem;">${d.xp} XP</div>
+                </div>
+            `;
+            puesto++;
+        });
+    });
+}
 
 // ==========================================
 // FUNCIONES DE PERFILES, ABISMO Y AUXILIARES
@@ -302,13 +416,22 @@ async function abrirPerfil(nick) {
     const modal = document.getElementById('modal-perfil');
     document.getElementById('perfil-nick').innerText = nick;
     document.getElementById('perfil-avatar').src = `https://ui-avatars.com/api/?name=${nick}&background=random`;
-    document.getElementById('perfil-rango').innerText = "Buscando..."; document.getElementById('perfil-xp').innerText = "..."; document.getElementById('perfil-campeonatos').innerText = "...";
+    document.getElementById('perfil-rango').innerText = "Buscando..."; 
+    document.getElementById('perfil-xp').innerText = "..."; 
+    document.getElementById('perfil-campeonatos').innerText = "...";
+    document.getElementById('perfil-clan').innerHTML = ""; // Limpia el clan
+    
     window.location.hash = '#modal-perfil';
+    
     try {
         const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
         if(!snapshot.empty) {
             const data = snapshot.docs[0].data();
-            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero'; document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero'; 
+            document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+            if(data.clan && data.clan !== "") {
+                document.getElementById('perfil-clan').innerHTML = `<i class="fas fa-shield-alt"></i> Escuadrón: ${data.clan}`;
+            }
         } else {
             document.getElementById('perfil-rango').innerText = 'Sin Rango'; document.getElementById('perfil-xp').innerText = `0 XP`;
         }
@@ -428,81 +551,7 @@ function unirseTorneo(torneoId, estado) {
     });
 }
 
-function cargarAnunciosGremio() {
-    const listaAnuncios = document.getElementById('lista-anuncios');
-    if(!listaAnuncios) return;
-    db.collection('anuncios_gremio').orderBy('timestamp', 'desc').onSnapshot(snap => {
-        listaAnuncios.innerHTML = '';
-        if(snap.empty) { listaAnuncios.innerHTML = '<p style="color: #666; text-align: center;">El tablón está vacío.</p>'; }
-        snap.forEach(doc => {
-            const d = doc.data();
-            const date = d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Recién';
-            listaAnuncios.innerHTML += `
-                <div style="background: #0a0a0f; border: 1px solid #333; padding: 15px; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><strong style="color: var(--blue); cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}</strong><span style="font-size: 0.7rem; color: #888;">${date}</span></div>
-                    <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;"><span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #00d2ff;">Busco: ${d.busco}</span><span style="background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; color: #ff0040;">Soy: ${d.soy}</span></div>
-                    <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 15px;">${d.mensaje}</p>
-                    <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="alert('Dile a ${d.usuario} por la Taberna Global que te interesa su equipo.')"><i class="fas fa-paper-plane"></i> Contactar</button>
-                </div>
-            `;
-        });
-    });
-}
-
-function mostrarTabAdmin(tabId) {
-    const tabs = ['tab-torneos', 'tab-byakugan', 'tab-llaves-admin', 'tab-pagos', 'tab-ban'];
-    tabs.forEach(t => { const el = document.getElementById(t); if(el) el.style.display = 'none'; });
-    document.getElementById(tabId).style.display = 'block';
-    const botones = document.querySelectorAll('#admin .btn-filter');
-    botones.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-}
-
-// LOGICA DE MANDO KAGE Y LLAVES
-function cargarTorneosParaAdminLlaves() {
-    const lista = document.getElementById('admin-lista-torneos-llaves');
-    db.collection('torneos').onSnapshot(snap => {
-        lista.innerHTML = '';
-        snap.forEach(doc => {
-            const d = doc.data();
-            const id = doc.id;
-            let botonesHTML = '';
-            if(d.estado === 'iniciado') {
-                botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}')">ADMINISTRAR</button><button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>`;
-            } else if (d.estado === 'finalizado') {
-                botonesHTML = `<span style="color: gold; font-weight: bold;"><i class="fas fa-crown"></i> CAMPEÓN: ${d.campeon}</span>`;
-            } else {
-                botonesHTML = `<button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`;
-            }
-            lista.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222;"><div><strong>${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${d.lista_inscriptos?.length || 0} inscritos</span></div><div>${botonesHTML}</div></div>`;
-        });
-    });
-}
-
-async function generarLlaves(torneoId, torneoNombre) {
-    if(!confirm(`¿Generar cruces de Ronda 1 para ${torneoNombre}?`)) return;
-    const torneoRef = db.collection('torneos').doc(torneoId);
-    const doc = await torneoRef.get();
-    const data = doc.data();
-    let jugadores = data.lista_inscriptos || [];
-    if(jugadores.length < 2) { alert("Mínimo 2 ninjas."); return; }
-    jugadores = jugadores.sort(() => Math.random() - 0.5);
-    const partidos = [];
-    for (let i = 0; i < jugadores.length; i += 2) {
-        if (jugadores[i + 1]) { partidos.push({ p1: jugadores[i], p2: jugadores[i + 1], ganador: "", ronda: 1 }); } 
-        else { partidos.push({ p1: jugadores[i], p2: "BYE", ganador: jugadores[i], ronda: 1 }); }
-    }
-    const batch = db.batch();
-    const llavesRef = torneoRef.collection('llaves');
-    const viejas = await llavesRef.get();
-    viejas.forEach(v => batch.delete(v.ref));
-    partidos.forEach((p, index) => { const newDoc = llavesRef.doc(`partido_${index + 1}`); batch.set(newDoc, p); });
-    batch.update(torneoRef, { estado: "iniciado", campeon: "" });
-    await batch.commit();
-    alert("¡Los pergaminos de batalla han sido repartidos!");
-}
-
-// PANEL DE ADMIN MODIFICADO PARA VER REPORTES DE JUGADORES
+// LÓGICA DEL PANEL DE ADMIN
 function abrirAdminPartidos(torneoId, torneoNombre) {
     document.getElementById('admin-partidos-titulo').innerText = `Juez: ${torneoNombre}`;
     window.location.hash = "#modal-admin-partidos";
@@ -521,7 +570,6 @@ function abrirAdminPartidos(torneoId, torneoNombre) {
             if(p.ganador !== "") {
                 contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);"><span style="color: #888;">${p.p1} vs ${p.p2}</span><br><strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong></div>`;
             } else if (p.reporte_pendiente) {
-                // Hay un reporte hecho por un jugador, el Kage debe aprobarlo o rechazarlo
                 let pruebaHtml = p.reporte_pendiente.prueba !== 'Sin link' && p.reporte_pendiente.prueba !== 'No adjuntada (Revisar WS)' 
                     ? `<a href="${p.reporte_pendiente.prueba}" target="_blank" style="color: var(--blue); font-size: 0.8rem; text-decoration: underline;">Ver Captura de Pantalla</a>` 
                     : `<span style="color: #888; font-size: 0.8rem;">Sin captura (Validar por WS)</span>`;
@@ -541,7 +589,6 @@ function abrirAdminPartidos(torneoId, torneoNombre) {
                     </div>
                 `;
             } else {
-                // Aún nadie reporta, pero el Kage puede forzar un ganador manualmente si quiere
                 contenedor.innerHTML += `
                     <div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);">
                         <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div>
@@ -560,34 +607,42 @@ function abrirAdminPartidos(torneoId, torneoNombre) {
 
 function rechazarReporte(torneoId, partidoId) {
     if(confirm("¿Deseas rechazar este reporte? El partido volverá a quedar pendiente.")) {
-        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
-            reporte_pendiente: firebase.firestore.FieldValue.delete()
-        });
+        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ reporte_pendiente: firebase.firestore.FieldValue.delete() });
     }
 }
 
 function setGanador(torneoId, partidoId, ganador) {
     if(confirm(`¿Confirmas que ${ganador} avanza de ronda?`)) { 
         db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ 
-            ganador: ganador,
-            reporte_pendiente: firebase.firestore.FieldValue.delete() // Limpia el reporte al aprobar
+            ganador: ganador, reporte_pendiente: firebase.firestore.FieldValue.delete()
         }); 
     }
 }
 
+// ACTUALIZACIÓN DE EXPERIENCIA AL CLAN DEL CAMPEÓN
 async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     const ganadores = partidos.map(p => p.ganador);
     if(ganadores.length === 1) {
         const campeon = ganadores[0];
         await db.collection('torneos').doc(torneoId).update({ estado: 'finalizado', campeon: campeon });
+        
+        // Sumar XP al Ninja Y a su Clan
         db.collection('ninjas').where('nick', '==', campeon).get().then(snap => {
             if(!snap.empty) {
                 const docId = snap.docs[0].id;
-                const xpActual = snap.docs[0].data().xp || 0;
+                const userData = snap.docs[0].data();
+                const xpActual = userData.xp || 0;
+                
                 db.collection('ninjas').doc(docId).update({ xp: xpActual + 100 });
+                
+                if(userData.clan && userData.clan !== "") {
+                    db.collection('clanes').doc(userData.clan).update({ 
+                        xp: firebase.firestore.FieldValue.increment(100) 
+                    });
+                }
             }
         });
-        alert(`¡EL TORNEO HA FINALIZADO! CAMPEÓN: ${campeon}. Se le han otorgado +100 XP.`);
+        alert(`¡EL TORNEO HA FINALIZADO! CAMPEÓN: ${campeon}. Se le han otorgado +100 XP a él y a su Escuadrón.`);
         window.location.hash = "#admin";
         return;
     }
@@ -601,7 +656,6 @@ async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     await batch.commit(); alert(`¡Ronda ${rondaActual + 1} generada con éxito!`);
 }
 
-// VISTA DE LLAVES PARA USUARIOS MODIFICADA PARA PERMITIR REPORTAR
 function verLlaves(torneoId, torneoNombre) {
     const contenedor = document.getElementById('contenedor-llaves-texto'); const contenedorCampeon = document.getElementById('contenedor-campeon');
     document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`;
@@ -623,7 +677,6 @@ function verLlaves(torneoId, torneoNombre) {
             const colorP1 = p.ganador === p.p1 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
             const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
             
-            // Logica del botón Reportar para los jugadores involucrados
             let botonAccionHTML = "";
             if (p.ganador === "" && p.p2 !== "BYE") {
                 if (p.reporte_pendiente) {
@@ -650,13 +703,7 @@ function verLlaves(torneoId, torneoNombre) {
 function abrirModalReporte(torneoId, partidoId, p1, p2) {
     document.getElementById('rep-torneo-id').value = torneoId;
     document.getElementById('rep-partido-id').value = partidoId;
-    
     const selectGanador = document.getElementById('rep-ganador');
-    selectGanador.innerHTML = `
-        <option value="" disabled selected>Selecciona al ganador...</option>
-        <option value="${p1}">${p1}</option>
-        <option value="${p2}">${p2}</option>
-    `;
-    
+    selectGanador.innerHTML = `<option value="" disabled selected>Selecciona al ganador...</option><option value="${p1}">${p1}</option><option value="${p2}">${p2}</option>`;
     document.getElementById('modal-reporte').style.display = 'flex';
 }
