@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.6"> 
+    <link rel="stylesheet" href="style.css?v=3.7"> 
 </head>
 <body>
 
@@ -230,12 +230,12 @@
                         <label style="font-size: 0.8rem; color: #aaa;">Plataforma de Origen</label>
                         <select id="stream-plataforma" style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;">
                             <option value="twitch">Twitch</option>
-                            <option value="youtube">YouTube (ID del Video)</option>
+                            <option value="youtube">YouTube (URL o ID del Video)</option>
                             <option value="kick">Kick</option>
-                            <option value="tiktok">TikTok (ID del Video)</option>
+                            <option value="tiktok">TikTok (URL o ID del Video)</option>
                         </select>
-                        <label style="font-size: 0.8rem; color: #aaa;">Nombre de Usuario o ID</label>
-                        <input type="text" id="stream-usuario" placeholder="Ej: matias_mj7" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 20px;">
+                        <label style="font-size: 0.8rem; color: #aaa;">Enlace completo, Nombre de Usuario o ID</label>
+                        <input type="text" id="stream-usuario" placeholder="Ej: matias_mj7 o pega el link completo" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 20px;">
                         <button type="submit" class="btn-save" style="background: var(--blue); color: black;"><i class="fas fa-sync-alt"></i> ACTUALIZAR SEÑAL DEL BYAKUGAN</button>
                     </form>
                 </div>
@@ -300,6 +300,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.6"></script>
+    <script src="app.js?v=3.7"></script>
 </body>
 </html>
