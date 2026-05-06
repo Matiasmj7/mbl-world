@@ -11,7 +11,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// Nota: Eliminamos la inicialización de Firebase Storage para ahorrar costos y recursos.
 
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
@@ -197,9 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // 6. NUEVO ABISMO: LÓGICA DE ENLACES EXTERNOS
-    // ==========================================
+    // 6. ABISMO CON ENLACES EXTERNOS
     const formAbismo = document.getElementById('form-abismo');
     if(formAbismo) {
         formAbismo.addEventListener('submit', (e) => {
@@ -211,38 +208,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const urlInput = document.getElementById('video-url').value.trim();
-            let embedUrl = "";
-            let plataforma = "desconocida";
+            let embedUrl = ""; let plataforma = "desconocida";
             
             if(urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
-                plataforma = "youtube";
-                const id = extraerIdLimpio(urlInput, 'youtube');
-                embedUrl = `https://www.youtube.com/embed/${id}`;
+                plataforma = "youtube"; const id = extraerIdLimpio(urlInput, 'youtube'); embedUrl = `https://www.youtube.com/embed/${id}`;
             } else if(urlInput.includes('tiktok.com')) {
-                plataforma = "tiktok";
-                const id = extraerIdLimpio(urlInput, 'tiktok');
-                if(id) {
-                    embedUrl = `https://www.tiktok.com/embed/v2/${id}`;
-                } else {
-                    embedUrl = urlInput; // Por si pegan un link acortado
-                }
-            } else {
-                alert("Error de chakra: Por ahora solo puedes compartir enlaces de YouTube o TikTok.");
-                return;
-            }
+                plataforma = "tiktok"; const id = extraerIdLimpio(urlInput, 'tiktok');
+                if(id) { embedUrl = `https://www.tiktok.com/embed/v2/${id}`; } else { embedUrl = urlInput; }
+            } else { alert("Por ahora solo puedes compartir enlaces de YouTube o TikTok."); return; }
 
             db.collection('abismo_videos').add({
-                usuario: currentUserName,
-                url: embedUrl,
-                urlCruda: urlInput,
-                plataforma: plataforma,
-                likes: 0,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                usuario: currentUserName, url: embedUrl, urlCruda: urlInput, plataforma: plataforma, likes: 0, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => { alert("¡Tu pergamino visual ha sido publicado en el Abismo!"); formAbismo.reset(); }).catch(err => { alert("Hubo un error al publicar: " + err.message); });
+        });
+    }
+
+    // NUEVO: PROCESAR EL REPORTE DE RESULTADO DE LOS USUARIOS
+    const formReporte = document.getElementById('form-reporte');
+    if(formReporte) {
+        formReporte.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const tId = document.getElementById('rep-torneo-id').value;
+            const pId = document.getElementById('rep-partido-id').value;
+            const ganador = document.getElementById('rep-ganador').value;
+            const prueba = document.getElementById('rep-prueba').value.trim() || 'No adjuntada (Revisar WS)';
+
+            db.collection('torneos').doc(tId).collection('llaves').doc(pId).update({
+                reporte_pendiente: {
+                    reportadoPor: currentUserName,
+                    ganadorPropuesto: ganador,
+                    prueba: prueba
+                }
             }).then(() => {
-                alert("¡Tu pergamino visual ha sido publicado en el Abismo!");
-                formAbismo.reset();
-            }).catch(err => {
-                alert("Hubo un error al publicar: " + err.message);
+                alert("¡Reporte enviado exitosamente! El Kage lo revisará pronto.");
+                document.getElementById('modal-reporte').style.display = 'none';
+                window.location.hash = "#modal-llaves";
             });
         });
     }
@@ -269,16 +269,10 @@ function cargarVideosAbismo() {
         snap.forEach(doc => {
             const d = doc.data();
             let reproductorHTML = "";
-            
-            // Si tiene 'embed', lo ponemos en un iframe para que se vea dentro de tu página.
             if(d.url && d.url.includes('embed')) {
                 reproductorHTML = `<iframe src="${d.url}" style="width: 100%; height: 350px; border: none; border-radius: 8px;" allowfullscreen></iframe>`;
             } else {
-                // Si es un link muy raro o acortado, ponemos un botón para abrirlo en otra pestaña.
-                reproductorHTML = `
-                <div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #111; border-radius: 8px;">
-                    <a href="${d.urlCruda}" target="_blank" class="btn-secondary" style="text-decoration: none;"><i class="fas fa-external-link-alt"></i> Ver jugada en TikTok</a>
-                </div>`;
+                reproductorHTML = `<div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #111; border-radius: 8px;"><a href="${d.urlCruda}" target="_blank" class="btn-secondary" style="text-decoration: none;"><i class="fas fa-external-link-alt"></i> Ver jugada en TikTok</a></div>`;
             }
 
             lista.innerHTML += `
@@ -287,11 +281,7 @@ function cargarVideosAbismo() {
                         <img src="https://ui-avatars.com/api/?name=${d.usuario}&background=random" style="width: 30px; border-radius: 50%; border: 1px solid var(--blue);">
                         <strong style="font-size: 0.9rem; color: white;">${d.usuario}</strong>
                     </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        ${reproductorHTML}
-                    </div>
-
+                    <div style="margin-bottom: 10px;">${reproductorHTML}</div>
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;">
                         <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; transition: 0.2s;" onclick="darLikeVideo('${doc.id}')" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='#ccc'">
                             <i class="fas fa-heart"></i> <span style="font-size: 0.9rem;">${d.likes || 0}</span>
@@ -305,38 +295,26 @@ function cargarVideosAbismo() {
 
 function darLikeVideo(videoId) {
     if(currentUserName === "Ninja Anónimo") return alert("Debes identificarte en la aldea para dar Like.");
-    db.collection('abismo_videos').doc(videoId).update({
-        likes: firebase.firestore.FieldValue.increment(1)
-    });
+    db.collection('abismo_videos').doc(videoId).update({ likes: firebase.firestore.FieldValue.increment(1) });
 }
 
 async function abrirPerfil(nick) {
     const modal = document.getElementById('modal-perfil');
     document.getElementById('perfil-nick').innerText = nick;
     document.getElementById('perfil-avatar').src = `https://ui-avatars.com/api/?name=${nick}&background=random`;
-    document.getElementById('perfil-rango').innerText = "Buscando...";
-    document.getElementById('perfil-xp').innerText = "...";
-    document.getElementById('perfil-campeonatos').innerText = "...";
-
+    document.getElementById('perfil-rango').innerText = "Buscando..."; document.getElementById('perfil-xp').innerText = "..."; document.getElementById('perfil-campeonatos').innerText = "...";
     window.location.hash = '#modal-perfil';
-
     try {
         const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
         if(!snapshot.empty) {
             const data = snapshot.docs[0].data();
-            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero';
-            document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero'; document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
         } else {
-            document.getElementById('perfil-rango').innerText = 'Sin Rango';
-            document.getElementById('perfil-xp').innerText = `0 XP`;
+            document.getElementById('perfil-rango').innerText = 'Sin Rango'; document.getElementById('perfil-xp').innerText = `0 XP`;
         }
-
         const torneosSnap = await db.collection('torneos').where('campeon', '==', nick).get();
         document.getElementById('perfil-campeonatos').innerText = torneosSnap.size;
-
-    } catch(error) {
-        console.error("Error cargando perfil:", error);
-    }
+    } catch(error) { console.error("Error cargando perfil:", error); }
 }
 
 function cerrarModalPerfil(e) { e.preventDefault(); history.back(); }
@@ -356,19 +334,14 @@ function extraerIdLimpio(urlCruda, plataforma) {
 }
 
 function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
-    const iframe = document.getElementById('stream-frame');
-    const botones = document.querySelectorAll('.plat-btn');
+    const iframe = document.getElementById('stream-frame'); const botones = document.querySelectorAll('.plat-btn');
     let canalAUsar = usuarioFuerza ? usuarioFuerza : extraerIdLimpio(kageStreamUser, kageStreamPlat);
-    const currentDomain = window.location.hostname;
-    let finalSrc = "";
-
+    const currentDomain = window.location.hostname; let finalSrc = "";
     if (plataforma === 'twitch') { finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`; }
     else if (plataforma === 'youtube') { finalSrc = `https://www.youtube.com/embed/${canalAUsar}?autoplay=1`; }
     else if (plataforma === 'kick') { finalSrc = `https://player.kick.com/${canalAUsar}`; }
     else if (plataforma === 'tiktok') { finalSrc = `https://www.tiktok.com/embed/v2/${canalAUsar}`; }
-    
     if(iframe) iframe.src = finalSrc;
-
     botones.forEach(btn => { btn.style.background = '#111'; btn.style.color = 'white'; btn.style.border = '1px solid #444'; });
     let btnActivo = null;
     if(plataforma === 'twitch') btnActivo = botones[0]; if(plataforma === 'youtube') btnActivo = botones[1]; if(plataforma === 'kick') btnActivo = botones[2]; if(plataforma === 'tiktok') btnActivo = botones[3];
@@ -529,6 +502,7 @@ async function generarLlaves(torneoId, torneoNombre) {
     alert("¡Los pergaminos de batalla han sido repartidos!");
 }
 
+// PANEL DE ADMIN MODIFICADO PARA VER REPORTES DE JUGADORES
 function abrirAdminPartidos(torneoId, torneoNombre) {
     document.getElementById('admin-partidos-titulo').innerText = `Juez: ${torneoNombre}`;
     window.location.hash = "#modal-admin-partidos";
@@ -540,20 +514,65 @@ function abrirAdminPartidos(torneoId, torneoNombre) {
         let rondaMaxima = 1; let partidosRondaActiva = []; let todosTienenGanador = true;
         snap.forEach(doc => { const p = doc.data(); if(p.ronda > rondaMaxima) rondaMaxima = p.ronda; });
         snap.forEach(doc => { const p = doc.data(); if(p.ronda === rondaMaxima) { partidosRondaActiva.push({id: doc.id, ...p}); if(p.ganador === "") todosTienenGanador = false; } });
+        
         contenedor.innerHTML = `<h4 style="color: var(--blue); margin-bottom: 10px;">RONDA ${rondaMaxima}</h4>`;
+        
         partidosRondaActiva.forEach(p => {
             if(p.ganador !== "") {
                 contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);"><span style="color: #888;">${p.p1} vs ${p.p2}</span><br><strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong></div>`;
+            } else if (p.reporte_pendiente) {
+                // Hay un reporte hecho por un jugador, el Kage debe aprobarlo o rechazarlo
+                let pruebaHtml = p.reporte_pendiente.prueba !== 'Sin link' && p.reporte_pendiente.prueba !== 'No adjuntada (Revisar WS)' 
+                    ? `<a href="${p.reporte_pendiente.prueba}" target="_blank" style="color: var(--blue); font-size: 0.8rem; text-decoration: underline;">Ver Captura de Pantalla</a>` 
+                    : `<span style="color: #888; font-size: 0.8rem;">Sin captura (Validar por WS)</span>`;
+
+                contenedor.innerHTML += `
+                    <div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid gold;">
+                        <div style="margin-bottom: 5px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div>
+                        <div style="background: rgba(255, 215, 0, 0.1); padding: 8px; border-radius: 5px; margin-bottom: 10px; font-size: 0.9rem;">
+                            <i class="fas fa-exclamation-triangle" style="color: gold;"></i> <strong>${p.reporte_pendiente.reportadoPor}</strong> reportó victoria para:<br>
+                            <span style="color: var(--green); font-weight: bold; font-size: 1.1rem;">${p.reporte_pendiente.ganadorPropuesto}</span><br>
+                            ${pruebaHtml}
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-primary" style="flex: 2; padding: 5px; font-size:0.8rem; background: var(--green); color: black;" onclick="setGanador('${torneoId}', '${p.id}', '${p.reporte_pendiente.ganadorPropuesto}')">APROBAR REPORTE</button>
+                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem; background: var(--red); color: white; border: none;" onclick="rechazarReporte('${torneoId}', '${p.id}')">Rechazar</button>
+                        </div>
+                    </div>
+                `;
             } else {
-                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);"><div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div><div style="display: flex; gap: 5px;"><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">GANA ${p.p1}</button><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">GANA ${p.p2}</button></div></div>`;
+                // Aún nadie reporta, pero el Kage puede forzar un ganador manualmente si quiere
+                contenedor.innerHTML += `
+                    <div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);">
+                        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div>
+                        <p style="text-align: center; font-size: 0.7rem; color: #888; margin-bottom: 5px;">Esperando reporte de los jugadores...</p>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">Forzar: Gana ${p.p1}</button>
+                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">Forzar: Gana ${p.p2}</button>
+                        </div>
+                    </div>
+                `;
             }
         });
         if(todosTienenGanador) { btnSiguiente.style.display = "block"; btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva); } else { btnSiguiente.style.display = "none"; }
     });
 }
 
+function rechazarReporte(torneoId, partidoId) {
+    if(confirm("¿Deseas rechazar este reporte? El partido volverá a quedar pendiente.")) {
+        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+            reporte_pendiente: firebase.firestore.FieldValue.delete()
+        });
+    }
+}
+
 function setGanador(torneoId, partidoId, ganador) {
-    if(confirm(`¿Confirmas que ${ganador} es el vencedor?`)) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador }); }
+    if(confirm(`¿Confirmas que ${ganador} avanza de ronda?`)) { 
+        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ 
+            ganador: ganador,
+            reporte_pendiente: firebase.firestore.FieldValue.delete() // Limpia el reporte al aprobar
+        }); 
+    }
 }
 
 async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
@@ -582,23 +601,62 @@ async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     await batch.commit(); alert(`¡Ronda ${rondaActual + 1} generada con éxito!`);
 }
 
+// VISTA DE LLAVES PARA USUARIOS MODIFICADA PARA PERMITIR REPORTAR
 function verLlaves(torneoId, torneoNombre) {
     const contenedor = document.getElementById('contenedor-llaves-texto'); const contenedorCampeon = document.getElementById('contenedor-campeon');
     document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`;
     contenedor.innerHTML = '<p style="color: #888;">Leyendo los pergaminos...</p>'; contenedorCampeon.innerHTML = '';
     window.location.hash = "#modal-llaves";
+    
     db.collection('torneos').doc(torneoId).get().then(doc => {
         if(doc.exists && doc.data().estado === 'finalizado') { contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem; cursor:pointer;" onclick="abrirPerfil('${doc.data().campeon}')">${doc.data().campeon}</strong></div>`; }
     });
+    
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
         if(snap.empty) { contenedor.innerHTML = '<p style="color: var(--red);">El Kage aún no ha generado los cruces.</p>'; return; }
         contenedor.innerHTML = ""; let currentRonda = 0;
+        
         snap.forEach(doc => {
             const p = doc.data();
             if (p.ronda !== currentRonda) { contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px; text-transform: uppercase;">RONDA ${p.ronda}</div>`; currentRonda = p.ronda; }
+            
             const colorP1 = p.ganador === p.p1 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
             const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
-            contenedor.innerHTML += `<div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center;"><span style="${colorP1}; cursor:pointer;" onclick="abrirPerfil('${p.p1}')">${p.p1}</span><span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span><span style="${colorP2}; cursor:pointer;" onclick="abrirPerfil('${p.p2}')">${p.p2}</span></div>`;
+            
+            // Logica del botón Reportar para los jugadores involucrados
+            let botonAccionHTML = "";
+            if (p.ganador === "" && p.p2 !== "BYE") {
+                if (p.reporte_pendiente) {
+                    botonAccionHTML = `<div style="font-size: 0.7rem; color: gold; text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;"><i class="fas fa-clock"></i> Revisión pendiente del Kage...</div>`;
+                } else if (currentUserName !== "Ninja Anónimo" && (currentUserName === p.p1 || currentUserName === p.p2)) {
+                    botonAccionHTML = `<div style="text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;"><button class="btn-primary" style="padding: 4px 10px; font-size: 0.7rem; background: var(--blue); color: black;" onclick="abrirModalReporte('${torneoId}', '${doc.id}', '${p.p1}', '${p.p2}')"><i class="fas fa-flag"></i> Cargar Resultado</button></div>`;
+                }
+            }
+
+            contenedor.innerHTML += `
+                <div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="${colorP1}; cursor:pointer;" onclick="abrirPerfil('${p.p1}')">${p.p1}</span>
+                        <span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span>
+                        <span style="${colorP2}; cursor:pointer;" onclick="abrirPerfil('${p.p2}')">${p.p2}</span>
+                    </div>
+                    ${botonAccionHTML}
+                </div>
+            `;
         });
     });
+}
+
+function abrirModalReporte(torneoId, partidoId, p1, p2) {
+    document.getElementById('rep-torneo-id').value = torneoId;
+    document.getElementById('rep-partido-id').value = partidoId;
+    
+    const selectGanador = document.getElementById('rep-ganador');
+    selectGanador.innerHTML = `
+        <option value="" disabled selected>Selecciona al ganador...</option>
+        <option value="${p1}">${p1}</option>
+        <option value="${p2}">${p2}</option>
+    `;
+    
+    document.getElementById('modal-reporte').style.display = 'flex';
 }
