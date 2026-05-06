@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(user.email === ADMIN_EMAIL) {
                 if(adminNav) adminNav.style.display = 'block';
                 if(adminSection) adminSection.style.display = 'block';
-                cargarTorneosParaAdminLlaves(); // Carga extra para Kage
+                cargarTorneosParaAdminLlaves();
             }
         } else {
             currentUserName = "Ninja Anónimo";
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. LÓGICA DINÁMICA DEL BYAKUGAN (EXTRACTOR INTELIGENTE)
+    // 3. BYAKUGAN
     db.collection('configuracion').doc('stream').onSnapshot(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // PESTAÑA: ASCENDER NINJAS (PAGOS)
+    // 4. ASCENSO DE NINJAS
     const formAscenso = document.getElementById('form-ascenso');
     if(formAscenso) {
         formAscenso.addEventListener('submit', (e) => {
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. CREAR TORNEOS
+    // 5. CREAR TORNEOS
     const formT = document.getElementById('form-torneo');
     if(formT) {
         formT.addEventListener('submit', (e) => {
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. CHAT Y GREMIO
+    // 6. CHAT Y GREMIO
     const btnSendChat = document.getElementById('btn-send-chat');
     if(btnSendChat) {
         btnSendChat.addEventListener('click', () => {
@@ -187,13 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // CARGA INICIAL DE DATOS PÚBLICOS
     cargarTorneosDesdeNube();
     cargarAnunciosGremio();
 });
 
 // ==========================================
-// FUNCIONES AUXILIARES Y EXTRACTOR INTELIGENTE
+// FUNCIONES AUXILIARES
 // ==========================================
 
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
@@ -298,7 +297,8 @@ function cargarTorneosDesdeNube() {
                 let btnTexto = "UNIRSE";
                 let btnColor = "var(--red)";
                 
-                if (yaInscrito) { btnTexto = "INSCRIPTO"; btnColor = "gray"; } 
+                if (data.estado === "iniciado" || data.estado === "finalizado") { btnTexto = "CERRADO"; btnColor = "gray"; }
+                else if (yaInscrito) { btnTexto = "INSCRIPTO"; btnColor = "gray"; } 
                 else if (estaLleno) { btnTexto = "LLENO"; btnColor = "gray"; }
 
                 const etiquetaPrivado = data.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
@@ -320,7 +320,7 @@ function cargarTorneosDesdeNube() {
                         <p style="margin-bottom: 15px; color: var(--green); font-weight: bold;"><i class="fas fa-trophy" style="color: var(--green); width: 20px;"></i> Premio: ${data.premio || 'A definir'}</p>
                         
                         <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button class="btn-primary" style="flex: 2; padding: 10px; background: ${btnColor};" onclick="unirseTorneo('${id}')" ${estaLleno || yaInscrito ? 'disabled' : ''}>${btnTexto}</button>
+                            <button class="btn-primary" style="flex: 2; padding: 10px; background: ${btnColor};" onclick="unirseTorneo('${id}', '${data.estado}')" ${estaLleno || yaInscrito || data.estado !== "abierto" ? 'disabled' : ''}>${btnTexto}</button>
                             <button class="btn-secondary" style="flex: 1; padding: 10px; background: #222;" onclick="verLlaves('${id}', '${data.nombre}')"><i class="fas fa-sitemap"></i> Llaves</button>
                         </div>
                     </div>
@@ -334,7 +334,8 @@ function cargarTorneosDesdeNube() {
     });
 }
 
-function unirseTorneo(torneoId) {
+function unirseTorneo(torneoId, estado) {
+    if(estado !== "abierto") return;
     if(currentUserName === "Ninja Anónimo") {
         alert("Debes ingresar con tu cuenta para unirte a un torneo.");
         window.location.hash = "#modal-login";
@@ -390,7 +391,7 @@ function mostrarTabAdmin(tabId) {
 }
 
 // ==========================================
-// NUEVO: SISTEMA DE LLAVES (MANDO DE BATALLA)
+// NUEVO: SISTEMA DE LLAVES Y MANDO DE JUEZ (ADMIN)
 // ==========================================
 
 function cargarTorneosParaAdminLlaves() {
@@ -400,13 +401,23 @@ function cargarTorneosParaAdminLlaves() {
         snap.forEach(doc => {
             const d = doc.data();
             const id = doc.id;
-            const btnColor = d.estado === 'iniciado' ? 'gray' : 'var(--blue)';
-            const btnTexto = d.estado === 'iniciado' ? 'RE-GENERAR' : 'GENERAR LLAVES';
+            
+            let botonesHTML = '';
+            if(d.estado === 'iniciado') {
+                botonesHTML = `
+                    <button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}')">ADMINISTRAR</button>
+                    <button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>
+                `;
+            } else if (d.estado === 'finalizado') {
+                botonesHTML = `<span style="color: gold; font-weight: bold;"><i class="fas fa-crown"></i> CAMPEÓN: ${d.campeon}</span>`;
+            } else {
+                botonesHTML = `<button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`;
+            }
 
             lista.innerHTML += `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222;">
                     <div><strong>${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${d.lista_inscriptos?.length || 0} inscritos</span></div>
-                    <button class="btn-primary" style="background: ${btnColor}; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">${btnTexto}</button>
+                    <div>${botonesHTML}</div>
                 </div>
             `;
         });
@@ -414,7 +425,7 @@ function cargarTorneosParaAdminLlaves() {
 }
 
 async function generarLlaves(torneoId, torneoNombre) {
-    if(!confirm(`¿Deseas cerrar inscripciones y generar los cruces para ${torneoNombre}?`)) return;
+    if(!confirm(`¿Deseas cerrar inscripciones y generar los cruces de Ronda 1 para ${torneoNombre}?`)) return;
 
     const torneoRef = db.collection('torneos').doc(torneoId);
     const doc = await torneoRef.get();
@@ -448,36 +459,161 @@ async function generarLlaves(torneoId, torneoNombre) {
         batch.set(newDoc, p);
     });
 
-    batch.update(torneoRef, { estado: "iniciado" });
+    batch.update(torneoRef, { estado: "iniciado", campeon: "" });
     await batch.commit();
     alert("¡Los pergaminos de batalla han sido repartidos!");
 }
 
+// Ventana para el Juez (Admin) donde marca ganadores
+function abrirAdminPartidos(torneoId, torneoNombre) {
+    document.getElementById('admin-partidos-titulo').innerText = `Juez: ${torneoNombre}`;
+    window.location.hash = "#modal-admin-partidos";
+
+    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
+        const contenedor = document.getElementById('contenedor-admin-partidos');
+        const btnSiguiente = document.getElementById('btn-siguiente-ronda');
+        contenedor.innerHTML = "";
+
+        if(snap.empty) {
+            contenedor.innerHTML = "<p>No hay llaves generadas.</p>";
+            btnSiguiente.style.display = "none";
+            return;
+        }
+
+        let rondaMaxima = 1;
+        let partidosRondaActiva = [];
+        let todosTienenGanador = true;
+
+        snap.forEach(doc => {
+            const p = doc.data();
+            if(p.ronda > rondaMaxima) rondaMaxima = p.ronda;
+        });
+
+        snap.forEach(doc => {
+            const p = doc.data();
+            if(p.ronda === rondaMaxima) {
+                partidosRondaActiva.push({id: doc.id, ...p});
+                if(p.ganador === "") todosTienenGanador = false;
+            }
+        });
+
+        contenedor.innerHTML = `<h4 style="color: var(--blue); margin-bottom: 10px;">RONDA ${rondaMaxima}</h4>`;
+
+        partidosRondaActiva.forEach(p => {
+            if(p.ganador !== "") {
+                contenedor.innerHTML += `
+                    <div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);">
+                        <span style="color: #888;">${p.p1} vs ${p.p2}</span><br>
+                        <strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong>
+                    </div>
+                `;
+            } else {
+                contenedor.innerHTML += `
+                    <div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);">
+                        <div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">GANA ${p.p1}</button>
+                            <button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">GANA ${p.p2}</button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // Si todos los partidos de la ronda actual tienen un ganador, permitimos avanzar
+        if(todosTienenGanador) {
+            btnSiguiente.style.display = "block";
+            btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva);
+        } else {
+            btnSiguiente.style.display = "none";
+        }
+    });
+}
+
+function setGanador(torneoId, partidoId, ganador) {
+    if(confirm(`¿Confirmas que ${ganador} es el vencedor de este duelo?`)) {
+        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+            ganador: ganador
+        });
+    }
+}
+
+async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
+    const ganadores = partidos.map(p => p.ganador);
+
+    if(ganadores.length === 1) {
+        // TENEMOS UN CAMPEÓN
+        await db.collection('torneos').doc(torneoId).update({
+            estado: 'finalizado',
+            campeon: ganadores[0]
+        });
+        alert(`¡EL TORNEO HA FINALIZADO! CAMPEÓN: ${ganadores[0]}`);
+        window.location.hash = "#admin";
+        return;
+    }
+
+    const nuevosPartidos = [];
+    for (let i = 0; i < ganadores.length; i += 2) {
+        if (ganadores[i + 1]) {
+            nuevosPartidos.push({ p1: ganadores[i], p2: ganadores[i + 1], ganador: "", ronda: rondaActual + 1 });
+        } else {
+            nuevosPartidos.push({ p1: ganadores[i], p2: "BYE", ganador: ganadores[i], ronda: rondaActual + 1 });
+        }
+    }
+
+    const batch = db.batch();
+    const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves');
+    const time = new Date().getTime(); // Para asegurar IDs únicos
+    
+    nuevosPartidos.forEach((p, index) => {
+        const newDoc = llavesRef.doc(`partido_r${rondaActual + 1}_${index}_${time}`);
+        batch.set(newDoc, p);
+    });
+
+    await batch.commit();
+    alert(`¡Ronda ${rondaActual + 1} generada con éxito! Los ninjas ya pueden ver a sus nuevos oponentes.`);
+}
+
+// Vista Pública de las Llaves (Modificada para mostrar el progreso y al campeón)
 function verLlaves(torneoId, torneoNombre) {
     const contenedor = document.getElementById('contenedor-llaves-texto');
-    const titulo = document.getElementById('llaves-titulo');
-    titulo.innerText = `Llaves: ${torneoNombre}`;
+    const contenedorCampeon = document.getElementById('contenedor-campeon');
+    document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`;
     contenedor.innerHTML = '<p style="color: #888;">Leyendo los pergaminos...</p>';
+    contenedorCampeon.innerHTML = '';
     window.location.hash = "#modal-llaves";
 
-    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda').onSnapshot(snap => {
+    // Revisar si ya hay un campeón
+    db.collection('torneos').doc(torneoId).get().then(doc => {
+        if(doc.exists && doc.data().estado === 'finalizado') {
+            contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem;">${doc.data().campeon}</strong></div>`;
+        }
+    });
+
+    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
         if(snap.empty) {
             contenedor.innerHTML = '<p style="color: var(--red);">El Kage aún no ha generado los cruces para este torneo.</p>';
             return;
         }
 
         contenedor.innerHTML = "";
+        let currentRonda = 0;
+        
         snap.forEach(doc => {
             const p = doc.data();
-            const esGanadorP1 = p.ganador === p.p1 ? 'border: 1px solid var(--green); background: rgba(0,255,163,0.1);' : '';
-            const esGanadorP2 = p.ganador === p.p2 ? 'border: 1px solid var(--green); background: rgba(0,255,163,0.1);' : '';
+            if (p.ronda !== currentRonda) {
+                contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px; text-transform: uppercase;">RONDA ${p.ronda}</div>`;
+                currentRonda = p.ronda;
+            }
+
+            const colorP1 = p.ganador === p.p1 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
+            const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;');
 
             contenedor.innerHTML += `
-                <div style="margin-bottom: 15px; background: #111; padding: 10px; border-radius: 5px; border: 1px solid #333;">
-                    <div style="font-size: 0.7rem; color: var(--blue); margin-bottom: 5px;">RONDA ${p.ronda}</div>
-                    <div style="padding: 5px; ${esGanadorP1}">${p.p1}</div>
-                    <div style="color: #444; font-size: 0.8rem; margin: 2px 0;">VS</div>
-                    <div style="padding: 5px; ${esGanadorP2}">${p.p2}</div>
+                <div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="${colorP1}">${p.p1}</span>
+                    <span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span>
+                    <span style="${colorP2}">${p.p2}</span>
                 </div>
             `;
         });
