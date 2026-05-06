@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.11"> 
+    <link rel="stylesheet" href="style.css?v=3.12"> 
 </head>
 <body>
 
@@ -39,7 +39,7 @@
     <main class="content-wrapper">
         <section id="inicio" class="hero-section">
             <h1 class="title-main">DOMINA EL ABISMO</h1>
-            <p class="welcome-msg">Bienvenido al Libro Bingo, <span id="user-greeting">Ninja</span>.</p>
+            <p class="welcome-msg">Bienvenido a la Arena, <span id="user-greeting">Ninja</span>.</p>
             <div class="hero-actions">
                 <a href="#stream" class="btn-primary">VER STREAM</a>
                 <a href="#planes" class="btn-secondary">SQUAD TORNEOS</a>
@@ -55,9 +55,7 @@
                     <button class="plat-btn" onclick="cambiarStreamLocal('kick')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fas fa-bolt"></i> Kick</button>
                     <button class="plat-btn" onclick="cambiarStreamLocal('tiktok')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-tiktok"></i> TikTok</button>
                 </div>
-
                 <div id="status-stream" style="text-align: center; font-size: 0.8rem; color: var(--blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">Sincronizando señal del Kage...</div>
-
                 <div class="stream-grid">
                     <div class="video-container">
                         <iframe id="stream-frame" src="" frameborder="0" allowfullscreen></iframe>
@@ -72,7 +70,6 @@
 
         <section id="torneos" class="section">
             <h2 class="section-head"><i class="fas fa-khanda"></i> Arena de Combate</h2>
-            
             <div style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn-filter active" onclick="filtrarTorneos('todos')">Todos</button>
                 <button class="btn-filter" onclick="filtrarTorneos('1v1')">1v1</button>
@@ -80,7 +77,6 @@
                 <button class="btn-filter" onclick="filtrarTorneos('3v3')">3v3</button>
                 <button class="btn-filter" onclick="filtrarTorneos('5v5')">5v5</button>
             </div>
-
             <div class="torneos-grid" id="lista-torneos">
                 <p style="color: #ccc; text-align: center; width: 100%;">Sincronizando con los pergaminos de la aldea...</p>
             </div>
@@ -119,32 +115,18 @@
             <h2 class="section-head"><i class="fas fa-scroll"></i> Libro Bingo</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                 <div class="container-glass">
-                    <h3 style="margin-bottom: 20px; color: var(--blue);">Registrar Rango</h3>
-                    <form id="bingo-form" onsubmit="event.preventDefault(); alert('Registro enviado para validación.');">
-                        <label style="color: #aaa; font-size: 0.8rem;">Nick en el Juego</label>
-                        <input type="text" placeholder="Ej: Itachi_7" required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div style="flex: 1;"><label style="color: #aaa; font-size: 0.8rem;">ID Jugador</label><input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"></div>
-                            <div style="flex: 1;"><label style="color: #aaa; font-size: 0.8rem;">Server</label><input type="number" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"></div>
-                        </div>
-                        <label style="color: #aaa; font-size: 0.8rem;">Rango Actual</label>
-                        <select required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                            <option value="inmortal">Mítico Inmortal (100+)</option><option value="gloria">Mítico Gloria (50-99)</option><option value="honor">Mítico Honor (25-49)</option><option value="mitico">Mítico (0-24)</option><option value="leyenda">Leyenda (V - I)</option><option value="epico">Épico (V - I)</option><option value="gm">Gran Maestro (IV - I)</option><option value="maestro">Maestro (IV - I)</option><option value="elite">Élite (III - I)</option><option value="guerrero">Guerrero (III - I)</option>
-                        </select>
-                        <div style="margin-bottom: 20px; border: 1px dashed var(--blue); padding: 15px; text-align: center; border-radius: 5px; background: rgba(0, 210, 255, 0.05);">
-                            <label style="color: #aaa; font-size: 0.8rem; display: block; margin-bottom: 10px;">Captura de Perfil (Validación)</label>
-                            <input type="file" id="rank-proof" style="display: none;">
-                            <label for="rank-proof" class="btn-secondary" style="cursor: pointer; padding: 8px 15px; font-size: 0.9rem;"><i class="fas fa-camera"></i> Subir Foto</label>
-                        </div>
-                        <button type="submit" class="btn-primary" style="width: 100%; border: none;">ENVIAR REGISTRO</button>
-                    </form>
+                    <h3 style="margin-bottom: 20px; color: var(--blue);"><i class="fas fa-star"></i> Tu Rango Ninja</h3>
+                    <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Tu poder en la aldea se define por tu experiencia (XP). Ganarás XP coronándote campeón en los torneos de la Arena.</p>
+                    <div style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 20px; border-radius: 8px; text-align: center;">
+                        <h4 style="color: #fff; margin-bottom: 5px;">Tu Nick: <span id="mi-nick-bingo" style="color: var(--blue);">Inicia sesión</span></h4>
+                        <h2 style="color: gold; margin-bottom: 5px;" id="mi-xp-bingo">0 XP</h2>
+                        <span style="color: #888; font-size: 0.9rem;" id="mi-rango-bingo">Guerrero</span>
+                    </div>
                 </div>
                 <div class="container-glass" style="max-height: 550px; overflow-y: auto;">
-                    <h3 style="margin-bottom: 20px; color: var(--red);"><i class="fas fa-trophy"></i> Top 30 Ninjas</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid gold;"><div><strong>1. Matías</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Inmortal (120)</div></div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid silver;"><div><strong>2. NinjaOscuro</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Gloria (85)</div></div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 10px 15px; border-radius: 5px; border-left: 3px solid #cd7f32;"><div><strong>3. SakuraHeals</strong></div><div style="font-size: 0.8rem; color: #aaa;">Mítico Honor (40)</div></div>
+                    <h3 style="margin-bottom: 20px; color: var(--red);"><i class="fas fa-trophy"></i> Top Ninjas (Libro Bingo)</h3>
+                    <div id="ranking-dinamico" style="display: flex; flex-direction: column; gap: 10px;">
+                        <p style="color: #888; text-align: center;">Buscando en los registros de la aldea...</p>
                     </div>
                 </div>
             </div>
@@ -199,7 +181,6 @@
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-byakugan')">Control Byakugan</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Gestionar Llaves</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-pagos')">Otorgar Permisos</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-ban')">Banear</button>
                 </div>
 
                 <div id="tab-torneos">
@@ -211,12 +192,9 @@
                         </div>
                          <input type="text" id="t-premio" placeholder="Premio">
                         <div class="form-row">
-                            <select id="t-formato" style="flex: 1;">
-                                <option value="1v1">1 vs 1</option><option value="2v2">2 vs 2</option><option value="3v3">3 vs 3</option><option value="5v5">5 vs 5</option>
-                            </select>
+                            <select id="t-formato" style="flex: 1;"><option value="1v1">1 vs 1</option><option value="2v2">2 vs 2</option><option value="3v3">3 vs 3</option><option value="5v5">5 vs 5</option></select>
                             <div style="flex: 1; display: flex; align-items: center; padding-left: 10px;">
-                                <input type="checkbox" id="t-privado" style="width: auto; margin-right: 10px; margin-bottom: 0;"> 
-                                <label for="t-privado">Torneo Privado</label>
+                                <input type="checkbox" id="t-privado" style="width: auto; margin-right: 10px; margin-bottom: 0;"><label for="t-privado">Torneo Privado</label>
                             </div>
                         </div>
                         <button type="submit" class="btn-save"><i class="fas fa-cloud-upload-alt"></i> PUBLICAR TORNEO</button>
@@ -225,48 +203,31 @@
 
                 <div id="tab-byakugan" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Control de Transmisión en Tiempo Real</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">El canal que pongas aquí se actualizará automáticamente para todos los visitantes.</p>
                     <form id="form-config-stream">
-                        <label style="font-size: 0.8rem; color: #aaa;">Plataforma de Origen</label>
-                        <select id="stream-plataforma" style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;">
-                            <option value="twitch">Twitch</option>
-                            <option value="youtube">YouTube (URL o ID del Video)</option>
-                            <option value="kick">Kick</option>
-                            <option value="tiktok">TikTok (URL o ID del Video)</option>
-                        </select>
-                        <label style="font-size: 0.8rem; color: #aaa;">Enlace completo, Nombre de Usuario o ID</label>
+                        <select id="stream-plataforma" style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;"><option value="twitch">Twitch</option><option value="youtube">YouTube (URL o ID del Video)</option><option value="kick">Kick</option><option value="tiktok">TikTok (URL o ID del Video)</option></select>
                         <input type="text" id="stream-usuario" placeholder="Ej: matias_mj7 o pega el link completo" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 20px;">
-                        <button type="submit" class="btn-save" style="background: var(--blue); color: black;"><i class="fas fa-sync-alt"></i> ACTUALIZAR SEÑAL DEL BYAKUGAN</button>
+                        <button type="submit" class="btn-save" style="background: var(--blue); color: black;"><i class="fas fa-sync-alt"></i> ACTUALIZAR SEÑAL</button>
                     </form>
                 </div>
 
                 <div id="tab-llaves-admin" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Mando de Batalla</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o administrar los resultados de las batallas en curso.</p>
-                    <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;">
-                        </div>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o administrar los resultados.</p>
+                    <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;"></div>
                 </div>
 
                 <div id="tab-pagos" style="display: none;">
                     <h3 style="color: var(--green); margin-bottom: 15px;"><i class="fas fa-arrow-up"></i> Otorgar Rango (Post-Pago)</h3>
-                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Una vez que verifiques el comprobante en tu WhatsApp, escribe el Nick del usuario para ascenderlo y darle permisos.</p>
                     <form id="form-ascenso" class="admin-form">
                         <input type="text" id="p-usuario" placeholder="Nick exacto del usuario..." required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 10px;">
-                        <select id="p-rango" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;">
-                            <option value="Aliado">Plan Aliado</option>
-                            <option value="Kage Elite">Plan Kage Elite</option>
-                        </select>
+                        <select id="p-rango" required style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 15px;"><option value="Aliado">Plan Aliado</option><option value="Kage Elite">Plan Kage Elite</option></select>
                         <button type="submit" class="btn-save" style="background: var(--green); color: black;"><i class="fas fa-star"></i> ASCENDER NINJA</button>
                     </form>
-
                     <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
                         <h4 style="color: var(--blue); margin-bottom: 15px;">Ninjas con Plan Activo</h4>
-                        <div id="lista-rangos" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; min-height: 50px;">
-                            </div>
+                        <div id="lista-rangos" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; min-height: 50px;"></div>
                     </div>
                 </div>
-
-                <div id="tab-ban" style="display: none;"><input type="text" placeholder="Nick a banear..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;"><button class="btn-primary" style="width: 100%; margin-top: 10px;">BANEAR</button></div>
             </div>
         </section>
     </main>
@@ -279,15 +240,13 @@
         </div>
     </div>
 
-    <div id="modal-anuncio" class="modal">
-        <div class="modal-box container-glass">
-            <a href="#gremio" class="btn-close"><i class="fas fa-times"></i></a>
-            <h3 style="color: var(--green); margin-bottom: 20px;">Crear Solicitud</h3>
-            <form id="form-anuncio">
-                <input type="text" id="a-busco" placeholder="¿Qué rol buscas? (Ej: Mago/Tanque)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                <input type="text" id="a-soy" placeholder="¿Qué rol eres? (Ej: Jungla/ADC)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                <textarea id="a-mensaje" placeholder="Escribe tu mensaje o detalles..." required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; height: 80px; resize: none;"></textarea>
-                <button type="submit" class="btn-submit" style="background: var(--green); color: black;">PUBLICAR EN EL TABLÓN</button>
+    <div id="modal-registro-nick" class="modal">
+        <div class="modal-box container-glass" style="border-color: var(--green) !important;">
+            <h3 style="color: var(--green); margin-bottom: 15px;">Elige tu Identidad Ninja</h3>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Hemos protegido tu privacidad. ¿Con qué Nick quieres ser conocido en la aldea? (Puedes usar fuentes especiales y símbolos).</p>
+            <form id="form-registro-nick">
+                <input type="text" id="nuevo-nick" placeholder="Tu Nick in-game (Ej: 𝕴𝖙𝖆𝖈𝖍𝖎 ॐ)" required style="width: 100%; padding: 15px; margin-bottom: 20px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; font-size: 1.1rem; text-align: center;">
+                <button type="submit" class="btn-save" style="background: var(--green); color: black;">CONFIRMAR IDENTIDAD</button>
             </form>
         </div>
     </div>
@@ -297,8 +256,7 @@
             <a href="#torneos" class="btn-close"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 20px;" id="llaves-titulo">Llaves del Torneo</h3>
             <div id="contenedor-campeon" style="margin-bottom: 15px;"></div>
-            <div id="contenedor-llaves-texto" style="text-align: left; max-height: 400px; overflow-y: auto;">
-                </div>
+            <div id="contenedor-llaves-texto" style="text-align: left; max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -306,8 +264,7 @@
         <div class="modal-box container-glass" style="max-width: 600px;">
             <a href="#admin" class="btn-close"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--red); margin-bottom: 20px;" id="admin-partidos-titulo">Tribunal del Kage</h3>
-            <div id="contenedor-admin-partidos" style="text-align: left; max-height: 400px; overflow-y: auto;">
-                </div>
+            <div id="contenedor-admin-partidos" style="text-align: left; max-height: 400px; overflow-y: auto;"></div>
             <button id="btn-siguiente-ronda" class="btn-save" style="margin-top: 15px; display: none;">GENERAR SIGUIENTE RONDA</button>
         </div>
     </div>
@@ -327,6 +284,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.11"></script>
+    <script src="app.js?v=3.12"></script>
 </body>
 </html>
