@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.2"> 
+    <link rel="stylesheet" href="style.css?v=3.3"> 
 </head>
 <body>
 
@@ -151,8 +151,8 @@
         <section id="abismo" class="section">
             <h2 class="section-head"><i class="fas fa-video"></i> Archivos del Abismo</h2>
             <div style="text-align: center; margin-bottom: 30px;">
-                <input type="file" id="video-upload" style="display: none;">
-                <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;" onclick="verificarLogin()"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
+                <input type="file" id="video-upload" style="display: none;" accept="video/*">
+                <label for="video-upload" class="btn-primary" style="cursor: pointer; display: inline-block;"><i class="fas fa-upload"></i> Compartir Mi Jugada</label>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div class="container-glass" style="padding: 15px;">
@@ -170,7 +170,7 @@
                 <div>
                     <div class="container-glass" style="margin-bottom: 20px;">
                         <h3 style="color: var(--green); margin-bottom: 15px;">Tablón de Anuncios</h3>
-                        <a href="#modal-anuncio" class="btn-secondary" style="display: block; text-align: center; margin-bottom: 20px;"><i class="fas fa-edit"></i> Publicar Solicitud de Escuadrón</a>
+                        <a href="#" onclick="abrirModalAnuncio(event)" class="btn-secondary" style="display: block; text-align: center; margin-bottom: 20px;"><i class="fas fa-edit"></i> Publicar Solicitud de Escuadrón</a>
                         
                         <div id="lista-anuncios" style="display: flex; flex-direction: column; gap: 15px;">
                             <p style="color: #666; text-align: center;">Buscando pergaminos en el tablón...</p>
@@ -228,9 +228,7 @@
         <div class="modal-box container-glass">
             <a href="#" class="btn-close"><i class="fas fa-times"></i></a>
             <h3>IDENTIFICACIÓN NINJA</h3>
-            <button class="btn-google" id="login-google">
-                <i class="fab fa-google"></i> Entrar con Google
-            </button>
+            <button class="btn-google" id="login-google"><i class="fab fa-google"></i> Entrar con Google</button>
         </div>
     </div>
 
@@ -241,7 +239,7 @@
             <form id="form-anuncio">
                 <input type="text" id="a-busco" placeholder="¿Qué rol buscas? (Ej: Mago/Tanque)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
                 <input type="text" id="a-soy" placeholder="¿Qué rol eres? (Ej: Jungla/ADC)" required style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 5px;">
-                <textarea id="a-mensaje" placeholder="Escribe tu mensaje o detalles de tu escuadrón..." required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; height: 80px; resize: none;"></textarea>
+                <textarea id="a-mensaje" placeholder="Escribe tu mensaje o detalles..." required style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; height: 80px; resize: none;"></textarea>
                 <button type="submit" class="btn-submit" style="background: var(--green); color: black;">PUBLICAR EN EL TABLÓN</button>
             </form>
         </div>
@@ -262,6 +260,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.2"></script>
+    <script src="app.js?v=3.3"></script>
 </body>
 </html>
