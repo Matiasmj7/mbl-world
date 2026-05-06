@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.10"> 
+    <link rel="stylesheet" href="style.css?v=3.11"> 
 </head>
 <body>
 
@@ -49,7 +49,6 @@
         <section id="stream" class="section">
             <h2 class="section-head"><i class="fas fa-eye"></i> Visión del Byakugan</h2>
             <div class="container-glass stream-box">
-                
                 <div class="platform-selector" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="plat-btn active" onclick="cambiarStreamLocal('twitch')" style="background: var(--blue); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-twitch"></i> Twitch</button>
                     <button class="plat-btn" onclick="cambiarStreamLocal('youtube')" style="background: #111; color: white; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;"><i class="fab fa-youtube"></i> YouTube</button>
@@ -243,7 +242,7 @@
 
                 <div id="tab-llaves-admin" style="display: none;">
                     <h3 style="color: var(--blue); margin-bottom: 15px;">Mando de Batalla</h3>
-                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar sus cruces iniciales automáticamente.</p>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Selecciona un torneo para generar cruces o administrar los resultados de las batallas en curso.</p>
                     <div id="admin-lista-torneos-llaves" style="display: grid; gap: 15px;">
                         </div>
                 </div>
@@ -297,8 +296,19 @@
         <div class="modal-box container-glass" style="max-width: 600px;">
             <a href="#torneos" class="btn-close"><i class="fas fa-times"></i></a>
             <h3 style="color: var(--blue); margin-bottom: 20px;" id="llaves-titulo">Llaves del Torneo</h3>
+            <div id="contenedor-campeon" style="margin-bottom: 15px;"></div>
             <div id="contenedor-llaves-texto" style="text-align: left; max-height: 400px; overflow-y: auto;">
                 </div>
+        </div>
+    </div>
+
+    <div id="modal-admin-partidos" class="modal">
+        <div class="modal-box container-glass" style="max-width: 600px;">
+            <a href="#admin" class="btn-close"><i class="fas fa-times"></i></a>
+            <h3 style="color: var(--red); margin-bottom: 20px;" id="admin-partidos-titulo">Tribunal del Kage</h3>
+            <div id="contenedor-admin-partidos" style="text-align: left; max-height: 400px; overflow-y: auto;">
+                </div>
+            <button id="btn-siguiente-ronda" class="btn-save" style="margin-top: 15px; display: none;">GENERAR SIGUIENTE RONDA</button>
         </div>
     </div>
 
@@ -317,6 +327,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.10"></script>
+    <script src="app.js?v=3.11"></script>
 </body>
 </html>
