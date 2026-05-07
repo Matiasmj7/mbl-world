@@ -134,6 +134,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shado
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* =========================================
+   COMENTARIOS ABISMO
+========================================= */
+.comentario-box { background: rgba(0,0,0,0.5); padding: 8px; border-radius: 4px; margin-bottom: 5px; font-size: 0.85rem; border-left: 2px solid var(--blue); }
+.comentario-input-group { display: flex; gap: 5px; margin-top: 10px; }
+.comentario-input { flex: 1; padding: 8px; font-size: 0.8rem; }
+.comentario-btn { padding: 8px 12px; font-size: 0.8rem; background: var(--blue); border: none; color: black; font-weight: bold; border-radius: 4px; cursor: pointer; }
+
+/* =========================================
    RESPONSIVO MÓVIL
 ========================================= */
 @media (max-width: 900px) {
