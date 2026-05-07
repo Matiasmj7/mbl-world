@@ -19,29 +19,38 @@ let currentUserName = "Ninja Anónimo";
 let currentUserId = null;
 let miClan = "";
 let misRyos = 0;
+let miPlan = "genin";
 let miInventario = [];
 let miEquipamiento = { borde: '', colorChat: '', pin: '' };
 let currentFilter = 'todos'; 
 let trabajando = false; 
 let miPerfilActual = {};
 
+// ==========================================
+// MERCADO (EXPANDIDO)
+// ==========================================
 const CATALOGO_TIENDA = [
-    { id: 'borde_fuego', nombre: 'Aura de Fuego', tipo: 'borde', precio: 300, desc: 'Borde ardiente para tu avatar.', estilo: 'border: 3px solid #ff4500; box-shadow: 0 0 10px #ff4500;' },
+    { id: 'borde_fuego', nombre: 'Aura de Fuego', tipo: 'borde', precio: 300, desc: 'Borde ardiente.', estilo: 'border: 3px solid #ff4500; box-shadow: 0 0 10px #ff4500;' },
     { id: 'borde_hielo', nombre: 'Aura de Hielo', tipo: 'borde', precio: 300, desc: 'Congela a tus rivales.', estilo: 'border: 3px solid #00d2ff; box-shadow: 0 0 10px #00d2ff;' },
-    { id: 'borde_sombra', nombre: 'Sombra del Abismo', tipo: 'borde', precio: 600, desc: 'Oscuridad pura y misteriosa.', estilo: 'border: 3px solid #1a1a1a; box-shadow: 0 0 15px #8a2be2;' },
-    { id: 'color_dorado', nombre: 'Voz Dorada', tipo: 'colorChat', precio: 150, desc: 'Tu nombre brillará en oro en la Taberna.', estilo: 'color: gold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);' },
-    { id: 'color_veneno', nombre: 'Voz Tóxica', tipo: 'colorChat', precio: 150, desc: 'Verde venenoso para el chat.', estilo: 'color: #39ff14; text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);' },
-    { id: 'pin_shuriken', nombre: 'Pin Shuriken', tipo: 'pin', precio: 200, desc: 'La herramienta básica del ninja.', icon: '<i class="fas fa-dharmachakra" style="color: #ccc; filter: drop-shadow(0 0 2px #fff);"></i>' },
-    { id: 'pin_mitico', nombre: 'Pin Mítico', tipo: 'pin', precio: 500, desc: 'Insignia élite para tu perfil.', icon: '<i class="fas fa-dragon" style="color: #ff007f; filter: drop-shadow(0 0 5px #ff007f);"></i>' },
-    { id: 'pin_rey', nombre: 'Corona del Rey', tipo: 'pin', precio: 1000, desc: 'Solo para los ricos de la aldea.', icon: '<i class="fas fa-crown" style="color: gold; filter: drop-shadow(0 0 5px gold);"></i>' }
+    { id: 'borde_sombra', nombre: 'Sombra del Abismo', tipo: 'borde', precio: 600, desc: 'Oscuridad pura.', estilo: 'border: 3px solid #1a1a1a; box-shadow: 0 0 15px #8a2be2;' },
+    { id: 'borde_esmeralda', nombre: 'Aura Esmeralda', tipo: 'borde', precio: 350, desc: 'Brillo tóxico.', estilo: 'border: 3px solid #39ff14; box-shadow: 0 0 10px #39ff14;' },
+    { id: 'borde_sangre', nombre: 'Aura de Sangre', tipo: 'borde', precio: 400, desc: 'Rojo carmesí.', estilo: 'border: 3px solid #ff0000; box-shadow: 0 0 15px #ff0000;' },
+    { id: 'color_dorado', nombre: 'Voz Dorada', tipo: 'colorChat', precio: 150, desc: 'Nombre en oro.', estilo: 'color: gold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);' },
+    { id: 'color_veneno', nombre: 'Voz Tóxica', tipo: 'colorChat', precio: 150, desc: 'Verde venenoso.', estilo: 'color: #39ff14; text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);' },
+    { id: 'color_hielo', nombre: 'Voz Gélida', tipo: 'colorChat', precio: 150, desc: 'Celeste brillante.', estilo: 'color: #00d2ff; text-shadow: 0 0 5px rgba(0, 210, 255, 0.5);' },
+    { id: 'color_sangre', nombre: 'Voz Sanguinaria', tipo: 'colorChat', precio: 150, desc: 'Rojo sangre.', estilo: 'color: #ff0000; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);' },
+    { id: 'color_rosa', nombre: 'Voz Sakura', tipo: 'colorChat', precio: 150, desc: 'Rosa cerezo.', estilo: 'color: #ffb7c5; text-shadow: 0 0 5px rgba(255, 183, 197, 0.5);' },
+    { id: 'pin_shuriken', nombre: 'Pin Shuriken', tipo: 'pin', precio: 200, desc: 'Insignia básica.', icon: '<i class="fas fa-dharmachakra" style="color: #ccc; filter: drop-shadow(0 0 2px #fff);"></i>' },
+    { id: 'pin_mitico', nombre: 'Pin Mítico', tipo: 'pin', precio: 500, desc: 'Insignia élite.', icon: '<i class="fas fa-dragon" style="color: #ff007f; filter: drop-shadow(0 0 5px #ff007f);"></i>' },
+    { id: 'pin_rey', nombre: 'Corona del Rey', tipo: 'pin', precio: 1000, desc: 'Para reyes.', icon: '<i class="fas fa-crown" style="color: gold; filter: drop-shadow(0 0 5px gold);"></i>' },
+    { id: 'pin_fantasma', nombre: 'Pin Fantasma', tipo: 'pin', precio: 600, desc: 'Misterioso.', icon: '<i class="fas fa-ghost" style="color: white; filter: drop-shadow(0 0 5px white);"></i>' }
 ];
 
 // ==========================================
-// INICIALIZACIÓN AL CARGAR LA PÁGINA
+// INICIALIZACIÓN
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. MONITOR DE AUTENTICACIÓN
     auth.onAuthStateChanged(user => {
         const userDisplay = document.getElementById('user-display');
         const adminNav = document.getElementById('admin-nav');
@@ -51,11 +60,19 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserId = user.uid;
             db.collection('ninjas').doc(user.uid).onSnapshot(doc => {
                 if (doc.exists) {
-                    const data = doc.data(); 
+                    const data = doc.data();
+                    
+                    if(data.banned) {
+                        alert("Has sido expulsado de la aldea.");
+                        auth.signOut();
+                        return;
+                    }
+
                     miPerfilActual = data; 
                     currentUserName = data.nick; 
                     miClan = data.clan || ""; 
                     misRyos = data.ryos || 0; 
+                    miPlan = data.plan || "genin";
                     miInventario = data.inventario || []; 
                     miEquipamiento = data.equipado || { borde: '', colorChat: '', pin: '' };
 
@@ -70,9 +87,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('btn-notif').style.display = 'inline-block';
                     renderizarTienda();
                     
-                    if(user.email === ADMIN_EMAIL) {
+                    // LÓGICA DE ROLES PARA EL PANEL CREADOR/KAGE
+                    const esAdmin = (user.email === ADMIN_EMAIL);
+                    if(esAdmin || miPlan === 'jonin' || miPlan === 'kasekage') {
                         if(adminNav) adminNav.style.display = 'block';
                         if(adminSection) adminSection.style.display = 'block';
+                        
+                        document.getElementById('titulo-panel-admin').innerText = esAdmin ? 'Centro de Mando Kage' : 'Panel de Creador';
+                        document.getElementById('btn-admin-nav').innerText = esAdmin ? 'Kage' : 'Creador';
+                        
+                        const adminElements = document.querySelectorAll('.admin-only');
+                        adminElements.forEach(el => el.style.display = esAdmin ? 'inline-block' : 'none');
+
+                        // Restricciones de Creador
+                        if(!esAdmin && miPlan === 'jonin') {
+                            document.getElementById('opt-3v3').disabled = true;
+                            document.getElementById('opt-5v5').disabled = true;
+                            document.getElementById('opt-liga').disabled = true;
+                        } else if (!esAdmin && miPlan === 'kasekage') {
+                            document.getElementById('opt-liga').disabled = true;
+                        }
+
                         cargarTorneosParaAdminLlaves();
                     }
                 } else {
@@ -87,11 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. LISTENERS Y FORMULARIOS BASE
     const loginBtn = document.getElementById('login-google');
-    if(loginBtn) {
-        loginBtn.addEventListener('click', () => { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); });
-    }
+    if(loginBtn) { loginBtn.addEventListener('click', () => { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }); }
 
     const formNick = document.getElementById('form-registro-nick');
     if(formNick) {
@@ -99,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const nuevoNick = document.getElementById('nuevo-nick').value.trim();
             db.collection('ninjas').doc(currentUserId).set({
-                nick: nuevoNick, xp: 0, ryos: 100, torneosGanados: 0, rango: "Guerrero", clan: "",
+                nick: nuevoNick, xp: 0, ryos: 100, torneosGanados: 0, rango: "Guerrero", clan: "", plan: "genin", banned: false,
                 inventario: [], equipado: {borde: '', colorChat: '', pin: ''}, fotoPerfil: "", bio: "",
                 redSocial: "", email_oculto: auth.currentUser.email, fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
@@ -110,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. CARGA DE SECCIONES DINÁMICAS (NO TOCAR)
     escucharTicker();
     cargarTorneosDesdeNube();
     cargarHallOfFame();
@@ -119,13 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarAnunciosGremio();
     cargarTopIndividualBingo();
     escucharTabernaGlobal();
-
-    // 4. CONFIGURAR ADMIN LISTENERS
     configurarAdminForms();
 });
 
 // ==========================================
-// FUNCIONES DE LA TIENDA Y RYOS
+// TIENDA Y RYOS
 // ==========================================
 function renderizarTienda() {
     const catalogo = document.getElementById('catalogo-tienda');
@@ -166,9 +195,7 @@ function renderizarTienda() {
 function comprarObjeto(id, precioBase) {
     if(currentUserName === "Ninja Anónimo") return;
     let costoFinal = auth.currentUser.email === ADMIN_EMAIL ? 0 : precioBase;
-    
     if (misRyos < costoFinal) { alert("Ryos insuficientes. Trabaja o gana torneos."); return; }
-    
     if(confirm(`¿Gastar ${costoFinal} Ryos en este artículo?`)) {
         db.collection('ninjas').doc(currentUserId).update({
             ryos: misRyos - costoFinal,
@@ -195,11 +222,10 @@ function misionDiaria() {
             let fechaUltimoTrabajo = data.fechaTrabajo || "";
             
             if (fechaUltimoTrabajo === hoy) {
-                if (countTrabajosHoy >= 3) { alert("Descansa, ninja. Has alcanzado el límite diario de trabajo (30 Ryos). Vuelve mañana."); return; }
+                if (countTrabajosHoy >= 3) { alert("Has alcanzado el límite diario (30 Ryos). Vuelve mañana."); return; }
                 countTrabajosHoy++;
             } else {
-                fechaUltimoTrabajo = hoy;
-                countTrabajosHoy = 1;
+                fechaUltimoTrabajo = hoy; countTrabajosHoy = 1;
             }
             
             trabajando = true;
@@ -214,7 +240,7 @@ function misionDiaria() {
                 }).then(() => {
                     trabajando = false;
                     btn.innerHTML = "<i class='fas fa-hand-holding-usd'></i> Trabajar (+10 Ryos)";
-                    alert(`¡Bien hecho! Ganaste 10 Ryos. (${countTrabajosHoy}/3 trabajos hoy)`);
+                    alert(`¡Ganaste 10 Ryos! (${countTrabajosHoy}/3 trabajos hoy)`);
                 });
             }, 1500);
         }
@@ -222,13 +248,13 @@ function misionDiaria() {
 }
 
 // ==========================================
-// FUNCIONES DE TORNEOS Y LIGAS
+// TORNEOS Y LIGAS
 // ==========================================
-function filtrarTorneos(formato) {
+function filtrarTorneos(formato, event) {
     currentFilter = formato;
     const botones = document.querySelectorAll('#torneos .btn-filter');
     botones.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    if(event) event.target.classList.add('active');
     cargarTorneosDesdeNube();
 }
 
@@ -239,21 +265,25 @@ function cargarTorneosDesdeNube() {
     
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         listaTorneos.innerHTML = ''; listaLigas.innerHTML = '';
-        let hayTorneosVisibles = false; let hayLigasVisibles = false;
+        let hayTorneos = false; let hayLigas = false;
         
         snap.forEach(doc => {
-            const data = doc.data(); const id = doc.id; const esLiga = data.tipo === 'liga';
+            const data = doc.data(); const id = doc.id; 
+            const esLiga = data.tipo === 'liga';
+            
             if(esLiga) {
-                hayLigasVisibles = true;
+                hayLigas = true;
                 listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true);
-            } else if (currentFilter === 'todos' || data.formato === currentFilter) {
-                hayTorneosVisibles = true;
-                listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id, false);
+            } else {
+                if (currentFilter === 'todos' || data.formato === currentFilter) {
+                    hayTorneos = true;
+                    listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id, false);
+                }
             }
         });
         
-        if(!hayTorneosVisibles) { listaTorneos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay torneos relámpago activos con este filtro.</p>'; }
-        if(!hayLigasVisibles) { listaLigas.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">El Kage aún no ha decretado una Liga Mensual...</p>'; }
+        if(!hayTorneos) { listaTorneos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay torneos relámpago con este filtro.</p>'; }
+        if(!hayLigas) { listaLigas.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">El Kage aún no ha decretado una Liga Mensual...</p>'; }
     });
 }
 
@@ -272,23 +302,23 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     let nombresPreview = "";
     if(inscritos > 0) {
         const primerosNombres = data.lista_inscriptos.slice(0, 3).map(n => `<span style="cursor:pointer; color:var(--blue);" onclick="abrirPerfil('${n}')">${n}</span>`).join(", ");
-        nombresPreview = `<p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">Ninjas listos: ${primerosNombres}${inscritos > 3 ? '...' : ''}</p>`;
+        nombresPreview = `<p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">Ninjas: ${primerosNombres}${inscritos > 3 ? '...' : ''}</p>`;
     }
     
     const borderClase = esLiga ? 'border-color: gold !important; background: linear-gradient(180deg, rgba(255,215,0,0.05) 0%, rgba(10,10,15,0.95) 100%);' : '';
     const badgeColor = esLiga ? 'gold' : 'var(--blue)';
-    const colorBtnTex = btnColor === 'gray' || btnColor === 'var(--blue)' ? 'white' : 'black';
-    if(btnColor === 'var(--blue)') colorBtnTex = 'black';
+    const colorBtnTex = (btnColor === 'gray' || btnColor === 'var(--blue)') ? 'black' : 'black';
     
     return `
         <div class="card-t container-glass" style="${borderClase}">
             <span style="color:${badgeColor}; font-weight:bold; font-size: 0.8rem; background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid ${badgeColor}; display: inline-block; margin-bottom: 10px;">${esLiga ? 'LIGA MENSUAL' : 'MODO ' + (data.formato || 'Libre').toUpperCase()}</span>
             ${etiquetaPrivado}
             <h3 style="font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom:10px; ${esLiga ? 'color: gold;' : ''}">${data.nombre}</h3>
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Creado por: ${data.creador || 'Kage'}</p>
             <p style="margin-bottom: 8px; color: #ccc;"><i class="far fa-calendar-alt" style="color: ${badgeColor}; width: 20px;"></i> ${data.fecha || 'A definir'}</p>
             <p style="margin-bottom: 8px; color: #ccc;"><i class="fas fa-users" style="color: ${badgeColor}; width: 20px;"></i> Jugadores: ${inscritos} / ${cupos}</p>
             ${nombresPreview}
-            <p style="margin-bottom: 15px; margin-top:10px; color: var(--green); font-weight: bold; background: rgba(57,255,20,0.1); padding: 5px; border-radius: 4px;"><i class="fas fa-trophy"></i> Premio: ${data.premio || 'A definir por el Kage'}</p>
+            <p style="margin-bottom: 15px; margin-top:10px; color: var(--green); font-weight: bold; background: rgba(57,255,20,0.1); padding: 5px; border-radius: 4px;"><i class="fas fa-trophy"></i> Premio: ${data.premio || 'A definir'}</p>
             <div style="display: flex; gap: 10px; margin-top: auto;">
                 <button class="btn-primary" style="flex: 2; padding: 10px; background: ${btnColor}; color: ${colorBtnTex};" onclick="unirseTorneo('${id}', '${data.estado}')" ${estaLleno || yaInscrito || data.estado !== "abierto" ? 'disabled' : ''}>${btnTexto}</button>
                 <button class="btn-secondary" style="flex: 1; padding: 10px; background: #222;" onclick="verLlaves('${id}', '${data.nombre}')"><i class="fas fa-sitemap"></i> Llaves</button>
@@ -298,7 +328,7 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
 
 function unirseTorneo(torneoId, estado) {
     if(estado !== "abierto") return;
-    if(currentUserName === "Ninja Anónimo") { alert("Debes ingresar a la aldea primero."); window.location.hash = "#modal-login"; return; }
+    if(currentUserName === "Ninja Anónimo") { alert("Debes ingresar primero."); window.location.hash = "#modal-login"; return; }
     
     const torneoRef = db.collection('torneos').doc(torneoId);
     torneoRef.get().then(doc => {
@@ -307,14 +337,14 @@ function unirseTorneo(torneoId, estado) {
             const inscritos = data.lista_inscriptos ? data.lista_inscriptos.length : 0;
             if (inscritos >= data.cuposTotales) { alert("El evento ya está lleno."); }
             else {
-                torneoRef.update({ lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => alert("¡Inscripto exitosamente! Prepárate para la batalla."));
+                torneoRef.update({ lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => alert("¡Inscripto exitosamente!"));
             }
         }
     });
 }
 
 // ==========================================
-// ABISMO Y SALÓN DE LA FAMA
+// ABISMO Y SALÓN DE LA FAMA (CON COMENTARIOS)
 // ==========================================
 function cargarVideosAbismo() {
     const lista = document.getElementById('lista-abismo');
@@ -322,7 +352,7 @@ function cargarVideosAbismo() {
     
     db.collection('abismo_videos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         lista.innerHTML = '';
-        if(snap.empty) { lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. Sé el primero en subir una jugada.</p>'; return; }
+        if(snap.empty) { lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. Sube una jugada.</p>'; return; }
         
         snap.forEach(doc => {
             const d = doc.data();
@@ -333,15 +363,28 @@ function cargarVideosAbismo() {
                 reproductorHTML = `<div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #111; border-radius: 8px;"><a href="${d.urlCruda}" target="_blank" class="btn-secondary" style="text-decoration: none;"><i class="fas fa-external-link-alt"></i> Ver en TikTok</a></div>`;
             }
             
+            // Render de comentarios
+            let comentariosHTML = "";
+            if (d.comentarios && d.comentarios.length > 0) {
+                comentariosHTML = d.comentarios.slice(-3).map(c => `<div class="comentario-box"><strong style="color:var(--blue);">${c.usuario}:</strong> <span style="color:#ddd;">${c.texto}</span></div>`).join('');
+            }
+            
             lista.innerHTML += `
                 <div class="container-glass" style="padding: 15px; border-color: var(--blue) !important;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${d.usuario}')">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer;" onclick="abrirPerfil('${d.usuario}')">
                         <img src="https://ui-avatars.com/api/?name=${d.usuario}&background=random" style="width: 30px; border-radius: 50%; border: 1px solid var(--blue);">
                         <strong style="font-size: 0.9rem; color: white;">${d.usuario}</strong>
                     </div>
                     <div style="margin-bottom: 10px;">${reproductorHTML}</div>
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px;">
-                        <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; transition: 0.2s;" onclick="darLikeVideo('${doc.id}', '${d.usuario}')"><i class="fas fa-heart" style="color: var(--red);"></i> <span style="font-size: 0.9rem; color:white;">${d.likes || 0}</span></button>
+                        <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem;" onclick="darLikeVideo('${doc.id}', '${d.usuario}')"><i class="fas fa-heart" style="color: var(--red);"></i> <span style="font-size: 0.9rem; color:white;">${d.likes || 0}</span></button>
+                    </div>
+                    <div style="margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
+                        ${comentariosHTML}
+                        <form class="comentario-input-group" onsubmit="comentarVideo(event, '${doc.id}', '${d.usuario}')">
+                            <input type="text" id="coment-${doc.id}" class="comentario-input" placeholder="Agregar un comentario..." required>
+                            <button type="submit" class="comentario-btn">Enviar</button>
+                        </form>
                     </div>
                 </div>`;
         });
@@ -354,32 +397,42 @@ function darLikeVideo(videoId, autorVideo) {
     if (autorVideo !== currentUserName) { enviarNotificacion(autorVideo, `A un ninja le gustó tu pergamino en el Abismo.`); }
 }
 
+function comentarVideo(e, videoId, autorVideo) {
+    e.preventDefault();
+    if(currentUserName === "Ninja Anónimo") return alert("Debes ingresar a la aldea para comentar.");
+    const input = document.getElementById(`coment-${videoId}`);
+    const texto = input.value.trim();
+    if(!texto) return;
+    
+    db.collection('abismo_videos').doc(videoId).update({
+        comentarios: firebase.firestore.FieldValue.arrayUnion({
+            usuario: currentUserName, texto: texto, timestamp: new Date().getTime()
+        })
+    }).then(() => {
+        input.value = "";
+        if(autorVideo !== currentUserName) enviarNotificacion(autorVideo, `${currentUserName} comentó tu video en el Abismo.`);
+    });
+}
+
 const formAbismo = document.getElementById('form-abismo');
 if(formAbismo) {
     formAbismo.addEventListener('submit', (e) => {
         e.preventDefault();
-        if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; return; }
+        if(currentUserName === "Ninja Anónimo") return alert("Debes Ingresar.");
         const urlInput = document.getElementById('video-url').value.trim();
         let embedUrl = ""; let plataforma = "desconocida";
         
         if(urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
             plataforma = "youtube";
-            const id = extraerIdLimpio(urlInput, 'youtube');
-            embedUrl = `https://www.youtube.com/embed/${id}`;
+            const id = extraerIdLimpio(urlInput, 'youtube'); embedUrl = `https://www.youtube.com/embed/${id}`;
         } else if(urlInput.includes('tiktok.com')) {
             plataforma = "tiktok";
-            const id = extraerIdLimpio(urlInput, 'tiktok');
-            embedUrl = id ? `https://www.tiktok.com/embed/v2/${id}` : urlInput;
-        } else {
-            alert("Por el momento, el Abismo solo acepta pergaminos de YouTube o TikTok."); return;
-        }
+            const id = extraerIdLimpio(urlInput, 'tiktok'); embedUrl = id ? `https://www.tiktok.com/embed/v2/${id}` : urlInput;
+        } else { alert("El Abismo solo acepta pergaminos de YouTube o TikTok."); return; }
         
         db.collection('abismo_videos').add({
-            usuario: currentUserName, url: embedUrl, urlCruda: urlInput, plataforma: plataforma, likes: 0, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert("¡Pergamino publicado en el Abismo!");
-            formAbismo.reset();
-        });
+            usuario: currentUserName, url: embedUrl, urlCruda: urlInput, plataforma: plataforma, likes: 0, comentarios: [], timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => { alert("¡Pergamino publicado!"); formAbismo.reset(); });
     });
 }
 
@@ -399,10 +452,7 @@ function cargarHallOfFame() {
 function crearCartaPodio(ninja, rank) {
     let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? ninja.fotoPerfil : `https://ui-avatars.com/api/?name=${ninja.nick}&background=random`;
     let bordeEstilo = "";
-    if(ninja.equipado && ninja.equipado.borde) {
-        const b = CATALOGO_TIENDA.find(i => i.id === ninja.equipado.borde);
-        if(b) bordeEstilo = b.estilo;
-    }
+    if(ninja.equipado && ninja.equipado.borde) { const b = CATALOGO_TIENDA.find(i => i.id === ninja.equipado.borde); if(b) bordeEstilo = b.estilo; }
     let corona = rank === 1 ? '<i class="fas fa-crown" style="color: gold; font-size: 1.5rem; position: absolute; top: -15px;"></i>' : '';
     return `
         <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
@@ -411,12 +461,11 @@ function crearCartaPodio(ninja, rank) {
             <h4>${rank}° Lugar</h4>
             <h5>${ninja.nick}</h5>
             <p><i class="fas fa-trophy"></i> ${ninja.torneosGanados} Copas</p>
-        </div>
-    `;
+        </div>`;
 }
 
 // ==========================================
-// GREMIO Y CHAT GLOBAL (TABERNA)
+// GREMIO Y CHAT GLOBAL
 // ==========================================
 function cargarTopClanes() {
     const lista = document.getElementById('lista-top-clanes'); if(!lista) return;
@@ -441,7 +490,7 @@ function cargarAnunciosGremio() {
     const lista = document.getElementById('lista-anuncios'); if(!lista) return;
     db.collection('anuncios_gremio').orderBy('timestamp', 'desc').limit(15).onSnapshot(snap => {
         lista.innerHTML = "";
-        if(snap.empty) { lista.innerHTML = "<p style='color:#888; text-align:center;'>El tablón de reclutamiento está vacío.</p>"; return; }
+        if(snap.empty) { lista.innerHTML = "<p style='color:#888; text-align:center;'>El tablón está vacío.</p>"; return; }
         snap.forEach(doc => {
             const d = doc.data();
             lista.innerHTML += `
@@ -465,9 +514,7 @@ if(formAnuncio) {
         db.collection('anuncios_gremio').add({
             usuario: currentUserName, busco: document.getElementById('a-busco').value, soy: document.getElementById('a-soy').value,
             mensaje: document.getElementById('a-mensaje').value, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            formAnuncio.reset(); window.location.hash = '#gremio'; alert("Anuncio publicado en el tablón.");
-        });
+        }).then(() => { formAnuncio.reset(); window.location.hash = '#gremio'; alert("Anuncio publicado."); });
     });
 }
 
@@ -482,7 +529,7 @@ function escucharTabernaGlobal() {
             if (d.colorEstilo !== "") {
                 const itemCat = CATALOGO_TIENDA.find(i => i.id === d.colorEstilo);
                 if(itemCat) estiloNombre = itemCat.estilo;
-            } else if (d.usuario === 'Matías') { estiloNombre = "color: var(--red);"; }
+            } else if (d.usuario === 'Matías' || d.usuario === 'Kage') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
             
             chatContainer.innerHTML += `
                 <div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; font-size:0.9rem;">
@@ -498,9 +545,7 @@ function escucharTabernaGlobal() {
         btnSend.addEventListener('click', () => {
             const input = document.getElementById('chat-input-text');
             if(input.value.trim() && currentUserName !== "Ninja Anónimo") {
-                db.collection('taberna').add({
-                    usuario: currentUserName, texto: input.value.trim(), colorEstilo: miEquipamiento.colorChat || '', timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                db.collection('taberna').add({ usuario: currentUserName, texto: input.value.trim(), colorEstilo: miEquipamiento.colorChat || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 input.value = '';
             } else if (currentUserName === "Ninja Anónimo") { alert("Debes identificarte primero."); }
         });
@@ -539,7 +584,7 @@ async function abrirPerfil(nick) {
     
     avatarImg.src = `https://ui-avatars.com/api/?name=${nick}&background=random`;
     avatarImg.style = "width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #444; margin-bottom: 10px; transition: 0.3s; background: #111;";
-    document.getElementById('perfil-rango').innerText = "Buscando información...";
+    document.getElementById('perfil-rango').innerText = "Buscando...";
     document.getElementById('perfil-xp').innerText = "...";
     document.getElementById('perfil-campeonatos').innerText = "...";
     document.getElementById('perfil-clan').innerHTML = "";
@@ -562,7 +607,9 @@ async function abrirPerfil(nick) {
                 document.getElementById('perfil-redes-container').innerHTML = `<a href="${data.redSocial}" target="_blank" style="color: var(--blue); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--blue); padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;"><i class="fas fa-link"></i> Visitar Enlace</a>`;
             }
             
-            document.getElementById('perfil-rango').innerText = data.rango || 'Guerrero';
+            document.getElementById('perfil-rango').innerText = (data.plan && data.plan !== 'genin') ? data.plan.toUpperCase() : (data.rango || 'Guerrero');
+            if(data.plan === 'kasekage') document.getElementById('perfil-rango').style.color = "gold";
+            
             document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
             document.getElementById('perfil-campeonatos').innerText = data.torneosGanados || 0;
             if(data.clan && data.clan !== "") { document.getElementById('perfil-clan').innerHTML = `<i class="fas fa-shield-alt"></i> Escuadrón: ${data.clan}`; }
@@ -582,11 +629,7 @@ if(formEditarPerfil) {
         e.preventDefault();
         db.collection('ninjas').doc(currentUserId).update({
             fotoPerfil: document.getElementById('edit-foto').value.trim(), bio: document.getElementById('edit-bio').value.trim(), redSocial: document.getElementById('edit-redes').value.trim()
-        }).then(() => {
-            alert("¡Perfil actualizado con éxito!");
-            document.getElementById('modal-editar-perfil').style.display = 'none';
-            abrirPerfil(currentUserName);
-        });
+        }).then(() => { alert("¡Perfil actualizado con éxito!"); document.getElementById('modal-editar-perfil').style.display = 'none'; abrirPerfil(currentUserName); });
     });
 }
 
@@ -611,13 +654,42 @@ function abrirModalClan() {
         });
     }
 }
+function crearClan() {
+    const nombre = document.getElementById('input-crear-clan').value.trim(); if(!nombre) return;
+    db.collection('clanes').doc(nombre).get().then(doc => {
+        if(doc.exists) { alert("Ese Escuadrón ya existe."); }
+        else {
+            db.collection('clanes').doc(nombre).set({ nombre: nombre, lider: currentUserName, miembros: [currentUserName], xp: 0, creacion: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { db.collection('ninjas').doc(currentUserId).update({ clan: nombre }); alert("¡Escuadrón formado!"); });
+        }
+    });
+}
+function unirseClan() {
+    const nombre = document.getElementById('input-unirse-clan').value.trim(); if(!nombre) return;
+    db.collection('clanes').doc(nombre).get().then(doc => {
+        if(!doc.exists) { alert("El Escuadrón no existe."); }
+        else { db.collection('clanes').doc(nombre).update({ miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => { db.collection('ninjas').doc(currentUserId).update({ clan: nombre }); alert("¡Te has unido al Escuadrón!"); }); }
+    });
+}
+function abandonarClan() {
+    if(confirm("¿Abandonar tu Escuadrón?")) {
+        db.collection('clanes').doc(miClan).get().then(doc => {
+            if(doc.exists) {
+                const data = doc.data();
+                if(data.lider === currentUserName && data.miembros.length > 1) { alert("Eres el líder. Debes nombrar a otro antes de salir o disolver el clan si están vacíos."); return; }
+                if(data.miembros.length === 1) { db.collection('clanes').doc(miClan).delete(); }
+                else { db.collection('clanes').doc(miClan).update({ miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName) }); }
+                db.collection('ninjas').doc(currentUserId).update({ clan: "" }).then(() => { document.getElementById('modal-clan').style.display='none'; alert("Has abandonado el Escuadrón."); });
+            }
+        });
+    }
+}
 
 // ==========================================
-// KAGE ADMIN Y UTILIDADES
+// ADMIN Y CREADOR (CREACIÓN, LLAVES E INSCRIPCIÓN MANUAL)
 // ==========================================
 function escucharTicker() {
     db.collection('configuracion').doc('ticker').onSnapshot(doc => {
-        if(doc.exists) { document.getElementById('ticker-contenido').innerHTML = `<span class="ticker-item"><i class="fas fa-bullhorn"></i> MBL ARG INFO: <span style="color: var(--blue);">${doc.data().mensaje}</span></span> <span class="ticker-item"><i class="fas fa-fire"></i> ¡Prepárate para la batalla en la Arena!</span>`; }
+        if(doc.exists) { document.getElementById('ticker-contenido').innerHTML = `<span class="ticker-item"><i class="fas fa-bullhorn"></i> ALERTA: <span style="color: var(--blue);">${doc.data().mensaje}</span></span> <span class="ticker-item"><i class="fas fa-fire"></i> ¡La Arena está lista!</span>`; }
     });
 }
 
@@ -642,6 +714,7 @@ function configurarAdminForms() {
                 formato: document.getElementById('t-formato').value,
                 tipo: document.getElementById('t-tipo').value,
                 privado: document.getElementById('t-privado').checked,
+                creador: currentUserName, // FUNDAMENTAL PARA CONTROL POSTERIOR
                 lista_inscriptos: [], estado: "abierto", timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => { formTorneo.reset(); alert("¡Evento publicado en la Arena!"); });
         });
@@ -658,26 +731,45 @@ function configurarAdminForms() {
                 if(snapshot.empty) { alert("Ninja no encontrado."); return; }
                 const docId = snapshot.docs[0].id;
                 await db.collection('ninjas').doc(docId).update({ ryos: firebase.firestore.FieldValue.increment(monto) });
-                alert(`Transferencia de ${monto} Ryos completada.`);
-                enviarNotificacion(usuarioDestino, `El Kage te ha transferido ${monto} Ryos.`);
-                formBanco.reset();
+                alert(`Transferencia completada.`); enviarNotificacion(usuarioDestino, `El Kage te transfirió ${monto} Ryos.`); formBanco.reset();
             } catch(err) { alert("Error: " + err); }
         });
     }
 }
 
+// Gestión de Usuarios (SOLO ADMIN)
+function banearUsuario() {
+    const nick = document.getElementById('gestion-nick').value.trim(); if(!nick) return;
+    if(confirm(`¿Expulsar a ${nick} permanentemente?`)) {
+        db.collection('ninjas').where('nick', '==', nick).get().then(snap => {
+            if(snap.empty) { alert("Ninja no encontrado."); return; }
+            snap.docs[0].ref.update({ banned: true }).then(() => alert("Usuario expulsado."));
+        });
+    }
+}
+function gestionarPlan(planId) {
+    const nick = document.getElementById('gestion-nick').value.trim(); if(!nick) return;
+    db.collection('ninjas').where('nick', '==', nick).get().then(snap => {
+        if(snap.empty) { alert("Ninja no encontrado."); return; }
+        snap.docs[0].ref.update({ plan: planId }).then(() => {
+            alert(`Plan ${planId} otorgado a ${nick}.`);
+            enviarNotificacion(nick, `El Kage te ha ascendido a ${planId.toUpperCase()}. Disfruta tus beneficios.`);
+        });
+    });
+}
+
 async function limpiarTaberna() {
-    if(!confirm("⚠️ ADVERTENCIA: Esto borrará TODOS los mensajes del chat global. ¿Proceder?")) return;
+    if(!confirm("⚠️ ADVERTENCIA: Se borrarán TODOS los mensajes. ¿Proceder?")) return;
     try {
         const snap = await db.collection('taberna').get();
-        if (snap.empty) { alert("La Taberna ya está vacía."); return; }
+        if (snap.empty) { alert("Taberna vacía."); return; }
         const batch = db.batch(); snap.forEach(doc => { batch.delete(doc.ref); });
-        await batch.commit(); alert("La Taberna ha sido purgada por orden del Kage.");
+        await batch.commit(); alert("Taberna purgada.");
     } catch(e) { alert("Error: " + e.message); }
 }
 
 function mostrarTabAdmin(tabId) {
-    const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco'];
+    const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion'];
     tabs.forEach(t => { const el = document.getElementById(t); if(el) el.style.display = 'none'; });
     document.getElementById(tabId).style.display = 'block';
     const botones = document.querySelectorAll('#admin .btn-filter');
@@ -685,89 +777,26 @@ function mostrarTabAdmin(tabId) {
     event.target.classList.add('active');
 }
 
-// Lógica de Notificaciones
-function enviarNotificacion(paraUsuario, mensaje) {
-    if (!paraUsuario || paraUsuario === "Ninja Anónimo") return;
-    db.collection('notificaciones').add({ para: paraUsuario, texto: mensaje, leida: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-}
-
-function escucharNotificaciones() {
-    const badge = document.getElementById('notif-badge');
-    const contenedorHTML = document.getElementById('lista-notificaciones-contenido');
-    if(!badge || !contenedorHTML) return;
-    
-    db.collection('notificaciones').where('para', '==', currentUserName).orderBy('timestamp', 'desc').onSnapshot(snap => {
-        let noLeidas = 0; contenedorHTML.innerHTML = "";
-        if(snap.empty) { contenedorHTML.innerHTML = '<p style="color:#888; text-align:center;">No hay mensajes.</p>'; badge.style.display = 'none'; return; }
-        snap.forEach(doc => {
-            const data = doc.data(); if(!data.leida) noLeidas++;
-            const bg = data.leida ? '#0a0a0f' : '#1a1a24'; const border = data.leida ? '1px solid #222' : '1px solid var(--blue)';
-            contenedorHTML.innerHTML += `<div style="background: ${bg}; border: ${border}; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85rem;"><i class="fas fa-envelope" style="color: var(--blue); margin-right: 5px;"></i> ${data.texto}</div>`;
-        });
-        if(noLeidas > 0) { badge.innerText = noLeidas; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; }
-    });
-}
-
-function abrirNotificaciones(e) {
-    e.preventDefault(); document.getElementById('modal-notificaciones').style.display = 'flex';
-    db.collection('notificaciones').where('para', '==', currentUserName).where('leida', '==', false).get().then(snap => {
-        const batch = db.batch(); snap.forEach(doc => { batch.update(doc.ref, { leida: true }); }); batch.commit();
-    });
-}
-
-// Funciones Genéricas
-function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
-function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
-function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
-function abrirModalEditarPerfil() { if (currentUserName === "Ninja Anónimo") return; document.getElementById('edit-foto').value = miPerfilActual.fotoPerfil || ""; document.getElementById('edit-bio').value = miPerfilActual.bio || ""; document.getElementById('edit-redes').value = miPerfilActual.redSocial || ""; document.getElementById('modal-editar-perfil').style.display = 'flex'; }
-
-// Lógica de Stream
-function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
-    const iframe = document.getElementById('stream-frame');
-    const botones = document.querySelectorAll('.plat-btn');
-    let canalAUsar = usuarioFuerza ? usuarioFuerza : 'matias_mj7'; // Fallback por si la db está vacía
-    const currentDomain = window.location.hostname; let finalSrc = "";
-    
-    if (plataforma === 'twitch') { finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`; }
-    else if (plataforma === 'youtube') { finalSrc = `https://www.youtube.com/embed/${canalAUsar}?autoplay=1`; }
-    else if (plataforma === 'kick') { finalSrc = `https://player.kick.com/${canalAUsar}`; }
-    else if (plataforma === 'tiktok') { finalSrc = `https://www.tiktok.com/embed/v2/${canalAUsar}`; }
-    
-    if(iframe) iframe.src = finalSrc;
-    
-    botones.forEach(btn => { btn.style.background = '#111'; btn.style.color = 'white'; btn.style.border = '1px solid #444'; });
-    let btnActivo = Array.from(botones).find(b => b.innerText.toLowerCase() === plataforma.toLowerCase());
-    if(btnActivo) {
-        if (plataforma === 'twitch') { btnActivo.style.background = 'var(--blue)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
-        if (plataforma === 'youtube') { btnActivo.style.background = 'var(--red)'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
-        if (plataforma === 'kick') { btnActivo.style.background = 'var(--green)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
-        if (plataforma === 'tiktok') { btnActivo.style.background = '#ff0050'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
-    }
-}
-function extraerIdLimpio(urlCruda, plataforma) {
-    let id = urlCruda.trim();
-    try {
-        if (plataforma === 'twitch') { if (id.includes('twitch.tv/')) id = id.split('twitch.tv/')[1].split('?')[0].replace('/', ''); }
-        else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; }
-        else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); }
-        else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; }
-    } catch(e) {} return id;
-}
-
-// FUNCIONES FALTANTES ADMIN LLAVES
+// Control de Torneos desde Panel Creador/Kage
 function cargarTorneosParaAdminLlaves() {
     const lista = document.getElementById('admin-lista-torneos-llaves'); 
+    const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => { 
         lista.innerHTML = ''; 
         snap.forEach(doc => { 
-            const d = doc.data(); const id = doc.id; let botonesHTML = ''; 
+            const d = doc.data(); const id = doc.id; 
+            
+            // FILTRO DE SEGURIDAD: Solo muestra torneos del creador o si es Kage
+            if(!esAdmin && d.creador !== currentUserName) return;
+
+            let botonesHTML = ''; 
             const etiquetaTipo = d.tipo === 'liga' ? '<span style="color:gold;">[LIGA]</span>' : '<span style="color:var(--blue);">[TORNEO]</span>'; 
             if(d.estado === 'iniciado') { 
-                botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}')">ADMINISTRAR</button> <button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>`; 
+                botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}', '${d.creador}')">ADMINISTRAR</button> <button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>`; 
             } else if (d.estado === 'finalizado') { 
                 botonesHTML = `<span style="color: gold; font-weight: bold; margin-bottom: 5px; display: block;"><i class="fas fa-crown"></i> CAMPEÓN: ${d.campeon}</span>`; 
             } else { 
-                botonesHTML = `<button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 5px;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`; 
+                botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}', '${d.creador}')">INSCRIPCIONES</button> <button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 5px;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`; 
             } 
             lista.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222; flex-wrap: wrap; gap: 10px;"><div style="flex: 1; min-width: 150px;"><strong>${etiquetaTipo} ${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${d.lista_inscriptos?.length || 0} inscritos</span></div><div style="display: flex; flex-direction: column; align-items: flex-end;">${botonesHTML}</div><div style="width: 100%; margin-top: 5px; border-top: 1px dashed #333; padding-top: 10px;"><button class="btn-secondary" style="background: transparent; color: var(--red); border: 1px solid var(--red); padding: 6px; font-size: 0.7rem; width: 100%;" onclick="borrarTorneo('${id}', '${d.nombre}')"><i class="fas fa-trash"></i> Eliminar Evento</button></div></div>`; 
         }); 
@@ -775,7 +804,7 @@ function cargarTorneosParaAdminLlaves() {
 }
 function borrarTorneo(torneoId, torneoNombre) { if(confirm(`¿ELIMINAR "${torneoNombre}"?`)) { db.collection('torneos').doc(torneoId).delete().then(() => { alert("Evento borrado."); document.getElementById('contenedor-admin-partidos').innerHTML = ""; document.getElementById('btn-siguiente-ronda').style.display = "none"; }); } }
 async function generarLlaves(torneoId, torneoNombre) { 
-    if(!confirm(`¿Generar cruces para ${torneoNombre}?`)) return; 
+    if(!confirm(`¿Generar cruces para ${torneoNombre}? Cierra las inscripciones.`)) return; 
     const torneoRef = db.collection('torneos').doc(torneoId); const doc = await torneoRef.get(); const data = doc.data(); let jugadores = data.lista_inscriptos || []; 
     if(jugadores.length < 2) { alert("Mínimo 2 ninjas."); return; } 
     jugadores = jugadores.sort(() => Math.random() - 0.5); const partidos = []; 
@@ -785,11 +814,21 @@ async function generarLlaves(torneoId, torneoNombre) {
     batch.update(torneoRef, { estado: "iniciado", campeon: "" }); await batch.commit(); 
     jugadores.forEach(j => { enviarNotificacion(j, `¡Los cruces están listos en "${torneoNombre}"!`); }); alert("¡Pergaminos de batalla repartidos!"); 
 }
-function abrirAdminPartidos(torneoId, torneoNombre) { 
-    document.getElementById('admin-partidos-titulo').innerText = `Juez: ${torneoNombre}`; window.location.hash = "#modal-admin-partidos"; 
+function abrirAdminPartidos(torneoId, torneoNombre, creador) { 
+    document.getElementById('admin-partidos-titulo').innerText = `Gestión: ${torneoNombre}`; 
+    window.location.hash = "#modal-admin-partidos"; 
+    
+    // Configurar inscripción manual
+    const secManual = document.getElementById('admin-inscripcion-manual');
+    const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+    if(creador === currentUserName || esAdmin) {
+        secManual.style.display = 'block';
+        document.getElementById('input-torneo-manual-id').value = torneoId;
+    } else { secManual.style.display = 'none'; }
+
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => { 
         const contenedor = document.getElementById('contenedor-admin-partidos'); const btnSiguiente = document.getElementById('btn-siguiente-ronda'); contenedor.innerHTML = ""; 
-        if(snap.empty) { contenedor.innerHTML = "<p>No hay llaves.</p>"; btnSiguiente.style.display = "none"; return; } 
+        if(snap.empty) { contenedor.innerHTML = "<p>Las llaves no se han generado aún. Puedes agregar jugadores arriba.</p>"; btnSiguiente.style.display = "none"; return; } 
         let rondaMaxima = 1; let partidosRondaActiva = []; let todosTienenGanador = true; 
         snap.forEach(doc => { const p = doc.data(); if(p.ronda > rondaMaxima) rondaMaxima = p.ronda; }); 
         snap.forEach(doc => { const p = doc.data(); if(p.ronda === rondaMaxima) { partidosRondaActiva.push({id: doc.id, ...p}); if(p.ganador === "") todosTienenGanador = false; } }); 
@@ -806,7 +845,17 @@ function abrirAdminPartidos(torneoId, torneoNombre) {
         if(todosTienenGanador) { btnSiguiente.style.display = "block"; btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva); } else { btnSiguiente.style.display = "none"; } 
     }); 
 }
-function setGanador(torneoId, partidoId, ganador) { if(confirm(`¿Confirma que ${ganador} avanza?`)) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador, reporte_pendiente: firebase.firestore.FieldValue.delete() }).then(() => { enviarNotificacion(ganador, "El Kage aprobó el reporte. ¡Avanzas de ronda!"); }); } }
+
+function inscribirJugadorManual() {
+    const nick = document.getElementById('input-inscribir-manual').value.trim();
+    const tId = document.getElementById('input-torneo-manual-id').value;
+    if(!nick || !tId) return;
+    db.collection('torneos').doc(tId).update({ lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick) }).then(() => {
+        alert(`${nick} añadido al torneo.`); document.getElementById('input-inscribir-manual').value = "";
+    });
+}
+
+function setGanador(torneoId, partidoId, ganador) { if(confirm(`¿Confirma que ${ganador} avanza?`)) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador, reporte_pendiente: firebase.firestore.FieldValue.delete() }).then(() => { enviarNotificacion(ganador, "El Juez aprobó el reporte. ¡Avanzas de ronda!"); }); } }
 function rechazarReporte(torneoId, partidoId) { if(confirm("¿Rechazar reporte?")) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ reporte_pendiente: firebase.firestore.FieldValue.delete() }); } }
 async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     const ganadores = partidos.map(p => p.ganador);
@@ -831,7 +880,7 @@ function verLlaves(torneoId, torneoNombre) {
     contenedor.innerHTML = '<p style="color: #888;">Leyendo pergaminos...</p>'; contenedorCampeon.innerHTML = ''; window.location.hash = "#modal-llaves"; 
     db.collection('torneos').doc(torneoId).get().then(doc => { if(doc.exists && doc.data().estado === 'finalizado') { contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem; cursor:pointer;" onclick="abrirPerfil('${doc.data().campeon}')">${doc.data().campeon}</strong></div>`; } }); 
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => { 
-        if(snap.empty) { contenedor.innerHTML = '<p style="color: var(--red);">El Kage aún no generó los cruces.</p>'; return; } 
+        if(snap.empty) { contenedor.innerHTML = '<p style="color: var(--red);">El Juez aún no generó los cruces.</p>'; return; } 
         contenedor.innerHTML = ""; let currentRonda = 0; 
         snap.forEach(doc => { 
             const p = doc.data(); 
@@ -852,6 +901,45 @@ const formReporte = document.getElementById('form-reporte');
 if(formReporte) {
     formReporte.addEventListener('submit', (e) => {
         e.preventDefault(); const tId = document.getElementById('rep-torneo-id').value; const pId = document.getElementById('rep-partido-id').value; const ganador = document.getElementById('rep-ganador').value; const prueba = document.getElementById('rep-prueba').value.trim() || 'No adjuntada (Revisar WS)'; 
-        db.collection('torneos').doc(tId).collection('llaves').doc(pId).update({ reporte_pendiente: { reportadoPor: currentUserName, ganadorPropuesto: ganador, prueba: prueba } }).then(() => { alert("Reporte enviado exitosamente."); document.getElementById('modal-reporte').style.display = 'none'; window.location.hash = "#modal-llaves"; }); 
+        db.collection('torneos').doc(tId).collection('llaves').doc(pId).update({ reporte_pendiente: { reportadoPor: currentUserName, ganadorPropuesto: ganador, prueba: prueba } }).then(() => { alert("Reporte enviado al Juez."); document.getElementById('modal-reporte').style.display = 'none'; window.location.hash = "#modal-llaves"; }); 
     });
+}
+
+// Lógica de Notificaciones
+function enviarNotificacion(paraUsuario, mensaje) { if (!paraUsuario || paraUsuario === "Ninja Anónimo") return; db.collection('notificaciones').add({ para: paraUsuario, texto: mensaje, leida: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
+function escucharNotificaciones() {
+    const badge = document.getElementById('notif-badge'); const contenedorHTML = document.getElementById('lista-notificaciones-contenido'); if(!badge || !contenedorHTML) return;
+    db.collection('notificaciones').where('para', '==', currentUserName).orderBy('timestamp', 'desc').onSnapshot(snap => {
+        let noLeidas = 0; contenedorHTML.innerHTML = "";
+        if(snap.empty) { contenedorHTML.innerHTML = '<p style="color:#888; text-align:center;">No hay avisos.</p>'; badge.style.display = 'none'; return; }
+        snap.forEach(doc => { const data = doc.data(); if(!data.leida) noLeidas++; const bg = data.leida ? '#0a0a0f' : '#1a1a24'; const border = data.leida ? '1px solid #222' : '1px solid var(--blue)'; contenedorHTML.innerHTML += `<div style="background: ${bg}; border: ${border}; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85rem;"><i class="fas fa-envelope" style="color: var(--blue); margin-right: 5px;"></i> ${data.texto}</div>`; });
+        if(noLeidas > 0) { badge.innerText = noLeidas; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; }
+    });
+}
+function abrirNotificaciones(e) {
+    e.preventDefault(); document.getElementById('modal-notificaciones').style.display = 'flex';
+    db.collection('notificaciones').where('para', '==', currentUserName).where('leida', '==', false).get().then(snap => { const batch = db.batch(); snap.forEach(doc => { batch.update(doc.ref, { leida: true }); }); batch.commit(); });
+}
+
+function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
+function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
+function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
+
+function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
+    const iframe = document.getElementById('stream-frame'); const botones = document.querySelectorAll('.plat-btn');
+    let canalAUsar = usuarioFuerza ? usuarioFuerza : 'matias_mj7'; const currentDomain = window.location.hostname; let finalSrc = "";
+    if (plataforma === 'twitch') { finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`; } else if (plataforma === 'youtube') { finalSrc = `https://www.youtube.com/embed/${canalAUsar}?autoplay=1`; } else if (plataforma === 'kick') { finalSrc = `https://player.kick.com/${canalAUsar}`; } else if (plataforma === 'tiktok') { finalSrc = `https://www.tiktok.com/embed/v2/${canalAUsar}`; }
+    if(iframe) iframe.src = finalSrc;
+    botones.forEach(btn => { btn.style.background = '#111'; btn.style.color = 'white'; btn.style.border = '1px solid #444'; });
+    let btnActivo = Array.from(botones).find(b => b.innerText.toLowerCase() === plataforma.toLowerCase());
+    if(btnActivo) {
+        if (plataforma === 'twitch') { btnActivo.style.background = 'var(--blue)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
+        if (plataforma === 'youtube') { btnActivo.style.background = 'var(--red)'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
+        if (plataforma === 'kick') { btnActivo.style.background = 'var(--green)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
+        if (plataforma === 'tiktok') { btnActivo.style.background = '#ff0050'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
+    }
+}
+function extraerIdLimpio(urlCruda, plataforma) {
+    let id = urlCruda.trim();
+    try { if (plataforma === 'twitch') { if (id.includes('twitch.tv/')) id = id.split('twitch.tv/')[1].split('?')[0].replace('/', ''); } else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; } else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); } else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; } } catch(e) {} return id;
 }
