@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.30"> 
+    <link rel="stylesheet" href="style.css?v=3.50"> 
 </head>
 <body>
 
@@ -28,7 +28,7 @@
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#gremio">Gremio</a></li>
                 <li><a href="#tienda">Mercado</a></li>
-                <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin">Kage</a></li>
+                <li id="admin-nav" style="display: none;"><a href="#admin" id="btn-admin-nav" class="btn-admin">Kage</a></li>
             </ul>
         </nav>
         <div class="auth-zone">
@@ -109,25 +109,31 @@
                 <div class="container-glass plan-card" style="border-top: 4px solid silver; transform: scale(1.05);">
                     <div class="badge-plan">ELITE</div>
                     <h3 style="color: silver;">Jonin</h3>
-                    <div class="price">$3 USD <span style="font-size:0.8rem; color:#888;">(o en ARS)</span></div>
+                    <div class="price">$4000 ARS <span style="font-size:0.8rem; color:#888;">(o eq. USDT)</span></div>
+                    <p style="color: #aaa; font-size: 0.85rem; margin-top:-10px; margin-bottom: 15px;">2 Horas de uso de plataforma<br>(+$2000 ARS por hora extra)</p>
                     <ul class="plan-features">
                         <li><i class="fas fa-star" style="color:gold;"></i> 500 Ryos / mes</li>
                         <li><i class="fas fa-palette"></i> Color Plata en Chat</li>
                         <li><i class="fas fa-bolt"></i> Prioridad torneos</li>
+                        <li><i class="fas fa-tools"></i> <strong>Crear Torneos (1v1 y 2v2)</strong></li>
+                        <li><i class="fas fa-sitemap"></i> Administrar Llaves y Resultados</li>
                     </ul>
                     <a href="#modal-pago-jonin" class="btn-primary" style="background: silver; color: black; width:100%">VER MÉTODOS DE PAGO</a>
                 </div>
 
                 <div class="container-glass plan-card" style="border-top: 4px solid gold;">
-                    <div class="badge-plan" style="background:gold;">LEYENDA</div>
-                    <h3 style="color: gold;">ANBU</h3>
-                    <div class="price">$7 USD <span style="font-size:0.8rem; color:#888;">(USDT/Crypto)</span></div>
+                    <div class="badge-plan" style="background:gold;">SUPREMO</div>
+                    <h3 style="color: gold;">Kasekage</h3>
+                    <div class="price">$10000 ARS <span style="font-size:0.8rem; color:#888;">(o eq. USDT)</span></div>
+                    <p style="color: #aaa; font-size: 0.85rem; margin-top:-10px; margin-bottom: 15px;">4 Horas de uso de plataforma<br>(+$5000 ARS x 2 horas extra)</p>
                     <ul class="plan-features">
                         <li><i class="fas fa-crown" style="color:gold;"></i> 1500 Ryos / mes</li>
-                        <li><i class="fas fa-shield-alt"></i> Borde Dorado</li>
+                        <li><i class="fas fa-shield-alt"></i> Borde Dorado Exclusivo</li>
                         <li><i class="fas fa-trophy"></i> Pase Libre a Ligas</li>
+                        <li><i class="fas fa-tools"></i> <strong>Crear TODOS los Torneos</strong></li>
+                        <li><i class="fas fa-sitemap"></i> Administrador Total de Eventos</li>
                     </ul>
-                    <a href="#modal-pago-anbu" class="btn-primary" style="background: gold; color: black; width:100%">VER MÉTODOS DE PAGO</a>
+                    <a href="#modal-pago-kasekage" class="btn-primary" style="background: gold; color: black; width:100%">VER MÉTODOS DE PAGO</a>
                 </div>
 
             </div>
@@ -136,11 +142,11 @@
         <section id="torneos" class="section">
             <h2 class="section-head">Torneos Relámpago</h2>
             <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-filter active" onclick="filtrarTorneos('todos')">Todos</button>
-                <button class="btn-filter" onclick="filtrarTorneos('1v1')">1v1</button>
-                <button class="btn-filter" onclick="filtrarTorneos('2v2')">2v2</button>
-                <button class="btn-filter" onclick="filtrarTorneos('3v3')">3v3</button>
-                <button class="btn-filter" onclick="filtrarTorneos('5v5')">5v5</button>
+                <button class="btn-filter active" onclick="filtrarTorneos('todos', event)">Todos</button>
+                <button class="btn-filter" onclick="filtrarTorneos('1v1', event)">1v1</button>
+                <button class="btn-filter" onclick="filtrarTorneos('2v2', event)">2v2</button>
+                <button class="btn-filter" onclick="filtrarTorneos('3v3', event)">3v3</button>
+                <button class="btn-filter" onclick="filtrarTorneos('5v5', event)">5v5</button>
             </div>
             <div id="lista-torneos" class="torneos-grid"></div>
         </section>
@@ -211,14 +217,15 @@
         </section>
 
         <section id="admin" class="section" style="display: none;">
-            <h2 class="section-head" style="color: var(--red);"><i class="fas fa-fire"></i> Sistema Kage Supremo</h2>
+            <h2 class="section-head" id="titulo-panel-admin" style="color: var(--red);"><i class="fas fa-fire"></i> Centro de Mando</h2>
             <div class="container-glass">
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Eventos</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Llaves</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-moderacion')">Moderación</button>
-                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-banco')">Banco</button>
+                    <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Mis Llaves</button>
+                    <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-moderacion')">Moderación</button>
+                    <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-banco')">Banco</button>
+                    <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-gestion')">Gestión Ninjas</button>
                 </div>
 
                 <div id="tab-torneos">
@@ -233,22 +240,30 @@
                             <input type="text" id="t-premio" placeholder="Premio (Ej: 1000 Ryos)">
                         </div>
                         <div class="form-row">
-                            <select id="t-formato"><option value="1v1">1v1</option><option value="2v2">2v2</option><option value="3v3">3v3</option><option value="5v5">5v5</option></select>
-                            <select id="t-tipo"><option value="torneo">Torneo Relámpago</option><option value="liga">LIGA MENSUAL</option></select>
+                            <select id="t-formato">
+                                <option value="1v1">1v1</option>
+                                <option value="2v2">2v2</option>
+                                <option value="3v3" id="opt-3v3">3v3</option>
+                                <option value="5v5" id="opt-5v5">5v5</option>
+                            </select>
+                            <select id="t-tipo">
+                                <option value="torneo">Torneo Relámpago</option>
+                                <option value="liga" id="opt-liga">LIGA MENSUAL</option>
+                            </select>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> <label>Evento Privado</label>
+                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> <label>Evento Privado (Solo invitados)</label>
                         </div>
                         <button type="submit" class="btn-save">PUBLICAR EVENTO</button>
                     </form>
                 </div>
 
                 <div id="tab-llaves-admin" style="display: none;">
-                    <h3 style="margin-bottom: 15px; color:var(--blue);">Mando de Batalla</h3>
+                    <h3 style="margin-bottom: 15px; color:var(--blue);">Administrar mis Torneos</h3>
                     <div id="admin-lista-torneos-llaves" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
 
-                <div id="tab-moderacion" style="display: none;">
+                <div id="tab-moderacion" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:var(--blue);">Alerta Global (Ticker)</h3>
                     <form id="form-config-ticker" style="display:flex; gap:10px; margin-bottom: 25px;">
                         <input type="text" id="input-ticker" placeholder="Mensaje para toda la aldea..." required style="flex:1;">
@@ -264,13 +279,26 @@
                     </form>
                 </div>
 
-                <div id="tab-banco" style="display: none;">
+                <div id="tab-banco" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:gold;">Tesorería del Kage</h3>
                     <form id="form-banco-kage" class="admin-form">
                         <input type="text" id="banco-usuario" placeholder="Nick del Ninja destino" required>
                         <input type="number" id="banco-monto" placeholder="Monto de Ryos" required>
                         <button type="submit" class="btn-primary" style="background:gold; color:black;"><i class="fas fa-coins"></i> ENVIAR RYOS</button>
                     </form>
+                </div>
+
+                <div id="tab-gestion" class="admin-only" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color:var(--green);">Gestión de Usuarios</h3>
+                    <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #333; border-radius: 8px;">
+                        <input type="text" id="gestion-nick" placeholder="Buscar Nick del Ninja..." style="width: 100%; margin-bottom: 15px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-secondary" onclick="gestionarPlan('jonin')">Hacer Jonin</button>
+                            <button class="btn-secondary" style="color: gold; border-color: gold;" onclick="gestionarPlan('kasekage')">Hacer Kasekage</button>
+                            <button class="btn-secondary" onclick="gestionarPlan('genin')">Revertir a Genin</button>
+                            <button class="btn-secondary" style="background: var(--red); color: white;" onclick="banearUsuario()">Expulsar (Ban)</button>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -285,27 +313,26 @@
         <div class="modal-box" style="text-align: center; border-color: silver;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: silver; margin-bottom: 20px;"><i class="fas fa-mask"></i> Pase Jonin</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">Realiza el pago para activar tus beneficios. El Kage verificará la transacción.</p>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">2 Horas de Plataforma ($4000 ARS)<br>1 Hora Extra ($2000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 1.1rem;">
-                <p style="color: var(--blue); margin-bottom: 10px;">Monto: $3 USD o Eq. ARS</p>
                 <p style="color: white; margin-bottom: 5px;">Alias: <strong style="color:var(--green);">MATIAS.MBL.MP</strong></p>
                 <p style="color: white;">CBU: <strong style="color:var(--green);">0000003100000000000000</strong></p>
             </div>
-            <a href="https://wa.me/TUNUMEROAQUI" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
+            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
         </div>
     </div>
 
-    <div id="modal-pago-anbu" class="modal">
+    <div id="modal-pago-kasekage" class="modal">
         <div class="modal-box" style="text-align: center; border-color: gold;">
             <a href="#" class="btn-close">&times;</a>
-            <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-dragon"></i> Pase ANBU</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">Pago exclusivo mediante Criptomonedas para mantener el anonimato ninja.</p>
+            <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-dragon"></i> Pase Kasekage</h3>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">4 Horas de Plataforma ($10000 ARS)<br>2 Horas Extra ($5000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 1rem; word-break: break-all;">
-                <p style="color: var(--blue); margin-bottom: 10px;">Monto: $7 USDT</p>
-                <p style="color: white; margin-bottom: 5px;">Red: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
-                <p style="color: white;">Wallet:<br><strong style="color:var(--green);">0xTU_WALLET_USDT_AQUI</strong></p>
+                <p style="color: white; margin-bottom: 5px;">Alias ARS: <strong style="color:var(--green);">MATIAS.MBL.MP</strong></p>
+                <p style="color: white; margin-bottom: 5px; margin-top: 10px;">Red Cripto: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
+                <p style="color: white;">Wallet USDT:<br><strong style="color:var(--green);">0xTU_WALLET_USDT_AQUI</strong></p>
             </div>
-            <a href="https://wa.me/TUNUMEROAQUI" target="_blank" class="btn-primary" style="background: gold; color: black; width: 100%;"><i class="fab fa-whatsapp"></i> ENVIAR HASH AL KAGE</a>
+            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: gold; color: black; width: 100%;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
         </div>
     </div>
 
@@ -378,6 +405,16 @@
         <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
             <h3 id="admin-partidos-titulo" style="color: var(--red); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;">Tribunal Kage</h3>
+            
+            <div id="admin-inscripcion-manual" style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="color: var(--blue); margin-bottom: 10px;"><i class="fas fa-user-plus"></i> Añadir Ninjas Manualmente</h4>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="input-inscribir-manual" placeholder="Nick exacto del jugador" style="flex:1;">
+                    <input type="hidden" id="input-torneo-manual-id">
+                    <button class="btn-primary" onclick="inscribirJugadorManual()">AÑADIR</button>
+                </div>
+            </div>
+
             <div id="contenedor-admin-partidos" style="display: flex; flex-direction: column; gap: 15px;"></div>
             <button id="btn-siguiente-ronda" class="btn-primary" style="width: 100%; margin-top: 20px; display: none;">GENERAR SIGUIENTE RONDA</button>
         </div>
@@ -405,7 +442,7 @@
                 <input type="hidden" id="rep-partido-id">
                 <select id="rep-ganador" required style="width:100%; margin-bottom:15px;"></select>
                 <input type="url" id="rep-prueba" placeholder="Link a captura (Imgur/Gyazo) Opcional" style="width:100%; margin-bottom:20px;">
-                <button type="submit" class="btn-save" style="width:100%;">ENVIAR AL KAGE</button>
+                <button type="submit" class="btn-save" style="width:100%;">ENVIAR AL JUEZ</button>
             </form>
         </div>
     </div>
@@ -421,6 +458,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.30"></script>
+    <script src="app.js?v=3.50"></script>
 </body>
 </html>
