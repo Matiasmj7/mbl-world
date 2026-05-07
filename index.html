@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.25"> 
+    <link rel="stylesheet" href="style.css?v=3.26"> 
 </head>
 <body>
 
@@ -26,7 +26,6 @@
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#registro-bingo">Libro Bingo</a></li>
                 <li><a href="#abismo">Abismo</a></li>
-                <li><a href="#gremio">Gremio</a></li>
                 <li><a href="#tienda">Mercado</a></li>
                 <li id="admin-nav" style="display: none;"><a href="#admin" class="btn-admin">Kage</a></li>
             </ul>
@@ -41,7 +40,7 @@
 
     <div class="ticker-wrap">
         <div class="ticker-move" id="ticker-contenido">
-            <span class="ticker-item"><i class="fas fa-scroll"></i> Sincronizando pergaminos...</span>
+            <span class="ticker-item"><i class="fas fa-scroll"></i> Sincronizando los pergaminos de la aldea...</span>
         </div>
     </div>
 
@@ -57,6 +56,7 @@
 
         <section id="fama" class="section">
             <h2 class="section-head"><i class="fas fa-monument"></i> Salón de la Fama</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 20px;">Las leyendas inmortales de la Arena con más campeonatos ganados.</p>
             <div class="podium-container" id="podio-leyendas"></div>
         </section>
 
@@ -86,9 +86,8 @@
         <section id="planes" class="section">
             <h2 class="section-head" style="color: var(--green); border-left-color: var(--green);">Pases de Batalla</h2>
             <div class="torneos-grid">
-                
                 <div class="container-glass plan-card" style="border-top: 4px solid #cd7f32;">
-                    <h3>Genin (Base)</h3>
+                    <h3>Genin</h3>
                     <div class="price">Gratis</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> Acceso a torneos públicos</li>
@@ -97,38 +96,35 @@
                     </ul>
                     <button class="btn-secondary" style="width:100%" disabled>Rango Actual</button>
                 </div>
-
                 <div class="container-glass plan-card" style="border-top: 4px solid silver; transform: scale(1.05);">
                     <div class="badge-plan">RECOMENDADO</div>
-                    <h3>Jonin (Elite)</h3>
-                    <div class="price">$3 USD <span style="font-size:0.8rem; color:#888;">(o equivalente ARS)</span></div>
+                    <h3>Jonin</h3>
+                    <div class="price">$3 USD / Mes</div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-star"></i> <strong>500 Ryos mensuales</strong></li>
+                        <li><i class="fas fa-star"></i> 500 Ryos mensuales</li>
                         <li><i class="fas fa-palette"></i> Color Plata en Chat</li>
-                        <li><i class="fas fa-bolt"></i> Prioridad en inscripciones</li>
+                        <li><i class="fas fa-bolt"></i> Prioridad en eventos</li>
                     </ul>
                     <div class="payment-info">
                         <p><strong>Alias ARS:</strong> MATIAS.MBL.MP</p>
                         <p><strong>CBU:</strong> 0000003100000000000000</p>
                     </div>
-                    <a href="https://wa.me/TUNUMERO" class="btn-primary" style="background: silver; color: black; width:100%">INFORMAR PAGO</a>
+                    <a href="https://wa.me/54911..." target="_blank" class="btn-primary" style="background: silver; color: black; width:100%">INFORMAR PAGO</a>
                 </div>
-
                 <div class="container-glass plan-card" style="border-top: 4px solid gold;">
-                    <h3>ANBU (Leyenda)</h3>
-                    <div class="price">$7 USD <span style="font-size:0.8rem; color:#888;">(USDT/Crypto)</span></div>
+                    <h3>ANBU</h3>
+                    <div class="price">$7 USD / Mes</div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-crown"></i> <strong>1500 Ryos mensuales</strong></li>
+                        <li><i class="fas fa-crown"></i> 1500 Ryos mensuales</li>
                         <li><i class="fas fa-shield-alt"></i> Borde Dorado Exclusivo</li>
-                        <li><i class="fas fa-trophy"></i> Pase Libre a Ligas</li>
+                        <li><i class="fas fa-trophy"></i> Inscripción automática Ligas</li>
                     </ul>
                     <div class="payment-info">
-                        <p><strong>Wallet USDT (BEP20):</strong> 0x...</p>
-                        <p>Envía el comprobante al Kage</p>
+                        <p><strong>USDT (BEP20):</strong> 0x765...</p>
+                        <p>Envía comprobante al Kage</p>
                     </div>
-                    <a href="https://wa.me/TUNUMERO" class="btn-primary" style="background: gold; color: black; width:100%">INFORMAR PAGO</a>
+                    <a href="https://wa.me/54911..." target="_blank" class="btn-primary" style="background: gold; color: black; width:100%">INFORMAR PAGO</a>
                 </div>
-
             </div>
         </section>
 
@@ -140,8 +136,8 @@
         <section id="tienda" class="section">
             <h2 class="section-head">Mercado de la Aldea</h2>
             <div style="text-align: center; margin-bottom: 30px;">
-                <p>Billetera: <strong id="tienda-mis-ryos" style="color:gold;">0 Ryos</strong></p>
-                <button id="btn-trabajar" class="btn-secondary" onclick="misionDiaria()">Trabajar (+10 R)</button>
+                <p>Tu Billetera: <strong id="tienda-mis-ryos" style="color:gold; font-size: 1.2rem;">0 Ryos</strong></p>
+                <button id="btn-trabajar" class="btn-secondary" style="margin-top: 10px;" onclick="misionDiaria()">Trabajar (+10 Ryos)</button>
             </div>
             <div id="catalogo-tienda" class="torneos-grid"></div>
         </section>
@@ -150,7 +146,7 @@
             <h2 class="section-head">Archivos del Abismo</h2>
             <div class="container-glass" style="margin-bottom: 30px;">
                 <form id="form-abismo" style="display: flex; gap: 10px;">
-                    <input type="url" id="video-url" placeholder="Pega el link de YouTube o TikTok" required style="flex: 1;">
+                    <input type="url" id="video-url" placeholder="Pega el link de YouTube o TikTok aquí" required style="flex: 1;">
                     <button type="submit" class="btn-primary">COMPARTIR</button>
                 </form>
             </div>
@@ -160,37 +156,60 @@
         <section id="gremio" class="section">
             <h2 class="section-head">Gremio y Escuadrones</h2>
             <div class="torneos-grid">
-                <div class="container-glass"><h3>Top Escuadrones</h3><div id="lista-top-clanes"></div></div>
+                <div class="container-glass"><h3>Top Clanes</h3><div id="lista-top-clanes"></div></div>
                 <div class="container-glass"><h3>Tablón</h3><div id="lista-anuncios"></div></div>
             </div>
         </section>
 
         <section id="admin" class="section" style="display: none;">
-            <h2 class="section-head" style="color: var(--red);">Sala del Kage</h2>
+            <h2 class="section-head" style="color: var(--red);">Sala del Kage Supremo</h2>
             <div class="container-glass">
-                <h4 style="margin-bottom: 15px;">Control del Ticker</h4>
-                <form id="form-config-ticker" style="display:flex; gap:10px; margin-bottom:30px;">
-                    <input type="text" id="input-ticker" placeholder="Mensaje global..." required style="flex:1;">
-                    <button type="submit" class="btn-primary">LANZAR</button>
-                </form>
-                <h4 style="margin-bottom: 15px;">Crear Evento</h4>
+                <div style="margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">Control de Ticker</h4>
+                    <form id="form-config-ticker" style="display:flex; gap:10px;">
+                        <input type="text" id="input-ticker" placeholder="Anuncio global..." required style="flex:1;">
+                        <button type="submit" class="btn-primary">LANZAR</button>
+                    </form>
+                </div>
+                <h4 style="margin-bottom: 15px;">Crear Nuevo Evento</h4>
                 <form id="form-torneo" class="admin-form">
-                    <input type="text" id="t-nombre" placeholder="Nombre" required>
-                    <input type="text" id="t-premio" placeholder="Premio">
-                    <input type="number" id="t-cupos" placeholder="Cupos">
-                    <select id="t-tipo"><option value="torneo">Relámpago</option><option value="liga">Liga Mensual</option></select>
-                    <button type="submit" class="btn-save">PUBLICAR</button>
+                    <input type="text" id="t-nombre" placeholder="Nombre del Torneo/Liga" required>
+                    <input type="text" id="t-premio" placeholder="Premio (Ej: 1000 Ryos)">
+                    <input type="number" id="t-cupos" placeholder="Cupos máximos">
+                    <select id="t-tipo">
+                        <option value="torneo">Torneo Relámpago</option>
+                        <option value="liga">Liga Mensual</option>
+                    </select>
+                    <button type="submit" class="btn-save" style="margin-top: 10px;">PUBLICAR EN LA ARENA</button>
                 </form>
             </div>
         </section>
     </main>
 
-    <div id="modal-login" class="modal"><div class="modal-box"><a href="#" class="btn-close">&times;</a><h3>IDENTIFICACIÓN</h3><button class="btn-primary" id="login-google" style="width: 100%; margin-top: 20px;">Google Login</button></div></div>
-    <div id="modal-registro-nick" class="modal"><div class="modal-box"><h3>Tu Nombre Ninja</h3><form id="form-registro-nick"><input type="text" id="nuevo-nick" required placeholder="Nick"><button type="submit" class="btn-save" style="margin-top:20px;">ENTRAR A LA ARENA</button></form></div></div>
+    <section id="registro-bingo" class="section" style="padding: 0 5%;">
+        <h2 class="section-head">Libro Bingo</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <div class="container-glass" style="text-align: center;">
+                <h3>Tu Identidad Ninja</h3>
+                <div style="margin: 20px 0; background: rgba(0,210,255,0.05); padding: 20px; border-radius: 10px; border: 1px solid var(--blue);">
+                    <h4 id="mi-nick-bingo">Inicia sesión</h4>
+                    <h1 style="color: gold; margin: 10px 0;" id="mi-xp-bingo">0 XP</h1>
+                    <p style="color: var(--blue);" id="mi-ryos-bingo">0 Ryos</p>
+                </div>
+            </div>
+            <div class="container-glass">
+                <h3>Clasificación Individual</h3>
+                <div id="ranking-dinamico" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="modal-login" class="modal"><div class="modal-box"><a href="#" class="btn-close">&times;</a><h3>INGRESAR</h3><button class="btn-primary" id="login-google" style="width: 100%; margin-top: 20px;">Google Login</button></div></div>
+    <div id="modal-registro-nick" class="modal"><div class="modal-box"><h3>Elige tu Nick</h3><form id="form-registro-nick"><input type="text" id="nuevo-nick" required placeholder="Tu Nickname" style="width:100%; margin-bottom:20px;"><button type="submit" class="btn-save" style="width:100%;">ENTRAR A LA ARENA</button></form></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.25"></script>
+    <script src="app.js?v=3.26"></script>
 </body>
 </html>
