@@ -18,6 +18,7 @@ const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
 let currentUserId = null;
 let miClan = "";
+let miComunidad = ""; // NUEVO: Para el sistema de Alianzas
 let misRyos = 0;
 let miPlan = "genin";
 let miInventario = [];
@@ -25,9 +26,10 @@ let miEquipamiento = { borde: '', colorChat: '', pin: '' };
 let currentFilter = 'todos'; 
 let trabajando = false; 
 let miPerfilActual = {};
+let unsubscribeChatComunidad = null; // Para gestionar el chat privado
 
 // ==========================================
-// MERCADO (EXPANDIDO)
+// MERCADO
 // ==========================================
 const CATALOGO_TIENDA = [
     { id: 'borde_fuego', nombre: 'Aura de Fuego', tipo: 'borde', precio: 300, desc: 'Borde ardiente.', estilo: 'border: 3px solid #ff4500; box-shadow: 0 0 10px #ff4500;' },
@@ -71,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     miPerfilActual = data; 
                     currentUserName = data.nick; 
                     miClan = data.clan || ""; 
+                    miComunidad = data.comunidad || ""; // Carga la comunidad
                     misRyos = data.ryos || 0; 
                     miPlan = data.plan || "genin";
                     miInventario = data.inventario || []; 
@@ -87,8 +90,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('btn-notif').style.display = 'inline-block';
                     renderizarTienda();
                     
-                    // LÓGICA DE ROLES PARA EL PANEL CREADOR/KAGE
+                    // ======================================
+                    // LÓGICA DE COMUNIDADES (UI Y CHAT)
+                    // ======================================
                     const esAdmin = (user.email === ADMIN_EMAIL);
+                    
+                    if (miComunidad !== "") {
+                        document.getElementById('vista-sin-comunidad').style.display = 'none';
+                        document.getElementById('vista-con-comunidad').style.display = 'flex';
+                        document.getElementById('nombre-mi-comunidad').innerText = miComunidad;
+                    } else {
+                        document.getElementById('vista-sin-comunidad').style.display = 'block';
+                        document.getElementById('vista-con-comunidad').style.display = 'none';
+                    }
+
+                    if (esAdmin) {
+                        // El Kage ve el panel de comunidad forzado para poder espiar
+                        document.getElementById('vista-sin-comunidad').style.display = 'none';
+                        document.getElementById('vista-con-comunidad').style.display = 'flex';
+                        document.getElementById('nombre-mi-comunidad').innerText = "Vigilancia Kage";
+                        document.getElementById('kage-comunidad-selector-container').style.display = 'block';
+                        document.getElementById('btn-abandonar-comunidad').style.display = 'none';
+                        cargarSelectorComunidadesKage();
+                    } else if (miComunidad !== "") {
+                        escucharChatComunidad(miComunidad);
+                    }
+
+                    // ======================================
+                    // LÓGICA DE ROLES PARA EL PANEL CREADOR/KAGE
+                    // ======================================
                     if(esAdmin || miPlan === 'jonin' || miPlan === 'kasekage') {
                         if(adminNav) adminNav.style.display = 'block';
                         if(adminSection) adminSection.style.display = 'block';
@@ -131,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const nuevoNick = document.getElementById('nuevo-nick').value.trim();
             db.collection('ninjas').doc(currentUserId).set({
-                nick: nuevoNick, xp: 0, ryos: 100, torneosGanados: 0, rango: "Guerrero", clan: "", plan: "genin", banned: false,
+                nick: nuevoNick, xp: 0, ryos: 100, torneosGanados: 0, rango: "Guerrero", clan: "", comunidad: "", plan: "genin", banned: false,
                 inventario: [], equipado: {borde: '', colorChat: '', pin: ''}, fotoPerfil: "", bio: "",
                 redSocial: "", email_oculto: auth.currentUser.email, fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
@@ -151,7 +181,146 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarTopIndividualBingo();
     escucharTabernaGlobal();
     configurarAdminForms();
+    cargarTopComunidades(); // NUEVO
 });
+
+// ==========================================
+// COMUNIDADES ALIADAS (NUEVO SISTEMA)
+// ==========================================
+function crearComunidad() {
+    if (currentUserName === "Ninja Anónimo") return alert("Ingresa primero.");
+    const nombre = document.getElementById('input-crear-comunidad').value.trim(); if(!nombre) return;
+    
+    db.collection('comunidades').doc(nombre).get().then(doc => {
+        if(doc.exists) { alert("Esa Comunidad ya existe en la Arena."); }
+        else {
+            db.collection('comunidades').doc(nombre).set({ 
+                nombre: nombre, lider: currentUserName, miembros: [currentUserName], creacion: firebase.firestore.FieldValue.serverTimestamp() 
+            }).then(() => { 
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre }); 
+                alert("¡Has fundado tu propia Comunidad!"); 
+            });
+        }
+    });
+}
+
+function unirseComunidad() {
+    if (currentUserName === "Ninja Anónimo") return alert("Ingresa primero.");
+    const nombre = document.getElementById('input-unirse-comunidad').value.trim(); if(!nombre) return;
+    
+    db.collection('comunidades').doc(nombre).get().then(doc => {
+        if(!doc.exists) { alert("Esta Comunidad no fue encontrada en los pergaminos."); }
+        else { 
+            db.collection('comunidades').doc(nombre).update({ miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => { 
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre }); 
+                alert(`¡Te has unido a ${nombre}!`); 
+            }); 
+        }
+    });
+}
+
+function abandonarComunidad() {
+    if(confirm("¿Abandonar tu Comunidad Aliada?")) {
+        db.collection('comunidades').doc(miComunidad).get().then(doc => {
+            if(doc.exists) {
+                const data = doc.data();
+                if(data.lider === currentUserName && data.miembros.length > 1) { alert("Eres el líder. La comunidad no puede quedarse sin cabeza a menos que quede vacía."); return; }
+                if(data.miembros.length === 1) { db.collection('comunidades').doc(miComunidad).delete(); }
+                else { db.collection('comunidades').doc(miComunidad).update({ miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName) }); }
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: "" }).then(() => { alert("Has abandonado la Comunidad."); window.location.reload(); });
+            }
+        });
+    }
+}
+
+function cargarTopComunidades() {
+    const lista = document.getElementById('lista-top-comunidades'); if(!lista) return;
+    db.collection('comunidades').onSnapshot(snap => {
+        let comunidades = [];
+        snap.forEach(doc => comunidades.push(doc.data()));
+        comunidades.sort((a, b) => b.miembros.length - a.miembros.length); // Ordenar por cantidad de miembros
+        
+        lista.innerHTML = "";
+        if(comunidades.length === 0) { lista.innerHTML = "<p style='color:#666; text-align:center;'>Ninguna alianza forjada aún.</p>"; return; }
+        
+        comunidades.slice(0, 5).forEach((d, index) => {
+            let color = "#333"; if(index === 0) color = "gold"; else if(index === 1) color = "silver"; else if(index === 2) color = "#cd7f32";
+            lista.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:12px; border-radius:5px; border-left:3px solid ${color}; margin-bottom: 8px;">
+                    <div><strong style="color: white; font-size: 1.1rem;">${index + 1}. ${d.nombre}</strong> <br> <span style="font-size:0.75rem; color:#888;"><i class="fas fa-crown" style="color: gold;"></i> Líder: ${d.lider}</span></div>
+                    <div style="color:var(--purple); font-weight:bold; font-size:1rem;"><i class="fas fa-users"></i> ${d.miembros.length} Ninjas</div>
+                </div>`;
+        });
+    });
+}
+
+// CHAT PRIVADO COMUNIDAD
+function escucharChatComunidad(comunidadNombre) {
+    if (!comunidadNombre) return;
+    const chatContainer = document.getElementById('chat-comunidad-container');
+    if(!chatContainer) return;
+    
+    if (unsubscribeChatComunidad) unsubscribeChatComunidad(); // Detener escucha anterior
+    
+    unsubscribeChatComunidad = db.collection('chat_comunidades')
+        .where('comunidad', '==', comunidadNombre)
+        .orderBy('timestamp')
+        .limit(50)
+        .onSnapshot(snap => {
+            chatContainer.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                let estiloNombre = "color: var(--purple);";
+                if (d.colorEstilo !== "") {
+                    const itemCat = CATALOGO_TIENDA.find(i => i.id === d.colorEstilo);
+                    if(itemCat) estiloNombre = itemCat.estilo;
+                }
+                if (d.usuario === 'Matías' || d.usuario === 'Kage') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
+                
+                chatContainer.innerHTML += `
+                    <div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; font-size:0.9rem;">
+                        <strong style="${estiloNombre} margin-right: 5px; cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}:</strong> 
+                        <span style="color:#ddd; word-break: break-all;">${d.texto}</span>
+                    </div>`;
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+}
+
+function enviarMensajeComunidad() {
+    if(currentUserName === "Ninja Anónimo") return alert("Debes identificarte.");
+    const input = document.getElementById('chat-input-comunidad');
+    const texto = input.value.trim();
+    if(!texto) return;
+
+    let targetComunidad = miComunidad;
+    if (auth.currentUser?.email === ADMIN_EMAIL) {
+        targetComunidad = document.getElementById('kage-comunidad-selector').value;
+    }
+
+    if(!targetComunidad) return alert("No estás en ninguna comunidad.");
+
+    db.collection('chat_comunidades').add({ 
+        comunidad: targetComunidad, usuario: currentUserName, texto: texto, colorEstilo: miEquipamiento.colorChat || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+    });
+    input.value = '';
+}
+
+function cargarSelectorComunidadesKage() {
+    const selector = document.getElementById('kage-comunidad-selector');
+    db.collection('comunidades').onSnapshot(snap => {
+        selector.innerHTML = "<option value='' disabled selected>Selecciona para espiar...</option>";
+        snap.forEach(doc => {
+            selector.innerHTML += `<option value="${doc.id}">${doc.id} (${doc.data().miembros.length} ninjas)</option>`;
+        });
+    });
+}
+
+function cambiarChatComunidadKage() {
+    const seleccionada = document.getElementById('kage-comunidad-selector').value;
+    if(seleccionada) escucharChatComunidad(seleccionada);
+}
+
 
 // ==========================================
 // TIENDA Y RYOS
@@ -344,7 +513,7 @@ function unirseTorneo(torneoId, estado) {
 }
 
 // ==========================================
-// ABISMO Y SALÓN DE LA FAMA (CON COMENTARIOS)
+// ABISMO Y SALÓN DE LA FAMA
 // ==========================================
 function cargarVideosAbismo() {
     const lista = document.getElementById('lista-abismo');
@@ -363,7 +532,6 @@ function cargarVideosAbismo() {
                 reproductorHTML = `<div style="height: 150px; display: flex; align-items: center; justify-content: center; background: #111; border-radius: 8px;"><a href="${d.urlCruda}" target="_blank" class="btn-secondary" style="text-decoration: none;"><i class="fas fa-external-link-alt"></i> Ver en TikTok</a></div>`;
             }
             
-            // Render de comentarios
             let comentariosHTML = "";
             if (d.comentarios && d.comentarios.length > 0) {
                 comentariosHTML = d.comentarios.slice(-3).map(c => `<div class="comentario-box"><strong style="color:var(--blue);">${c.usuario}:</strong> <span style="color:#ddd;">${c.texto}</span></div>`).join('');
@@ -529,7 +697,8 @@ function escucharTabernaGlobal() {
             if (d.colorEstilo !== "") {
                 const itemCat = CATALOGO_TIENDA.find(i => i.id === d.colorEstilo);
                 if(itemCat) estiloNombre = itemCat.estilo;
-            } else if (d.usuario === 'Matías' || d.usuario === 'Kage') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
+            }
+            if (d.usuario === 'Matías' || d.usuario === 'Kage') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
             
             chatContainer.innerHTML += `
                 <div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; font-size:0.9rem;">
@@ -588,6 +757,7 @@ async function abrirPerfil(nick) {
     document.getElementById('perfil-xp').innerText = "...";
     document.getElementById('perfil-campeonatos').innerText = "...";
     document.getElementById('perfil-clan').innerHTML = "";
+    document.getElementById('perfil-comunidad').innerHTML = "";
     document.getElementById('perfil-pin-container').innerHTML = "";
     document.getElementById('perfil-bio').innerText = '"Un guerrero misterioso..."';
     document.getElementById('perfil-redes-container').innerHTML = "";
@@ -613,6 +783,7 @@ async function abrirPerfil(nick) {
             document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
             document.getElementById('perfil-campeonatos').innerText = data.torneosGanados || 0;
             if(data.clan && data.clan !== "") { document.getElementById('perfil-clan').innerHTML = `<i class="fas fa-shield-alt"></i> Escuadrón: ${data.clan}`; }
+            if(data.comunidad && data.comunidad !== "") { document.getElementById('perfil-comunidad').innerHTML = `<i class="fas fa-handshake"></i> Alianza: ${data.comunidad}`; }
             
             if(data.equipado) {
                 if(data.equipado.borde) { const b = CATALOGO_TIENDA.find(i => i.id === data.equipado.borde); if(b) avatarImg.style = `width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 10px; transition: 0.3s; background: #111; ${b.estilo}`; }
@@ -714,7 +885,7 @@ function configurarAdminForms() {
                 formato: document.getElementById('t-formato').value,
                 tipo: document.getElementById('t-tipo').value,
                 privado: document.getElementById('t-privado').checked,
-                creador: currentUserName, // FUNDAMENTAL PARA CONTROL POSTERIOR
+                creador: currentUserName, 
                 lista_inscriptos: [], estado: "abierto", timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => { formTorneo.reset(); alert("¡Evento publicado en la Arena!"); });
         });
@@ -786,7 +957,6 @@ function cargarTorneosParaAdminLlaves() {
         snap.forEach(doc => { 
             const d = doc.data(); const id = doc.id; 
             
-            // FILTRO DE SEGURIDAD: Solo muestra torneos del creador o si es Kage
             if(!esAdmin && d.creador !== currentUserName) return;
 
             let botonesHTML = ''; 
@@ -818,7 +988,6 @@ function abrirAdminPartidos(torneoId, torneoNombre, creador) {
     document.getElementById('admin-partidos-titulo').innerText = `Gestión: ${torneoNombre}`; 
     window.location.hash = "#modal-admin-partidos"; 
     
-    // Configurar inscripción manual
     const secManual = document.getElementById('admin-inscripcion-manual');
     const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
     if(creador === currentUserName || esAdmin) {
