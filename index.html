@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.70"> 
+    <link rel="stylesheet" href="style.css?v=3.80"> 
 </head>
 <body>
 
@@ -70,18 +70,16 @@
         <section id="stream" class="section">
             <h2 class="section-head">Visión del Byakugan</h2>
             <div class="container-glass stream-box">
-                <div class="platform-selector" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-                    <button class="btn-filter active plat-btn" onclick="cambiarStreamLocal('twitch')">Twitch</button>
-                    <button class="btn-filter plat-btn" onclick="cambiarStreamLocal('youtube')">YouTube</button>
-                    <button class="btn-filter plat-btn" onclick="cambiarStreamLocal('kick')">Kick</button>
-                    <button class="btn-filter plat-btn" onclick="cambiarStreamLocal('tiktok')">TikTok</button>
+                <div id="status-stream" style="text-align: center; font-size: 0.9rem; color: var(--blue); margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="fas fa-satellite-dish"></i> Sintonizando señal del Kage...
                 </div>
-                <div id="status-stream" style="text-align: center; font-size: 0.8rem; color: var(--blue); margin-bottom: 10px;">Señal del Kage</div>
                 <div class="stream-grid">
-                    <div class="video-container"><iframe id="stream-frame" src="" frameborder="0" allowfullscreen></iframe></div>
+                    <div class="video-container" id="reproductor-principal">
+                        <iframe id="stream-frame" src="" frameborder="0" allowfullscreen scrolling="no" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                    </div>
                     <div class="chat-container">
                         <div class="chat-head">Chat de la Aldea</div>
-                        <iframe class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
+                        <iframe id="chat-externo-frame" class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
                     </div>
                 </div>
             </div>
@@ -176,7 +174,6 @@
             <p style="text-align: center; color: #888; margin-bottom: 30px;">Fortalece la Arena. Las comunidades con más de 20 ninjas pueden solicitarle al Kage un Pase Jonin gratis para su líder.</p>
             
             <div class="torneos-grid">
-                
                 <div class="container-glass" id="vista-sin-comunidad">
                     <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-handshake"></i> Forjar Alianza</h3>
                     <input type="text" id="input-crear-comunidad" placeholder="Nombre de tu Comunidad" style="width:100%; margin-bottom:10px;">
@@ -208,7 +205,6 @@
                     <h3 style="color: gold; margin-bottom: 15px;"><i class="fas fa-star"></i> Top Comunidades</h3>
                     <div id="lista-top-comunidades"></div>
                 </div>
-
             </div>
         </section>
 
@@ -311,14 +307,23 @@
                         <input type="text" id="input-ticker" placeholder="Mensaje para toda la aldea..." required style="flex:1;">
                         <button type="submit" class="btn-primary">Lanzar</button>
                     </form>
-                    <h3 style="margin-bottom: 15px; color:var(--red);">Purgar Taberna</h3>
-                    <button class="btn-secondary" style="border-color:var(--red); color:var(--red);" onclick="limpiarTaberna()"><i class="fas fa-trash"></i> VACIAR CHAT AHORA</button>
-                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Control de Transmisión</h3>
+                    
+                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica (Stream)</h3>
                     <form id="form-config-stream" class="admin-form">
-                        <select id="stream-plataforma"><option value="twitch">Twitch</option><option value="youtube">YouTube</option><option value="kick">Kick</option><option value="tiktok">TikTok</option></select>
-                        <input type="text" id="stream-usuario" placeholder="ID de usuario o URL del video" required>
-                        <button type="submit" class="btn-primary">ACTUALIZAR SEÑAL</button>
+                        <div class="form-row">
+                            <select id="stream-plataforma-admin">
+                                <option value="kick">Kick (En Vivo)</option>
+                                <option value="youtube">YouTube (Video Promo)</option>
+                                <option value="tiktok">TikTok (Video Promo)</option>
+                                <option value="twitch">Twitch (En Vivo)</option>
+                            </select>
+                            <input type="text" id="stream-id-admin" placeholder="ID de Usuario, Video o Link" required>
+                        </div>
+                        <button type="submit" class="btn-primary" style="background: var(--red); color: white;">ACTUALIZAR SEÑAL GLOBAL</button>
                     </form>
+
+                    <h3 style="margin: 25px 0 15px 0; color:var(--red);">Purgar Taberna</h3>
+                    <button class="btn-secondary" style="border-color:var(--red); color:var(--red);" onclick="limpiarTaberna()"><i class="fas fa-trash"></i> VACIAR CHAT AHORA</button>
                 </div>
 
                 <div id="tab-banco" class="admin-only" style="display: none;">
@@ -355,7 +360,6 @@
         <div class="modal-box" style="text-align: center; border-color: silver;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: silver; margin-bottom: 20px;"><i class="fas fa-mask"></i> Pase Jonin</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">2 Horas de Plataforma ($4000 ARS)<br>1 Hora Extra ($2000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
@@ -369,7 +373,6 @@
         <div class="modal-box" style="text-align: center; border-color: gold;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-dragon"></i> Pase Kasekage</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">4 Horas de Plataforma ($10000 ARS)<br>2 Horas Extra ($5000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; text-align: left; word-break: break-all;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
@@ -395,7 +398,7 @@
                 <div><h3 id="perfil-xp" style="color: gold;">0 XP</h3><p style="font-size: 0.8rem; color: #888;">Experiencia</p></div>
                 <div><h3 id="perfil-campeonatos" style="color: var(--green);">0</h3><p style="font-size: 0.8rem; color: #888;">Copas</p></div>
             </div>
-            <div id="perfil-clan" style="color: var(--blue); margin-bottom: 5px; font-weight: bold;"></div>
+            <div id="perfil-clan" style="color: var(--blue); margin-bottom: 15px; font-weight: bold;"></div>
             <div id="perfil-comunidad" style="color: var(--purple); margin-bottom: 15px; font-weight: bold; font-size: 0.85rem;"></div>
             <div id="perfil-redes-container"></div>
             <div id="btn-editar-perfil-container" style="display: none; margin-top: 20px;">
@@ -409,10 +412,11 @@
             <a href="#" class="btn-close" onclick="document.getElementById('modal-editar-perfil').style.display='none';">&times;</a>
             <h3 style="margin-bottom: 20px; color: var(--blue);">Personalizar Perfil</h3>
             <form id="form-editar-perfil">
-                <input type="text" id="edit-foto" placeholder="URL de Foto de Perfil">
+                <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Foto de Perfil (Solo selecciona si quieres cambiarla)</label>
+                <input type="file" id="edit-foto-file" accept="image/*" style="margin-bottom: 15px; background: #111;">
                 <textarea id="edit-bio" placeholder="Tu Biografía Ninja (Máx 100 caract.)" maxlength="100" style="resize: none; height: 80px;"></textarea>
-                <input type="text" id="edit-redes" placeholder="Red Social / Canal Stream">
-                <button type="submit" class="btn-save">GUARDAR CAMBIOS</button>
+                <input type="text" id="edit-redes" placeholder="Enlace a Red Social o Stream">
+                <button type="submit" class="btn-save" id="btn-guardar-perfil">GUARDAR CAMBIOS</button>
             </form>
         </div>
     </div>
@@ -502,6 +506,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.70"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
+    <script src="app.js?v=3.80"></script>
 </body>
 </html>
