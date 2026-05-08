@@ -13,12 +13,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage(); // INICIALIZACIÓN DE STORAGE PARA FOTOS
 
 const ADMIN_EMAIL = "matias.moto7@gmail.com";
 let currentUserName = "Ninja Anónimo";
 let currentUserId = null;
 let miClan = "";
-let miComunidad = ""; // NUEVO: Para el sistema de Alianzas
+let miComunidad = ""; 
 let misRyos = 0;
 let miPlan = "genin";
 let miInventario = [];
@@ -26,10 +27,10 @@ let miEquipamiento = { borde: '', colorChat: '', pin: '' };
 let currentFilter = 'todos'; 
 let trabajando = false; 
 let miPerfilActual = {};
-let unsubscribeChatComunidad = null; // Para gestionar el chat privado
+let unsubscribeChatComunidad = null; 
 
 // ==========================================
-// MERCADO
+// MERCADO (CATÁLOGO)
 // ==========================================
 const CATALOGO_TIENDA = [
     { id: 'borde_fuego', nombre: 'Aura de Fuego', tipo: 'borde', precio: 300, desc: 'Borde ardiente.', estilo: 'border: 3px solid #ff4500; box-shadow: 0 0 10px #ff4500;' },
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     miPerfilActual = data; 
                     currentUserName = data.nick; 
                     miClan = data.clan || ""; 
-                    miComunidad = data.comunidad || ""; // Carga la comunidad
+                    miComunidad = data.comunidad || "";
                     misRyos = data.ryos || 0; 
                     miPlan = data.plan || "genin";
                     miInventario = data.inventario || []; 
@@ -105,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (esAdmin) {
-                        // El Kage ve el panel de comunidad forzado para poder espiar
                         document.getElementById('vista-sin-comunidad').style.display = 'none';
                         document.getElementById('vista-con-comunidad').style.display = 'flex';
                         document.getElementById('nombre-mi-comunidad').innerText = "Vigilancia Kage";
@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const adminElements = document.querySelectorAll('.admin-only');
                         adminElements.forEach(el => el.style.display = esAdmin ? 'inline-block' : 'none');
 
-                        // Restricciones de Creador
                         if(!esAdmin && miPlan === 'jonin') {
                             document.getElementById('opt-3v3').disabled = true;
                             document.getElementById('opt-5v5').disabled = true;
@@ -173,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     escucharTicker();
+    escucharStreamGlobal(); // NUEVA FUNCIÓN V3.80
     cargarTorneosDesdeNube();
     cargarHallOfFame();
     cargarVideosAbismo();
@@ -181,11 +181,60 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarTopIndividualBingo();
     escucharTabernaGlobal();
     configurarAdminForms();
-    cargarTopComunidades(); // NUEVO
+    cargarTopComunidades();
 });
 
 // ==========================================
-// COMUNIDADES ALIADAS (NUEVO SISTEMA)
+// FUNCIÓN: STREAM DINÁMICO GLOBAL (V3.80)
+// ==========================================
+function escucharStreamGlobal() {
+    const iframe = document.getElementById('stream-frame');
+    const statusText = document.getElementById('status-stream');
+    if(!iframe || !statusText) return;
+    
+    db.collection('configuracion').doc('stream').onSnapshot(doc => {
+        if(doc.exists) {
+            const data = doc.data();
+            const plat = data.plataforma;
+            const id = data.id;
+            let finalSrc = "";
+
+            if (plat === 'kick') {
+                finalSrc = `https://player.kick.com/${id}`;
+                statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">${id}</strong>`;
+            } else if (plat === 'youtube') {
+                finalSrc = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&rel=0`;
+                statusText.innerHTML = `<i class="fab fa-youtube" style="color:var(--red);"></i> PROMOCIÓN YOUTUBE`;
+            } else if (plat === 'tiktok') {
+                finalSrc = `https://www.tiktok.com/embed/v2/${id}`;
+                statusText.innerHTML = `<i class="fab fa-tiktok"></i> PROMOCIÓN TIKTOK`;
+            } else if (plat === 'twitch') {
+                finalSrc = `https://player.twitch.tv/?channel=${id}&parent=${window.location.hostname}`;
+                statusText.innerHTML = `<i class="fab fa-twitch" style="color:#9146ff;"></i> EN VIVO TWITCH: <strong style="color:white;">${id}</strong>`;
+            }
+
+            if(iframe.src !== finalSrc) iframe.src = finalSrc;
+        } else {
+            // Valor por defecto si no hay nada en la BD
+            iframe.src = `https://player.kick.com/matias_mj7`;
+            statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">matias_mj7</strong>`;
+        }
+    });
+}
+
+function extraerIdLimpio(urlCruda, plataforma) {
+    let id = urlCruda.trim();
+    try { 
+        if (plataforma === 'twitch') { if (id.includes('twitch.tv/')) id = id.split('twitch.tv/')[1].split('?')[0].replace('/', ''); } 
+        else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; } 
+        else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); } 
+        else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; } 
+    } catch(e) {} 
+    return id;
+}
+
+// ==========================================
+// COMUNIDADES ALIADAS 
 // ==========================================
 function crearComunidad() {
     if (currentUserName === "Ninja Anónimo") return alert("Ingresa primero.");
@@ -238,7 +287,7 @@ function cargarTopComunidades() {
     db.collection('comunidades').onSnapshot(snap => {
         let comunidades = [];
         snap.forEach(doc => comunidades.push(doc.data()));
-        comunidades.sort((a, b) => b.miembros.length - a.miembros.length); // Ordenar por cantidad de miembros
+        comunidades.sort((a, b) => b.miembros.length - a.miembros.length); 
         
         lista.innerHTML = "";
         if(comunidades.length === 0) { lista.innerHTML = "<p style='color:#666; text-align:center;'>Ninguna alianza forjada aún.</p>"; return; }
@@ -254,13 +303,12 @@ function cargarTopComunidades() {
     });
 }
 
-// CHAT PRIVADO COMUNIDAD
 function escucharChatComunidad(comunidadNombre) {
     if (!comunidadNombre) return;
     const chatContainer = document.getElementById('chat-comunidad-container');
     if(!chatContainer) return;
     
-    if (unsubscribeChatComunidad) unsubscribeChatComunidad(); // Detener escucha anterior
+    if (unsubscribeChatComunidad) unsubscribeChatComunidad(); 
     
     unsubscribeChatComunidad = db.collection('chat_comunidades')
         .where('comunidad', '==', comunidadNombre)
@@ -722,7 +770,7 @@ function escucharTabernaGlobal() {
 }
 
 // ==========================================
-// LIBRO BINGO Y PERFILES
+// LIBRO BINGO Y PERFILES (CON STORAGE v3.80)
 // ==========================================
 function cargarTopIndividualBingo() {
     const lista = document.getElementById('ranking-dinamico');
@@ -771,7 +819,10 @@ async function abrirPerfil(nick) {
         const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
         if(!snapshot.empty) {
             const data = snapshot.docs[0].data();
+            
+            // FOTO DE PERFIL STORAGE
             if(data.fotoPerfil && data.fotoPerfil !== "") { avatarImg.src = data.fotoPerfil; }
+            
             if(data.bio && data.bio !== "") { document.getElementById('perfil-bio').innerText = `"${data.bio}"`; }
             if(data.redSocial && data.redSocial !== "") {
                 document.getElementById('perfil-redes-container').innerHTML = `<a href="${data.redSocial}" target="_blank" style="color: var(--blue); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--blue); padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;"><i class="fas fa-link"></i> Visitar Enlace</a>`;
@@ -794,13 +845,45 @@ async function abrirPerfil(nick) {
     } catch(error) { console.error(error); }
 }
 
+// ACTUALIZACIÓN DE PERFIL CON FIREBASE STORAGE (V3.80)
 const formEditarPerfil = document.getElementById('form-editar-perfil');
 if(formEditarPerfil) {
-    formEditarPerfil.addEventListener('submit', (e) => {
+    formEditarPerfil.addEventListener('submit', async (e) => {
         e.preventDefault();
-        db.collection('ninjas').doc(currentUserId).update({
-            fotoPerfil: document.getElementById('edit-foto').value.trim(), bio: document.getElementById('edit-bio').value.trim(), redSocial: document.getElementById('edit-redes').value.trim()
-        }).then(() => { alert("¡Perfil actualizado con éxito!"); document.getElementById('modal-editar-perfil').style.display = 'none'; abrirPerfil(currentUserName); });
+        const btn = document.getElementById('btn-guardar-perfil');
+        const fileInput = document.getElementById('edit-foto-file');
+        const file = fileInput.files[0];
+        const bio = document.getElementById('edit-bio').value.trim();
+        const redes = document.getElementById('edit-redes').value.trim();
+        
+        btn.innerText = "SINCRONIZANDO...";
+        btn.disabled = true;
+
+        let fotoUrl = miPerfilActual.fotoPerfil || "";
+
+        try {
+            if (file) {
+                const storageRef = storage.ref(`perfiles/${currentUserId}/${file.name}`);
+                const snapshot = await storageRef.put(file);
+                fotoUrl = await snapshot.ref.getDownloadURL();
+            }
+
+            await db.collection('ninjas').doc(currentUserId).update({
+                fotoPerfil: fotoUrl,
+                bio: bio,
+                redSocial: redes
+            });
+
+            alert("¡Perfil actualizado con éxito!");
+            document.getElementById('modal-editar-perfil').style.display = 'none';
+            abrirPerfil(currentUserName);
+        } catch (err) {
+            console.error(err);
+            alert("Error al subir pergamino de imagen. Verifica tu conexión.");
+        } finally {
+            btn.innerText = "GUARDAR CAMBIOS";
+            btn.disabled = false;
+        }
     });
 }
 
@@ -856,7 +939,7 @@ function abandonarClan() {
 }
 
 // ==========================================
-// ADMIN Y CREADOR (CREACIÓN, LLAVES E INSCRIPCIÓN MANUAL)
+// ADMIN Y CREADOR
 // ==========================================
 function escucharTicker() {
     db.collection('configuracion').doc('ticker').onSnapshot(doc => {
@@ -906,9 +989,26 @@ function configurarAdminForms() {
             } catch(err) { alert("Error: " + err); }
         });
     }
+
+    // ACTUALIZAR STREAM DESDE PANEL
+    const formStreamAdmin = document.getElementById('form-config-stream');
+    if(formStreamAdmin) {
+        formStreamAdmin.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const plat = document.getElementById('stream-plataforma-admin').value;
+            const idRaw = document.getElementById('stream-id-admin').value.trim();
+            let idLimpio = extraerIdLimpio(idRaw, plat);
+
+            db.collection('configuracion').doc('stream').set({
+                plataforma: plat,
+                id: idLimpio,
+                actualizadoPor: currentUserName,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => alert("¡Señal Global Actualizada!"));
+        });
+    }
 }
 
-// Gestión de Usuarios (SOLO ADMIN)
 function banearUsuario() {
     const nick = document.getElementById('gestion-nick').value.trim(); if(!nick) return;
     if(confirm(`¿Expulsar a ${nick} permanentemente?`)) {
@@ -948,7 +1048,6 @@ function mostrarTabAdmin(tabId) {
     event.target.classList.add('active');
 }
 
-// Control de Torneos desde Panel Creador/Kage
 function cargarTorneosParaAdminLlaves() {
     const lista = document.getElementById('admin-lista-torneos-llaves'); 
     const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
@@ -956,7 +1055,6 @@ function cargarTorneosParaAdminLlaves() {
         lista.innerHTML = ''; 
         snap.forEach(doc => { 
             const d = doc.data(); const id = doc.id; 
-            
             if(!esAdmin && d.creador !== currentUserName) return;
 
             let botonesHTML = ''; 
@@ -1093,22 +1191,3 @@ function abrirNotificaciones(e) {
 function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
-
-function cambiarStreamLocal(plataforma, usuarioFuerza = null) {
-    const iframe = document.getElementById('stream-frame'); const botones = document.querySelectorAll('.plat-btn');
-    let canalAUsar = usuarioFuerza ? usuarioFuerza : 'matias_mj7'; const currentDomain = window.location.hostname; let finalSrc = "";
-    if (plataforma === 'twitch') { finalSrc = `https://player.twitch.tv/?channel=${canalAUsar}&parent=${currentDomain}`; } else if (plataforma === 'youtube') { finalSrc = `https://www.youtube.com/embed/${canalAUsar}?autoplay=1`; } else if (plataforma === 'kick') { finalSrc = `https://player.kick.com/${canalAUsar}`; } else if (plataforma === 'tiktok') { finalSrc = `https://www.tiktok.com/embed/v2/${canalAUsar}`; }
-    if(iframe) iframe.src = finalSrc;
-    botones.forEach(btn => { btn.style.background = '#111'; btn.style.color = 'white'; btn.style.border = '1px solid #444'; });
-    let btnActivo = Array.from(botones).find(b => b.innerText.toLowerCase() === plataforma.toLowerCase());
-    if(btnActivo) {
-        if (plataforma === 'twitch') { btnActivo.style.background = 'var(--blue)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
-        if (plataforma === 'youtube') { btnActivo.style.background = 'var(--red)'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
-        if (plataforma === 'kick') { btnActivo.style.background = 'var(--green)'; btnActivo.style.color = '#000'; btnActivo.style.border = 'none';}
-        if (plataforma === 'tiktok') { btnActivo.style.background = '#ff0050'; btnActivo.style.color = '#fff'; btnActivo.style.border = 'none';}
-    }
-}
-function extraerIdLimpio(urlCruda, plataforma) {
-    let id = urlCruda.trim();
-    try { if (plataforma === 'twitch') { if (id.includes('twitch.tv/')) id = id.split('twitch.tv/')[1].split('?')[0].replace('/', ''); } else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; } else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); } else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; } } catch(e) {} return id;
-}
