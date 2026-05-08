@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.60"> 
+    <link rel="stylesheet" href="style.css?v=3.70"> 
 </head>
 <body>
 
@@ -25,6 +25,7 @@
                 <li><a href="#planes">Pases</a></li>
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#registro-bingo">Bingo</a></li>
+                <li><a href="#comunidades" style="color: var(--purple);">Alianzas</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#gremio">Gremio</a></li>
                 <li><a href="#tienda">Mercado</a></li>
@@ -167,6 +168,47 @@
                     <h3>Top Ninjas</h3>
                     <div id="ranking-dinamico" style="margin-top: 15px; display:flex; flex-direction:column; gap:5px;"></div>
                 </div>
+            </div>
+        </section>
+
+        <section id="comunidades" class="section">
+            <h2 class="section-head" style="color: var(--purple); border-left-color: var(--purple);">Comunidades Aliadas</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 30px;">Fortalece la Arena. Las comunidades con más de 20 ninjas pueden solicitarle al Kage un Pase Jonin gratis para su líder.</p>
+            
+            <div class="torneos-grid">
+                
+                <div class="container-glass" id="vista-sin-comunidad">
+                    <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-handshake"></i> Forjar Alianza</h3>
+                    <input type="text" id="input-crear-comunidad" placeholder="Nombre de tu Comunidad" style="width:100%; margin-bottom:10px;">
+                    <button class="btn-primary" style="width:100%; background: var(--purple); color: white; margin-bottom:20px;" onclick="crearComunidad()">FUNDAR COMUNIDAD</button>
+                    <p style="text-align:center; color:#888; margin-bottom: 10px;">O únete a una existente</p>
+                    <input type="text" id="input-unirse-comunidad" placeholder="Nombre de Comunidad" style="width:100%; margin-bottom:10px;">
+                    <button class="btn-secondary" style="width:100%; border-color: var(--purple); color: var(--purple);" onclick="unirseComunidad()">UNIRSE A COMUNIDAD</button>
+                </div>
+
+                <div class="container-glass" id="vista-con-comunidad" style="display: none; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="color: var(--purple);"><i class="fas fa-users"></i> <span id="nombre-mi-comunidad">Mi Comunidad</span></h3>
+                        <button id="btn-abandonar-comunidad" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; border-color: var(--red); color: var(--red);" onclick="abandonarComunidad()">Abandonar</button>
+                    </div>
+                    
+                    <div id="kage-comunidad-selector-container" style="display: none; margin-bottom: 15px; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 5px; border: 1px solid gold;">
+                        <span style="color: gold; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-eye"></i> Visión del Kage:</span>
+                        <select id="kage-comunidad-selector" style="width: 100%; padding: 8px; margin-top: 5px; background: #000; border: 1px solid gold; color: gold;" onchange="cambiarChatComunidadKage()"></select>
+                    </div>
+
+                    <div id="chat-comunidad-container" style="height: 250px; overflow-y: auto; background: #050508; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;"></div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="chat-input-comunidad" placeholder="Mensaje privado de comunidad..." style="flex: 1;">
+                        <button class="btn-primary" style="background: var(--purple); color: white;" onclick="enviarMensajeComunidad()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+                
+                <div class="container-glass">
+                    <h3 style="color: gold; margin-bottom: 15px;"><i class="fas fa-star"></i> Top Comunidades</h3>
+                    <div id="lista-top-comunidades"></div>
+                </div>
+
             </div>
         </section>
 
@@ -313,7 +355,7 @@
         <div class="modal-box" style="text-align: center; border-color: silver;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: silver; margin-bottom: 20px;"><i class="fas fa-mask"></i> Pase Jonin</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">Realiza el pago para activar tus beneficios.</p>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">2 Horas de Plataforma ($4000 ARS)<br>1 Hora Extra ($2000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
@@ -327,7 +369,7 @@
         <div class="modal-box" style="text-align: center; border-color: gold;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-dragon"></i> Pase Kasekage</h3>
-            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">El rango máximo de la Arena.</p>
+            <p style="color: #ccc; margin-bottom: 20px; font-size: 0.9rem;">4 Horas de Plataforma ($10000 ARS)<br>2 Horas Extra ($5000 ARS)</p>
             <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; text-align: left; word-break: break-all;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
@@ -348,12 +390,13 @@
             </div>
             <h2 id="perfil-nick" style="color: white; margin-bottom: 5px;">Cargando...</h2>
             <p id="perfil-rango" style="color: var(--blue); font-weight: bold; margin-bottom: 10px;">Rango</p>
-            <p id="perfil-bio" style="color: #ccc; font-style: italic; margin-bottom: 20px; font-size: 0.9rem;">"Un guerrero de la aldea..."</p>
+            <p id="perfil-bio" style="color: #ccc; font-style: italic; margin-bottom: 20px; font-size: 0.9rem;">"Un guerrero misterioso..."</p>
             <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;">
                 <div><h3 id="perfil-xp" style="color: gold;">0 XP</h3><p style="font-size: 0.8rem; color: #888;">Experiencia</p></div>
                 <div><h3 id="perfil-campeonatos" style="color: var(--green);">0</h3><p style="font-size: 0.8rem; color: #888;">Copas</p></div>
             </div>
-            <div id="perfil-clan" style="color: var(--blue); margin-bottom: 15px; font-weight: bold;"></div>
+            <div id="perfil-clan" style="color: var(--blue); margin-bottom: 5px; font-weight: bold;"></div>
+            <div id="perfil-comunidad" style="color: var(--purple); margin-bottom: 15px; font-weight: bold; font-size: 0.85rem;"></div>
             <div id="perfil-redes-container"></div>
             <div id="btn-editar-perfil-container" style="display: none; margin-top: 20px;">
                 <button class="btn-secondary" onclick="abrirModalEditarPerfil()"><i class="fas fa-edit"></i> Editar Perfil</button>
@@ -459,6 +502,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=3.60"></script>
+    <script src="app.js?v=3.70"></script>
 </body>
 </html>
