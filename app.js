@@ -1191,3 +1191,12 @@ function abrirNotificaciones(e) {
 function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Ninja Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
+// ==========================================
+// FUNCIÓN FALTANTE: ABRIR MODAL EDICIÓN
+// ==========================================
+function abrirModalEditarPerfil() {
+    if (currentUserName === "Ninja Anónimo") return alert("Debes ingresar primero.");
+    document.getElementById('modal-editar-perfil').style.display = 'flex';
+    document.getElementById('edit-bio').value = miPerfilActual.bio || "";
+    document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
+}
