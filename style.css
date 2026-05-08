@@ -6,7 +6,7 @@
     --red: #ff0040;
     --green: #39ff14;
     --gold: #ffd700;
-    --purple: #ba55d3; /* Color Alianzas/Comunidades */
+    --purple: #ba55d3;
     --dark-bg: #0a0a0f;
     --glass: rgba(15, 15, 20, 0.75);
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -83,7 +83,7 @@ h1, h2, h3, h4, .nav-logo { text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
 .podium-spot p { color: var(--green); font-size: 0.8rem; font-weight: bold; }
 
 /* =========================================
-   PASES DE BATALLA Y STREAM
+   PASES DE BATALLA Y STREAM (OPTIMIZADO)
 ========================================= */
 .plan-card { text-align: center; }
 .badge-plan { color: black; font-size: 0.75rem; font-weight: 900; padding: 4px 10px; border-radius: 4px; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); letter-spacing: 1px; }
@@ -91,11 +91,11 @@ h1, h2, h3, h4, .nav-logo { text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
 .plan-features { list-style: none; text-align: left; margin: 20px 0 30px 0; font-size: 0.95rem; color: #ddd; padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
 .plan-features i { color: var(--green); margin-right: 12px; width: 15px; text-align: center; }
 
-.stream-box { padding: 25px; }
+.stream-box { padding: 25px; border-color: var(--blue); }
 .stream-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 15px; }
-.video-container { width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.8); background: #000; }
-.video-container iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; }
-.chat-container { display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; border: 1px solid #333; background: #050508; }
+.video-container { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.9); background: #000; position: relative;}
+.video-container iframe { width: 100%; aspect-ratio: 16/9; border: none; display: block; filter: brightness(1.1); }
+.chat-container { display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; border: 1px solid #333; background: #050508; }
 .chat-head { background: linear-gradient(90deg, #111, #222); padding: 15px; font-weight: bold; border-bottom: 1px solid #333; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; }
 
 /* =========================================
