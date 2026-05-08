@@ -99,6 +99,16 @@ h1, h2, h3, h4, .nav-logo { text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
 .chat-head { background: linear-gradient(90deg, #111, #222); padding: 15px; font-weight: bold; border-bottom: 1px solid #333; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; }
 
 /* =========================================
+   ESTILOS ABISMO (MINIATURAS v3.90)
+========================================= */
+.video-preview-card { position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 1px solid #333; background: #000; transition: 0.3s; }
+.video-preview-card:hover { border-color: var(--blue); transform: scale(1.02); }
+.thumbnail-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; opacity: 0.7; }
+.play-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; text-shadow: 0 0 10px #000; }
+.btn-delete-abismo { position: absolute; top: 5px; right: 5px; background: rgba(255,0,64,0.8); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; z-index: 5; font-size: 0.7rem; font-weight: bold; }
+.btn-delete-abismo:hover { background: var(--red); }
+
+/* =========================================
    BOTONES Y FORMULARIOS
 ========================================= */
 .btn-primary, .btn-secondary, .btn-save, .btn-filter { padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: 0.3s; border: none; }
