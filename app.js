@@ -193,9 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Inicialización de funciones globales
     escucharTicker();
-    escucharStreamGlobal();
+    escucharStreamYDiscordGlobal(); // ACTUALIZADO v4.00
     cargarTorneosDesdeNube();
+    cargarSorteos(); // NUEVO v4.00
     cargarHallOfFame();
     cargarVideosAbismo();
     cargarTopClanes();
@@ -207,20 +209,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// FUNCIÓN: STREAM DINÁMICO GLOBAL
+// FUNCIÓN: STREAM Y DISCORD GLOBAL (v4.00)
 // ==========================================
-function escucharStreamGlobal() {
-    const iframe = document.getElementById('stream-frame');
+function escucharStreamYDiscordGlobal() {
+    const iframeStream = document.getElementById('stream-frame');
+    const iframeDiscord = document.getElementById('chat-externo-frame');
     const statusText = document.getElementById('status-stream');
-    if(!iframe || !statusText) return;
     
-    db.collection('configuracion').doc('stream').onSnapshot(doc => {
+    if(!iframeStream || !statusText || !iframeDiscord) return;
+    
+    db.collection('configuracion').doc('global_media').onSnapshot(doc => {
         if(doc.exists) {
             const data = doc.data();
-            const plat = data.plataforma;
-            const id = data.id;
+            const plat = data.plataforma || 'kick';
+            const id = data.id || 'matias_mj7';
+            const discordUrl = data.discordUrl || 'https://e.widgetbot.io/channels/299881420891881473/299881420891881473'; // Default fallback
             let finalSrc = "";
 
+            // Lógica Stream
             if (plat === 'kick') {
                 finalSrc = `https://player.kick.com/${id}`;
                 statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">${id}</strong>`;
@@ -235,9 +241,15 @@ function escucharStreamGlobal() {
                 statusText.innerHTML = `<i class="fab fa-twitch" style="color:#9146ff;"></i> EN VIVO TWITCH: <strong style="color:white;">${id}</strong>`;
             }
 
-            if(iframe.src !== finalSrc) iframe.src = finalSrc;
+            if(iframeStream.src !== finalSrc) iframeStream.src = finalSrc;
+            
+            // Lógica Discord
+            if(iframeDiscord.src !== discordUrl) {
+                iframeDiscord.src = discordUrl;
+            }
         } else {
-            iframe.src = `https://player.kick.com/matias_mj7`;
+            // Valores por defecto si la base de datos está vacía
+            iframeStream.src = `https://player.kick.com/matias_mj7`;
             statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">matias_mj7</strong>`;
         }
     });
@@ -263,6 +275,164 @@ function extraerIdLimpio(urlCruda, plataforma) {
     } catch(e) {} 
     return id;
 }
+
+// ==========================================
+// SORTEOS Y RULETA (NUEVO v4.00)
+// ==========================================
+function cargarSorteos() {
+    const listaSorteos = document.getElementById('lista-sorteos');
+    if(!listaSorteos) return;
+
+    db.collection('sorteos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        listaSorteos.innerHTML = '';
+        if(snap.empty) {
+            listaSorteos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay sorteos activos en este momento.</p>';
+            return;
+        }
+
+        const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            const inscritos = data.participantes ? data.participantes.length : 0;
+            const yaInscrito = data.participantes && data.participantes.includes(currentUserName);
+            
+            let btnTexto = data.precio > 0 ? `PARTICIPAR (${data.precio} R)` : "ENTRAR GRATIS";
+            let btnColor = "var(--blue)";
+            let btnDisabled = "";
+
+            if (data.estado !== 'abierto') {
+                btnTexto = "SORTEO CERRADO";
+                btnColor = "gray";
+                btnDisabled = "disabled";
+            } else if (yaInscrito) {
+                btnTexto = "YA ESTÁS PARTICIPANDO";
+                btnColor = "var(--green)";
+                btnDisabled = "disabled";
+            }
+
+            let adminHTML = "";
+            if (esAdmin && data.estado === 'abierto') {
+                adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
+            }
+
+            let ganadoresHTML = "";
+            if (data.estado === 'cerrado' && data.ganadores) {
+                ganadoresHTML = `<div style="margin-top:10px; padding:10px; background:rgba(255,0,255,0.1); border:1px dashed #ff00ff; border-radius:5px;"><strong style="color:#ff00ff;"><i class="fas fa-trophy"></i> Ganador/es:</strong><br><span style="color:white; font-weight:bold;">${data.ganadores.join(', ')}</span></div>`;
+            }
+
+            listaSorteos.innerHTML += `
+                <div class="card-t container-glass" style="border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255,0,255,0.1);">
+                    <span style="color:#ff00ff; font-weight:bold; font-size: 0.8rem; background: rgba(255, 0, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid #ff00ff; display: inline-block; margin-bottom: 10px;">SORTEO OFICIAL</span>
+                    <h3 style="font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom:10px; color: white;">Premio: <span style="color:gold;">${data.premio}</span></h3>
+                    <p style="margin-bottom: 8px; color: #ccc;"><i class="fas fa-ticket-alt" style="color: #ff00ff; width: 20px;"></i> Entrada: <strong style="color:${data.precio > 0 ? 'gold' : 'var(--green)'};">${data.precio === 0 ? 'GRATIS' : data.precio + ' Ryos'}</strong></p>
+                    <p style="margin-bottom: 15px; color: #ccc;"><i class="fas fa-users" style="color: #ff00ff; width: 20px;"></i> Participantes: ${inscritos}</p>
+                    ${ganadoresHTML}
+                    <div style="margin-top: auto;">
+                        <button class="btn-primary" style="width:100%; background: ${btnColor}; color: black;" onclick="unirseSorteo('${id}', ${data.precio}, '${data.estado}')" ${btnDisabled}>${btnTexto}</button>
+                        ${adminHTML}
+                    </div>
+                </div>`;
+        });
+    });
+}
+
+function unirseSorteo(sorteoId, precio, estado) {
+    if(estado !== 'abierto') return;
+    if(currentUserName === "Ninja Anónimo") {
+        alert("Debes ingresar primero a la aldea.");
+        window.location.hash = "#modal-login";
+        return;
+    }
+
+    if (precio > 0) {
+        if (misRyos < precio) {
+            alert(`Necesitas ${precio} Ryos para participar. Visita el Mercado.`);
+            return;
+        }
+        if (!confirm(`¿Pagar ${precio} Ryos para entrar al sorteo?`)) return;
+        
+        // Descontar Ryos
+        db.collection('ninjas').doc(currentUserId).update({
+            ryos: firebase.firestore.FieldValue.increment(-precio)
+        });
+    }
+
+    // Inscribir al ninja
+    db.collection('sorteos').doc(sorteoId).update({
+        participantes: firebase.firestore.FieldValue.arrayUnion(currentUserName)
+    }).then(() => {
+        alert("¡Tu ticket ha sido registrado! Suerte.");
+    });
+}
+
+let intervaloRuleta = null;
+
+async function ejecutarSorteo(sorteoId, premioNombre, cantidadGanadores) {
+    const doc = await db.collection('sorteos').doc(sorteoId).get();
+    if(!doc.exists) return;
+    
+    let participantes = doc.data().participantes || [];
+    if(participantes.length === 0) {
+        alert("No hay ninjas inscriptos en este sorteo.");
+        return;
+    }
+
+    // Preparar Modal Ruleta
+    document.getElementById('modal-ruleta').style.display = 'flex';
+    const spanNombre = document.getElementById('nombre-ruleta');
+    const divGanadores = document.getElementById('ganadores-lista');
+    const btnCerrar = document.getElementById('btn-cerrar-ruleta');
+    
+    document.getElementById('ruleta-premio').innerText = "SORTEANDO: " + premioNombre.toUpperCase();
+    divGanadores.style.display = 'none';
+    btnCerrar.style.display = 'none';
+    spanNombre.classList.add('ruleta-blur');
+
+    let iteraciones = 0;
+    
+    // Animación de la Ruleta (3 segundos)
+    intervaloRuleta = setInterval(() => {
+        const randomName = participantes[Math.floor(Math.random() * participantes.length)];
+        spanNombre.innerText = randomName;
+        iteraciones++;
+
+        if(iteraciones > 30) {
+            clearInterval(intervaloRuleta);
+            spanNombre.classList.remove('ruleta-blur');
+            
+            // Selección real de ganadores
+            let ganadoresElegidos = [];
+            let pool = [...participantes];
+            
+            for(let i=0; i < cantidadGanadores; i++) {
+                if(pool.length === 0) break;
+                const winIndex = Math.floor(Math.random() * pool.length);
+                ganadoresElegidos.push(pool[winIndex]);
+                pool.splice(winIndex, 1); // Remover para que no repita
+            }
+
+            // Mostrar resultado visual
+            spanNombre.innerText = "¡Sorteo Finalizado!";
+            divGanadores.innerHTML = "GANADORES: <br>" + ganadoresElegidos.join('<br>');
+            divGanadores.style.display = 'block';
+            btnCerrar.style.display = 'block';
+
+            // Guardar en Base de Datos
+            db.collection('sorteos').doc(sorteoId).update({
+                estado: 'cerrado',
+                ganadores: ganadoresElegidos
+            });
+
+            // Enviar notificaciones
+            ganadoresElegidos.forEach(ganador => {
+                enviarNotificacion(ganador, `🎉 ¡FELICIDADES! Has ganado el sorteo de: ${premioNombre}. Contacta al Kage.`);
+            });
+        }
+    }, 100);
+}
+
 
 // ==========================================
 // COMUNIDADES ALIADAS 
@@ -546,7 +716,7 @@ function misionDiaria() {
                     fechaTrabajo: fechaUltimoTrabajo
                 }).then(() => {
                     trabajando = false;
-                    btn.innerHTML = "<i class='fas fa-hand-holding-usd'></i> Trabajar (+10 Ryos)";
+                    btn.innerHTML = "<i class='fas fa-hand-holding-usd'></i> Misión Diaria (+10 Ryos)";
                     alert(`¡Ganaste 10 Ryos! (${countTrabajosHoy}/3 trabajos hoy)`);
                 });
             }, 1500);
@@ -676,7 +846,7 @@ function unirseTorneo(torneoId, estado) {
 }
 
 // ==========================================
-// ABISMO (NUEVAS MINIATURAS v3.90) Y SALÓN FAMA
+// ABISMO Y SALÓN DE LA FAMA
 // ==========================================
 function cargarVideosAbismo() {
     const lista = document.getElementById('lista-abismo');
@@ -1116,6 +1286,38 @@ function abrirModalEditarPerfil() {
     document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
 }
 
+// LÓGICA DE SUBIDA DE IMAGEN DE PERFIL A STORAGE
+const formEditarPerfil = document.getElementById('form-editar-perfil');
+if(formEditarPerfil) {
+    formEditarPerfil.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-guardar-perfil');
+        const file = document.getElementById('edit-foto-file').files[0];
+        btn.innerText = "SINCRONIZANDO...";
+        btn.disabled = true;
+
+        let fotoUrl = miPerfilActual.fotoPerfil || "";
+        try {
+            if(file) {
+                const ref = storage.ref(`perfiles/${currentUserId}/${file.name}`);
+                const snap = await ref.put(file);
+                fotoUrl = await snap.ref.getDownloadURL();
+            }
+            await db.collection('ninjas').doc(currentUserId).update({
+                fotoPerfil: fotoUrl,
+                bio: document.getElementById('edit-bio').value,
+                redSocial: document.getElementById('edit-redes').value
+            });
+            alert("Perfil actualizado correctamente.");
+            location.reload();
+        } catch(err) { 
+            alert("Error al subir pergamino."); 
+            btn.innerText = "GUARDAR CAMBIOS";
+            btn.disabled = false;
+        }
+    });
+}
+
 function abrirModalClan() {
     if (currentUserName === "Ninja Anónimo") { 
         alert("Identifícate primero."); 
@@ -1237,6 +1439,46 @@ function configurarAdminForms() {
         });
     }
 
+    // ACTUALIZADO v4.00 - Stream y Discord Global
+    const formStreamGlobalAdmin = document.getElementById('form-config-global');
+    if(formStreamGlobalAdmin) {
+        formStreamGlobalAdmin.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const plat = document.getElementById('stream-plataforma-admin').value;
+            const idRaw = document.getElementById('stream-id-admin').value.trim();
+            const discordUrl = document.getElementById('discord-url-admin').value.trim();
+            let idLimpio = extraerIdLimpio(idRaw, plat);
+            
+            db.collection('configuracion').doc('global_media').set({ 
+                plataforma: plat, 
+                id: idLimpio, 
+                discordUrl: discordUrl,
+                actualizadoPor: currentUserName, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+            }).then(() => alert("¡Señales Globales Actualizadas! (Stream y Discord)"));
+        });
+    }
+
+    // NUEVO v4.00 - Sorteos
+    const formSorteo = document.getElementById('form-crear-sorteo');
+    if(formSorteo) {
+        formSorteo.addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection('sorteos').add({
+                premio: document.getElementById('s-premio').value,
+                precio: parseInt(document.getElementById('s-precio').value),
+                cantidadGanadores: parseInt(document.getElementById('s-ganadores').value),
+                creador: currentUserName,
+                participantes: [],
+                estado: 'abierto',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("¡Sorteo oficial publicado en la aldea!");
+                formSorteo.reset();
+            });
+        });
+    }
+
     const formTorneo = document.getElementById('form-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
@@ -1278,23 +1520,6 @@ function configurarAdminForms() {
                 enviarNotificacion(usuarioDestino, `El Kage te transfirió ${monto} Ryos.`); 
                 formBanco.reset();
             } catch(err) { alert("Error: " + err); }
-        });
-    }
-
-    const formStreamAdmin = document.getElementById('form-config-stream');
-    if(formStreamAdmin) {
-        formStreamAdmin.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const plat = document.getElementById('stream-plataforma-admin').value;
-            const idRaw = document.getElementById('stream-id-admin').value.trim();
-            let idLimpio = extraerIdLimpio(idRaw, plat);
-            
-            db.collection('configuracion').doc('stream').set({ 
-                plataforma: plat, 
-                id: idLimpio, 
-                actualizadoPor: currentUserName, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-            }).then(() => alert("¡Señal Global Actualizada!"));
         });
     }
 }
@@ -1618,6 +1843,9 @@ async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
     alert(`¡Ronda ${rondaActual + 1} generada!`);
 }
 
+// ==========================================
+// LLAVES Y ENLACES PRIVADOS DE SALA MLBB (v4.00)
+// ==========================================
 function verLlaves(torneoId, torneoNombre) { 
     document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`; 
     const contenedor = document.getElementById('contenedor-llaves-texto'); 
@@ -1648,6 +1876,8 @@ function verLlaves(torneoId, torneoNombre) {
         
         snap.forEach(doc => { 
             const p = doc.data(); 
+            const docId = doc.id;
+            
             if (p.ronda !== currentRonda) { 
                 contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px;">RONDA ${p.ronda}</div>`; 
                 currentRonda = p.ronda; 
@@ -1657,14 +1887,31 @@ function verLlaves(torneoId, torneoNombre) {
             const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;'); 
             
             let botonAccionHTML = ""; 
+            let salaPrivadaHTML = ""; // NUEVO v4.00
+
             if (p.ganador === "" && p.p2 !== "BYE") { 
                 if (p.reporte_pendiente) { 
                     botonAccionHTML = `<div style="font-size: 0.7rem; color: gold; text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;"><i class="fas fa-clock"></i> Revisión pendiente...</div>`; 
                 } else if (currentUserName !== "Ninja Anónimo" && (currentUserName === p.p1 || currentUserName === p.p2)) { 
+                    // BOTÓN DE REPORTE
                     botonAccionHTML = `
                         <div style="text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;">
-                            <button class="btn-primary" style="padding: 4px 10px; font-size: 0.7rem; background: var(--blue); color: black;" onclick="abrirModalReporte('${torneoId}', '${doc.id}', '${p.p1}', '${p.p2}')"><i class="fas fa-flag"></i> Cargar Resultado</button>
+                            <button class="btn-primary" style="padding: 4px 10px; font-size: 0.7rem; background: var(--blue); color: black;" onclick="abrirModalReporte('${torneoId}', '${docId}', '${p.p1}', '${p.p2}')"><i class="fas fa-flag"></i> Cargar Resultado</button>
                         </div>`; 
+                    
+                    // LÓGICA DE SALA PRIVADA MLBB (NUEVO v4.00)
+                    const linkActual = p.salaLink || "";
+                    let mostrarLink = linkActual ? `<a href="${linkActual}" target="_blank" class="btn-primary" style="padding: 4px 10px; font-size: 0.75rem;"><i class="fas fa-gamepad"></i> Entrar a Sala</a>` : `<span style="font-size: 0.75rem; color: #888;">Aún sin sala...</span>`;
+                    
+                    salaPrivadaHTML = `
+                        <div class="link-privado-box">
+                            <div style="margin-bottom: 8px; font-size: 0.85rem;"><strong style="color:var(--blue);">Sala Privada MLBB:</strong> ${mostrarLink}</div>
+                            <div style="display:flex; gap: 5px;">
+                                <input type="url" id="link-sala-${docId}" class="link-privado-input" placeholder="Pega el link de invitación aquí..." value="${linkActual}">
+                                <button class="btn-secondary link-privado-btn" onclick="guardarLinkSala('${torneoId}', '${docId}')">Guardar</button>
+                            </div>
+                            <p style="font-size: 0.65rem; color:#888; margin-top:5px; text-align:center;">*Este panel solo lo ves tú y tu oponente.</p>
+                        </div>`;
                 } 
             } 
             
@@ -1675,10 +1922,19 @@ function verLlaves(torneoId, torneoNombre) {
                         <span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span>
                         <span style="${colorP2}; cursor:pointer;" onclick="abrirPerfil('${p.p2}')">${p.p2}</span>
                     </div>
+                    ${salaPrivadaHTML}
                     ${botonAccionHTML}
                 </div>`; 
         }); 
     }); 
+}
+
+function guardarLinkSala(torneoId, partidoId) {
+    const url = document.getElementById(`link-sala-${partidoId}`).value.trim();
+    if(!url) return;
+    db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+        salaLink: url
+    }).then(() => alert("Link de sala guardado exitosamente. Tu rival ya puede verlo."));
 }
 
 function abrirModalReporte(torneoId, partidoId, p1, p2) { 
