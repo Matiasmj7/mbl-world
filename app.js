@@ -1439,8 +1439,8 @@ function configurarAdminForms() {
         });
     }
 
-    // ACTUALIZADO v4.00 - Stream y Discord Global
-    const formStreamGlobalAdmin = document.getElementById('form-config-global');
+    // ACTUALIZADO v4.00 - Stream y Discord Global (CORREGIDO)
+    const formStreamGlobalAdmin = document.getElementById('form-config-stream'); // <-- Aquí estaba el error del nombre
     if(formStreamGlobalAdmin) {
         formStreamGlobalAdmin.addEventListener('submit', (e) => {
             e.preventDefault();
