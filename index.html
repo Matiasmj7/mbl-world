@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.90"> 
+    <link rel="stylesheet" href="style.css?v=4.00"> 
 </head>
 <body>
 
@@ -26,6 +26,7 @@
                 <li><a href="#torneos">Torneos</a></li>
                 <li><a href="#registro-bingo">Bingo</a></li>
                 <li><a href="#comunidades" style="color: var(--purple);">Alianzas</a></li>
+                <li><a href="#sorteos" style="color: #ff00ff;">Sorteos</a></li>
                 <li><a href="#abismo">Abismo</a></li>
                 <li><a href="#gremio">Gremio</a></li>
                 <li><a href="#tienda">Mercado</a></li>
@@ -34,7 +35,8 @@
         </nav>
         <div class="auth-zone">
             <a href="#modal-notificaciones" id="btn-notif" style="display:none; color: gold; margin-right: 15px; text-decoration: none; position: relative;" onclick="abrirNotificaciones(event)">
-                <i class="fas fa-bell"></i> <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-10px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%;">0</span>
+                <i class="fas fa-bell"></i> 
+                <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-10px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%;">0</span>
             </a>
             <a href="#modal-login" class="btn-auth" id="user-display">Ingresar</a>
             <div class="user-popover" id="user-dropdown">
@@ -79,7 +81,7 @@
                     </div>
                     <div class="chat-container">
                         <div class="chat-head">Chat de la Aldea</div>
-                        <iframe id="chat-externo-frame" class="chat-frame" src="https://e.widgetbot.io/channels/299881420891881473/299881420891881473" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
+                        <iframe id="chat-externo-frame" class="chat-frame" src="" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
                     </div>
                 </div>
             </div>
@@ -208,13 +210,9 @@
             </div>
         </section>
 
-        <section id="tienda" class="section">
-            <h2 class="section-head">Mercado de la Aldea</h2>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <p>Billetera: <strong id="tienda-mis-ryos" style="color:gold; font-size:1.2rem;">0 Ryos</strong></p>
-                <button id="btn-trabajar" class="btn-secondary" style="margin-top: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
-            </div>
-            <div id="catalogo-tienda" class="torneos-grid"></div>
+        <section id="sorteos" class="section">
+            <h2 class="section-head" style="color: #ff00ff; border-left-color: #ff00ff;">Sorteos de la Aldea</h2>
+            <div id="lista-sorteos" class="torneos-grid"></div>
         </section>
 
         <section id="abismo" class="section">
@@ -254,6 +252,30 @@
             </div>
         </section>
 
+        <section id="tienda" class="section">
+            <h2 class="section-head">Mercado de la Aldea</h2>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p>Billetera: <strong id="tienda-mis-ryos" style="color:gold; font-size:1.2rem;">0 Ryos</strong></p>
+                <button id="btn-trabajar" class="btn-secondary" style="margin-top: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
+            </div>
+            <div class="torneos-grid">
+                <div class="container-glass plan-card" style="border: 2px solid gold;">
+                    <h3 style="color: gold;">Bolsa de Ryos</h3>
+                    <div class="price">120 Ryos</div>
+                    <p style="font-size: 0.8rem; margin-bottom: 15px;">Precio: $1200 ARS / 1.2 USDT</p>
+                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 120 Ryos | A pagar: $1200 ARS / 1.2 USDT'">COMPRAR</a>
+                </div>
+                <div class="container-glass plan-card" style="border: 2px solid gold;">
+                    <h3 style="color: gold;">Cofre de Ryos</h3>
+                    <div class="price">240 Ryos</div>
+                    <p style="font-size: 0.8rem; margin-bottom: 15px;">Precio: $2000 ARS / 2 USDT</p>
+                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 240 Ryos | A pagar: $2000 ARS / 2 USDT'">COMPRAR</a>
+                </div>
+                
+                <div id="catalogo-tienda" style="display: contents;"></div>
+            </div>
+        </section>
+
         <section id="admin" class="section" style="display: none;">
             <h2 class="section-head" id="titulo-panel-admin" style="color: var(--red);"><i class="fas fa-fire"></i> Sistema Kage Supremo</h2>
             <div class="container-glass">
@@ -290,7 +312,8 @@
                             </select>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> <label>Evento Privado (Solo invitados)</label>
+                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> 
+                            <label>Evento Privado (Solo invitados)</label>
                         </div>
                         <button type="submit" class="btn-save">PUBLICAR EVENTO</button>
                     </form>
@@ -308,7 +331,7 @@
                         <button type="submit" class="btn-primary">Lanzar</button>
                     </form>
                     
-                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica (Stream)</h3>
+                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica y Chat (v4.00)</h3>
                     <form id="form-config-stream" class="admin-form">
                         <div class="form-row">
                             <select id="stream-plataforma-admin">
@@ -319,7 +342,20 @@
                             </select>
                             <input type="text" id="stream-id-admin" placeholder="ID de Usuario, Video o Link" required>
                         </div>
+                        <input type="url" id="discord-url-admin" placeholder="URL de WidgetBot Discord (Opcional)" style="width:100%; margin-bottom:10px;">
                         <button type="submit" class="btn-primary" style="background: var(--red); color: white;">ACTUALIZAR SEÑAL GLOBAL</button>
+                    </form>
+
+                    <h3 style="margin: 30px 0 15px 0; color:#ff00ff;">Generar Sorteo de la Aldea</h3>
+                    <form id="form-crear-sorteo" class="admin-form">
+                        <div class="form-row">
+                            <input type="text" id="s-premio" placeholder="Premio (Ej: Pase Estelar)" required>
+                            <input type="number" id="s-precio" placeholder="Costo en Ryos (0 = Gratis)" required>
+                        </div>
+                        <div class="form-row">
+                            <input type="number" id="s-ganadores" placeholder="Cantidad de Ganadores" required>
+                            <button type="submit" class="btn-primary" style="background: #ff00ff; color: white;">LANZAR SORTEO</button>
+                        </div>
                     </form>
 
                     <h3 style="margin: 25px 0 15px 0; color:var(--red);">Purgar Taberna</h3>
@@ -352,9 +388,40 @@
         </section>
     </main>
 
-    <div id="modal-login" class="modal"><div class="modal-box"><a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a><h3 style="text-align:center;">IDENTIFICACIÓN</h3><button class="btn-google" id="login-google" style="margin-top:20px; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer;"><i class="fab fa-google"></i> Continuar con Google</button></div></div>
+    <div id="modal-login" class="modal">
+        <div class="modal-box">
+            <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
+            <h3 style="text-align:center;">IDENTIFICACIÓN</h3>
+            <button class="btn-google" id="login-google" style="margin-top:20px; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
+                <i class="fab fa-google"></i> Continuar con Google
+            </button>
+        </div>
+    </div>
     
-    <div id="modal-registro-nick" class="modal"><div class="modal-box"><h3 style="text-align:center;">Tu Identidad Ninja</h3><form id="form-registro-nick"><input type="text" id="nuevo-nick" required placeholder="Ingresa tu Nickname" style="width:100%; margin:20px 0;"><button type="submit" class="btn-save" style="width:100%;">ENTRAR A LA ARENA</button></form></div></div>
+    <div id="modal-registro-nick" class="modal">
+        <div class="modal-box">
+            <h3 style="text-align:center;">Tu Identidad Ninja</h3>
+            <form id="form-registro-nick">
+                <input type="text" id="nuevo-nick" required placeholder="Ingresa tu Nickname" style="width:100%; margin:20px 0;">
+                <button type="submit" class="btn-save" style="width:100%;">ENTRAR A LA ARENA</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-pago-ryos" class="modal">
+        <div class="modal-box" style="text-align: center; border-color: gold;">
+            <a href="#" class="btn-close">&times;</a>
+            <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-coins"></i> Comprar Ryos</h3>
+            <p id="info-pago-ryos" style="font-weight: bold; margin-bottom: 10px;">Pack seleccionado...</p>
+            <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;">
+                <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
+                <p style="color: white; margin-bottom: 5px;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
+                <p style="color: white; margin-bottom: 5px; margin-top: 10px; border-top: 1px dashed #555; padding-top: 10px;">Red Cripto: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
+                <p style="color: white;">USDT: <strong style="color:var(--green);">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p>
+            </div>
+            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
+        </div>
+    </div>
 
     <div id="modal-pago-jonin" class="modal">
         <div class="modal-box" style="text-align: center; border-color: silver;">
@@ -495,6 +562,17 @@
         </div>
     </div>
 
+    <div id="modal-ruleta" class="modal">
+        <div class="modal-box" style="text-align: center; max-width: 400px; border-color: #ff00ff;">
+            <h3 id="ruleta-premio" style="color:#ff00ff; margin-bottom: 10px;">SORTEANDO...</h3>
+            <div id="ruleta-visual" style="height: 100px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; background: #000; border: 3px solid #ff00ff; margin: 20px 0; border-radius: 10px; overflow: hidden; color: white; text-shadow: 0 0 10px #ff00ff;">
+                <span id="nombre-ruleta">?</span>
+            </div>
+            <div id="ganadores-lista" style="display: none; color: gold; font-weight: bold; margin-bottom: 15px; font-size: 1.2rem;"></div>
+            <button id="btn-cerrar-ruleta" class="btn-primary" style="display:none; width: 100%; background: #ff00ff; color: white;" onclick="document.getElementById('modal-ruleta').style.display='none'">CERRAR</button>
+        </div>
+    </div>
+
     <div id="modal-notificaciones" class="modal">
         <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-notificaciones').style.display='none';">&times;</a>
@@ -507,6 +585,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
-    <script src="app.js?v=3.90"></script>
+    <script src="app.js?v=4.00"></script>
 </body>
 </html>
