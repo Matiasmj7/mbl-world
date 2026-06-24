@@ -5,31 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.00"> 
+    <link rel="stylesheet" href="style.css?v=4.10"> 
 </head>
 <body>
 
-    <video autoplay loop muted playsinline class="bg-video">
+    <video autoplay loop muted playsinline class="bg-video" id="main-bg-video">
         <source src="https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4" type="video/mp4">
     </video>
+    <img src="" class="bg-video" id="main-bg-image" style="display: none; object-fit: cover;">
     <div class="bg-overlay"></div>
 
     <header class="main-nav">
-        <div class="nav-logo">MBL <span class="accent">ARG</span></div>
+        <div class="nav-logo">MBL <span class="accent" id="logo-accent">ARG</span></div>
         <nav>
             <ul class="menu">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#stream" class="pulse-red">En Vivo</a></li>
-                <li><a href="#fama">Fama</a></li>
-                <li><a href="#ligas" class="pulse-gold">Ligas</a></li>
-                <li><a href="#planes">Pases</a></li>
-                <li><a href="#torneos">Torneos</a></li>
-                <li><a href="#registro-bingo">Bingo</a></li>
-                <li><a href="#comunidades" style="color: var(--purple);">Alianzas</a></li>
-                <li><a href="#sorteos" style="color: #ff00ff;">Sorteos</a></li>
-                <li><a href="#abismo">Abismo</a></li>
-                <li><a href="#gremio">Gremio</a></li>
-                <li><a href="#tienda">Mercado</a></li>
+                <li id="menu-inicio"><a href="#inicio">Inicio</a></li>
+                <li id="menu-stream"><a href="#stream" class="pulse-red">En Vivo</a></li>
+                <li id="menu-fama"><a href="#fama">Fama</a></li>
+                <li id="menu-ligas"><a href="#ligas" class="pulse-gold">Ligas</a></li>
+                <li id="menu-planes"><a href="#planes">Pases</a></li>
+                <li id="menu-torneos"><a href="#torneos">Torneos</a></li>
+                <li id="menu-registro-bingo"><a href="#registro-bingo">Bingo</a></li>
+                <li id="menu-comunidades"><a href="#comunidades" style="color: var(--purple);">Alianzas</a></li>
+                <li id="menu-sorteos"><a href="#sorteos" style="color: #ff00ff;">Sorteos</a></li>
+                <li id="menu-abismo"><a href="#abismo">Abismo</a></li>
+                <li id="menu-gremio"><a href="#gremio">Gremio</a></li>
+                <li id="menu-tienda"><a href="#tienda">Mercado</a></li>
                 <li id="admin-nav" style="display: none;"><a href="#admin" id="btn-admin-nav" class="btn-admin">Kage</a></li>
             </ul>
         </nav>
@@ -55,7 +56,7 @@
 
     <main class="content-wrapper">
         <section id="inicio" class="hero-section">
-            <h1 class="title-main">DOMINA EL ABISMO</h1>
+            <h1 class="title-main" id="hero-title">DOMINA EL ABISMO</h1>
             <p class="welcome-msg">Bienvenido a la Arena, <span id="user-greeting">Ninja</span>.</p>
             <div class="hero-actions">
                 <a href="#stream" class="btn-primary">VER STREAM</a>
@@ -64,13 +65,13 @@
         </section>
 
         <section id="fama" class="section">
-            <h2 class="section-head"><i class="fas fa-monument"></i> Salón de la Fama</h2>
+            <h2 class="section-head" id="head-fama"><i class="fas fa-monument"></i> Salón de la Fama</h2>
             <p style="text-align: center; color: #888; margin-bottom: 20px;">Las leyendas inmortales con más campeonatos de la Arena.</p>
             <div class="podium-container" id="podio-leyendas"></div>
         </section>
 
         <section id="stream" class="section">
-            <h2 class="section-head">Visión del Byakugan</h2>
+            <h2 class="section-head" id="head-stream">Visión del Byakugan</h2>
             <div class="container-glass stream-box">
                 <div id="status-stream" style="text-align: center; font-size: 0.9rem; color: var(--blue); margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
                     <i class="fas fa-satellite-dish"></i> Sintonizando señal del Kage...
@@ -88,12 +89,12 @@
         </section>
 
         <section id="ligas" class="section">
-            <h2 class="section-head" style="color: gold; border-left-color: gold;">Ligas Mensuales</h2>
+            <h2 class="section-head" id="head-ligas" style="color: gold; border-left-color: gold;">Ligas Mensuales</h2>
             <div class="torneos-grid" id="lista-ligas"></div>
         </section>
 
         <section id="planes" class="section">
-            <h2 class="section-head" style="color: var(--green); border-left-color: var(--green);">Pases de Batalla</h2>
+            <h2 class="section-head" id="head-planes" style="color: var(--green); border-left-color: var(--green);">Pases de Batalla</h2>
             <div class="torneos-grid">
                 
                 <div class="container-glass plan-card" style="border-top: 4px solid #cd7f32;">
@@ -141,7 +142,7 @@
         </section>
 
         <section id="torneos" class="section">
-            <h2 class="section-head">Torneos Relámpago</h2>
+            <h2 class="section-head" id="head-torneos">Torneos Relámpago</h2>
             <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn-filter active" onclick="filtrarTorneos('todos', event)">Todos</button>
                 <button class="btn-filter" onclick="filtrarTorneos('1v1', event)">1v1</button>
@@ -153,7 +154,7 @@
         </section>
 
         <section id="registro-bingo" class="section">
-            <h2 class="section-head">Libro Bingo</h2>
+            <h2 class="section-head" id="head-bingo">Libro Bingo</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 <div class="container-glass" style="text-align: center;">
                     <h3>Tu Identidad Ninja</h3>
@@ -172,7 +173,7 @@
         </section>
 
         <section id="comunidades" class="section">
-            <h2 class="section-head" style="color: var(--purple); border-left-color: var(--purple);">Comunidades Aliadas</h2>
+            <h2 class="section-head" id="head-comunidades" style="color: var(--purple); border-left-color: var(--purple);">Comunidades Aliadas</h2>
             <p style="text-align: center; color: #888; margin-bottom: 30px;">Fortalece la Arena. Las comunidades con más de 20 ninjas pueden solicitarle al Kage un Pase Jonin gratis para su líder.</p>
             
             <div class="torneos-grid">
@@ -211,12 +212,12 @@
         </section>
 
         <section id="sorteos" class="section">
-            <h2 class="section-head" style="color: #ff00ff; border-left-color: #ff00ff;">Sorteos de la Aldea</h2>
+            <h2 class="section-head" id="head-sorteos" style="color: #ff00ff; border-left-color: #ff00ff;">Sorteos de la Aldea</h2>
             <div id="lista-sorteos" class="torneos-grid"></div>
         </section>
 
         <section id="abismo" class="section">
-            <h2 class="section-head">Archivos del Abismo</h2>
+            <h2 class="section-head" id="head-abismo">Archivos del Abismo</h2>
             <div class="container-glass" style="margin-bottom: 30px;">
                 <form id="form-abismo" style="display: flex; gap: 10px;">
                     <input type="url" id="video-url" placeholder="Link de YouTube o TikTok" required style="flex: 1;">
@@ -227,7 +228,7 @@
         </section>
 
         <section id="gremio" class="section">
-            <h2 class="section-head">Gremio y Escuadrones</h2>
+            <h2 class="section-head" id="head-gremio">Gremio y Escuadrones</h2>
             <div style="text-align: center; margin-bottom: 30px;">
                 <button class="btn-primary" onclick="abrirModalClan()"><i class="fas fa-shield-alt"></i> MI ESCUADRÓN</button>
             </div>
@@ -253,7 +254,7 @@
         </section>
 
         <section id="tienda" class="section">
-            <h2 class="section-head">Mercado de la Aldea</h2>
+            <h2 class="section-head" id="head-tienda">Mercado de la Aldea</h2>
             <div style="text-align: center; margin-bottom: 30px;">
                 <p>Billetera: <strong id="tienda-mis-ryos" style="color:gold; font-size:1.2rem;">0 Ryos</strong></p>
                 <button id="btn-trabajar" class="btn-secondary" style="margin-top: 10px;" onclick="misionDiaria()"><i class="fas fa-hand-holding-usd"></i> Trabajar (+10 Ryos)</button>
@@ -286,6 +287,7 @@
                     <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-moderacion')">Moderación</button>
                     <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-banco')">Banco</button>
                     <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-gestion')">Gestión Ninjas</button>
+                    <button class="btn-filter admin-only" onclick="mostrarTabAdmin('tab-personalizacion')">Diseño Web</button>
                 </div>
 
                 <div id="tab-torneos">
@@ -384,6 +386,88 @@
                     </div>
                 </div>
 
+                <div id="tab-personalizacion" class="admin-only" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color:var(--blue);">Personalización del Entorno</h3>
+                    <form id="form-config-personalizacion" class="admin-form">
+                        <h4 style="color:white; margin-top:10px;"><i class="fas fa-palette"></i> Fondo y Color Temático</h4>
+                        <div class="form-row">
+                            <select id="cfg-bg-tipo">
+                                <option value="video">Fondo de Video (.mp4)</option>
+                                <option value="imagen">Fondo de Imagen (.jpg, .png)</option>
+                            </select>
+                            <input type="url" id="cfg-bg-url" placeholder="URL directa del archivo multimedia de fondo" required>
+                        </div>
+                        <div class="form-row">
+                            <label style="display:flex; align-items:center; gap:15px; color:white; font-size:0.9rem;">
+                                Color de Iluminación / Acento Principal (Neones):
+                                <input type="color" id="cfg-color-acento" value="#00d2ff" style="padding:0; border:none; width:60px; height:35px; cursor:pointer; background:transparent;">
+                            </label>
+                        </div>
+
+                        <h4 style="color:white; margin-top:25px; border-top:1px solid #222; padding-top:15px;"><i class="fas fa-eye-slash"></i> Títulos y Control de Bloques</h4>
+                        <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Modifica los títulos visibles y desmarca las secciones que deseas ocultar temporalmente de la página y del menú superior.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #333;">
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Sección En Vivo</span>
+                                <input type="text" id="title-cfg-stream" placeholder="Por defecto: Visión del Byakugan" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-stream" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Salón de la Fama</span>
+                                <input type="text" id="title-cfg-fama" placeholder="Por defecto: Salón de la Fama" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-fama" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Ligas Mensuales</span>
+                                <input type="text" id="title-cfg-ligas" placeholder="Por defecto: Ligas Mensuales" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-ligas" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Pases de Batalla</span>
+                                <input type="text" id="title-cfg-planes" placeholder="Por defecto: Pases de Batalla" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-planes" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Torneos Relámpago</span>
+                                <input type="text" id="title-cfg-torneos" placeholder="Por defecto: Torneos Relámpago" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-torneos" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Libro Bingo</span>
+                                <input type="text" id="title-cfg-bingo" placeholder="Por defecto: Libro Bingo" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-bingo" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Comunidades Aliadas</span>
+                                <input type="text" id="title-cfg-comunidades" placeholder="Por defecto: Comunidades Aliadas" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-comunidades" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Sorteos de la Aldea</span>
+                                <input type="text" id="title-cfg-sorteos" placeholder="Por defecto: Sorteos de la Aldea" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-sorteos" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Archivos del Abismo</span>
+                                <input type="text" id="title-cfg-abismo" placeholder="Por defecto: Archivos del Abismo" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-abismo" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
+                                <span style="color:#aaa; font-size:0.85rem;">Gremio / Taberna</span>
+                                <input type="text" id="title-cfg-gremio" placeholder="Por defecto: Gremio y Escuadrones" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-gremio" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;">
+                                <span style="color:#aaa; font-size:0.85rem;">Mercado de la Aldea</span>
+                                <input type="text" id="title-cfg-tienda" placeholder="Por defecto: Mercado de la Aldea" style="padding:8px;">
+                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-tienda" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-save" style="margin-top:10px;">GUARDAR EN LA BASE DE DATOS GLOBAL</button>
+                    </form>
+                </div>
+
             </div>
         </section>
     </main>
@@ -413,7 +497,7 @@
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-coins"></i> Comprar Ryos</h3>
             <p id="info-pago-ryos" style="font-weight: bold; margin-bottom: 10px;">Pack seleccionado...</p>
-            <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;">
+            <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
                 <p style="color: white; margin-bottom: 5px; margin-top: 10px; border-top: 1px dashed #555; padding-top: 10px;">Red Cripto: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
@@ -427,7 +511,7 @@
         <div class="modal-box" style="text-align: center; border-color: silver;">
             <a href="#" class="btn-close">&times;</a>
             <h3 style="color: silver; margin-bottom: 20px;"><i class="fas fa-mask"></i> Pase Jonin</h3>
-            <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;">
+            <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;">
                 <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
                 <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
                 <p style="color: white;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
@@ -585,6 +669,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
-    <script src="app.js?v=4.00"></script>
+    <script src="app.js?v=4.10"></script>
 </body>
 </html>
