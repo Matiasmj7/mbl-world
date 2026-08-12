@@ -95,7 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('btn-notif').style.display = 'inline-block';
                     renderizarTienda();
                     
-                    const esAdmin = (user.email === ADMIN_EMAIL);
+                    // Aceptamos cuentas admin que vengan de Google o del nuevo login manual
+                    const esAdmin = (user.email === ADMIN_EMAIL || data.email_oculto === ADMIN_EMAIL);
                     
                     if (miComunidad !== "") {
                         document.getElementById('vista-sin-comunidad').style.display = 'none';
@@ -138,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         cargarTorneosParaAdminLlaves();
+                        cargarListaBorrarTorneosAdmin(); // Nueva función (Punto 1)
                     }
                 } else {
                     window.location.hash = "#modal-registro-nick";
@@ -181,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fotoPerfil: "", 
                 bio: "",
                 redSocial: "", 
-                email_oculto: auth.currentUser.email, 
+                email_oculto: auth.currentUser.email || "anonimo@mblarg.com", 
                 fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("¡Identidad creada! +100 Diamantes de bienvenida.");
@@ -207,6 +209,91 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
+// NUEVO: SISTEMA DE LOGIN MANUAL (SIN GOOGLE)
+// ==========================================
+function cambiarSeccionAuth(mostrarRegistro) {
+    document.getElementById('login-normal-section').style.display = mostrarRegistro ? 'none' : 'block';
+    document.getElementById('register-manual-section').style.display = mostrarRegistro ? 'block' : 'none';
+}
+
+function registrarUsuarioManual() {
+    const user = document.getElementById('reg-usuario').value.trim().toLowerCase();
+    const pass = document.getElementById('reg-pass').value.trim();
+    if(user.length < 4 || pass.length < 6) {
+        return alert("El usuario requiere mínimo 4 letras y la contraseña mínimo 6 caracteres.");
+    }
+    const emailFalso = `${user}@mblarg.com`;
+    auth.createUserWithEmailAndPassword(emailFalso, pass).then(() => {
+        alert("¡Cuenta creada exitosamente!");
+        window.location.hash = "#modal-registro-nick";
+    }).catch(err => {
+        alert("Error: Es posible que el nombre de usuario ya esté en uso o la clave sea muy débil.");
+    });
+}
+
+function autenticarUsuarioManual() {
+    const user = document.getElementById('login-email-falso').value.trim().toLowerCase();
+    const pass = document.getElementById('login-pass').value.trim();
+    if(!user || !pass) return alert("Completa todos los campos para ingresar.");
+    const emailFalso = user.includes('@') ? user : `${user}@mblarg.com`;
+    
+    auth.signInWithEmailAndPassword(emailFalso, pass).then(() => {
+        alert("Acceso concedido a la Arena.");
+        window.location.hash = "#";
+    }).catch(err => {
+        alert("Credenciales incorrectas o el usuario no existe.");
+    });
+}
+
+// ==========================================
+// NUEVO: BORRADO DE TORNEOS Y RESET BINGO
+// ==========================================
+function cargarListaBorrarTorneosAdmin() {
+    const cont = document.getElementById('admin-lista-borrar-torneos');
+    if(!cont) return;
+    db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        cont.innerHTML = "";
+        if(snap.empty) {
+            cont.innerHTML = "<p style='color:#666; font-size:0.85rem;'>No hay torneos registrados en el sistema.</p>";
+            return;
+        }
+        snap.forEach(doc => {
+            const d = doc.data();
+            cont.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:10px; border-radius:5px; border:1px solid #222; font-size:0.85rem; margin-bottom: 5px;">
+                    <span style="color:white;">${d.nombre} (${d.formato})</span>
+                    <button class="btn-primary" style="background:var(--red); color:white; padding:4px 12px; font-size:0.75rem; border:none; cursor:pointer;" onclick="borrarTorneoDefinitivo('${doc.id}','${d.nombre}')"><i class="fas fa-trash"></i> BORRAR</button>
+                </div>`;
+        });
+    });
+}
+
+function borrarTorneoDefinitivo(id, nombre) {
+    if(confirm(`⚠️ ¿ESTÁS SEGURO?\nVas a eliminar permanentemente "${nombre}". Esto borrará sus llaves y todos los datos asociados.`)) {
+        db.collection('torneos').doc(id).delete().then(() => {
+            alert("Torneo purgado con éxito.");
+        });
+    }
+}
+
+async function reiniciarTopBingo() {
+    if(!confirm("🚨 ¡ADVERTENCIA MÁXIMA!\n¿Deseas reiniciar el ranking del Libro Bingo? Esto pondrá los XP de todos los jugadores en 0. Sus Diamantes, Inventarios y Clanes quedarán intactos.")) return;
+    if(!confirm("¿Confirmas la acción para iniciar la Nueva Temporada competitiva?")) return;
+    
+    try {
+        const snap = await db.collection('ninjas').get();
+        const batch = db.batch();
+        snap.forEach(doc => {
+            batch.update(doc.ref, { xp: 0 });
+        });
+        await batch.commit();
+        alert("🏆 ¡Ranking reiniciado! Temporada iniciada con éxito.");
+    } catch(e) {
+        alert("Error al reiniciar: " + e.message);
+    }
+}
+
+// ==========================================
 // PERSONALIZACIÓN DINÁMICA
 // ==========================================
 function escucharPersonalizacion() {
@@ -215,6 +302,7 @@ function escucharPersonalizacion() {
             const data = doc.data();
             const bgVideo = document.getElementById('main-bg-video');
             const bgImage = document.getElementById('main-bg-image');
+            
             if (data.bgTipo === 'imagen') {
                 if(bgVideo) bgVideo.style.display = 'none';
                 if(bgImage) { bgImage.style.display = 'block'; bgImage.src = data.bgUrl || ''; }
@@ -222,11 +310,24 @@ function escucharPersonalizacion() {
                 if(bgImage) bgImage.style.display = 'none';
                 if(bgVideo) { bgVideo.style.display = 'block'; bgVideo.src = data.bgUrl || 'https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4'; }
             }
+            
             if (data.colorAcento) {
                 document.documentElement.style.setProperty('--blue', data.colorAcento);
                 const colorInput = document.getElementById('cfg-color-acento');
                 if (colorInput) colorInput.value = data.colorAcento;
             }
+
+            // NUEVO: CARGAR REDES SOCIALES DESDE FIREBASE
+            const redes = ['wa', 'ds', 'fb', 'tt', 'ig', 'yt'];
+            redes.forEach(red => {
+                const linkEl = document.getElementById(`link-soc-${red}`);
+                const inputEl = document.getElementById(`cfg-link-${red}`);
+                if(data.linksSociales && data.linksSociales[red]) {
+                    if(linkEl) linkEl.href = data.linksSociales[red];
+                    if(inputEl) inputEl.value = data.linksSociales[red];
+                }
+            });
+
             const secciones = ['stream', 'fama', 'ligas', 'planes', 'torneos', 'bingo', 'comunidades', 'sorteos', 'abismo', 'gremio', 'tienda'];
             secciones.forEach(sec => {
                 const sectionEl = document.getElementById(sec);
@@ -268,10 +369,19 @@ function escucharStreamYDiscordGlobal() {
             const discordUrl = data.discordUrl || 'https://e.widgetbot.io/channels/299881420891881473/299881420891881473'; 
             let finalSrc = "";
 
-            if (plat === 'kick') { finalSrc = `https://player.kick.com/${id}`; statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">${id}</strong>`; } 
-            else if (plat === 'youtube') { finalSrc = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&rel=0`; statusText.innerHTML = `<i class="fab fa-youtube" style="color:var(--red);"></i> PROMOCIÓN YOUTUBE`; } 
-            else if (plat === 'tiktok') { finalSrc = `https://www.tiktok.com/embed/v2/${id}`; statusText.innerHTML = `<i class="fab fa-tiktok"></i> PROMOCIÓN TIKTOK`; } 
-            else if (plat === 'twitch') { finalSrc = `https://player.twitch.tv/?channel=${id}&parent=${window.location.hostname}`; statusText.innerHTML = `<i class="fab fa-twitch" style="color:#9146ff;"></i> EN VIVO TWITCH: <strong style="color:white;">${id}</strong>`; }
+            if (plat === 'kick') { 
+                finalSrc = `https://player.kick.com/${id}`; 
+                statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">${id}</strong>`; 
+            } else if (plat === 'youtube') { 
+                finalSrc = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&rel=0`; 
+                statusText.innerHTML = `<i class="fab fa-youtube" style="color:var(--red);"></i> PROMOCIÓN YOUTUBE`; 
+            } else if (plat === 'tiktok') { 
+                finalSrc = `https://www.tiktok.com/embed/v2/${id}`; 
+                statusText.innerHTML = `<i class="fab fa-tiktok"></i> PROMOCIÓN TIKTOK`; 
+            } else if (plat === 'twitch') { 
+                finalSrc = `https://player.twitch.tv/?channel=${id}&parent=${window.location.hostname}`; 
+                statusText.innerHTML = `<i class="fab fa-twitch" style="color:#9146ff;"></i> EN VIVO TWITCH: <strong style="color:white;">${id}</strong>`; 
+            }
 
             if(iframeStream.src !== finalSrc) iframeStream.src = finalSrc;
             if(iframeDiscord.src !== discordUrl) iframeDiscord.src = discordUrl;
@@ -289,7 +399,7 @@ function extraerIdLimpio(urlCruda, plataforma) {
         else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; } 
         else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); } 
         else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; } 
-    } catch(e) {} 
+    } catch(e) {}
     return id;
 }
 
@@ -299,10 +409,13 @@ function extraerIdLimpio(urlCruda, plataforma) {
 function cargarSorteos() {
     const listaSorteos = document.getElementById('lista-sorteos');
     if(!listaSorteos) return;
-
+    
     db.collection('sorteos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         listaSorteos.innerHTML = '';
-        if(snap.empty) { listaSorteos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay sorteos activos en este momento.</p>'; return; }
+        if(snap.empty) {
+            listaSorteos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay sorteos activos en este momento.</p>';
+            return;
+        }
 
         const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
 
@@ -316,334 +429,531 @@ function cargarSorteos() {
             let btnColor = "var(--blue)";
             let btnDisabled = "";
 
-            if (data.estado !== 'abierto') { btnTexto = "SORTEO CERRADO"; btnColor = "gray"; btnDisabled = "disabled"; } 
-            else if (yaInscrito) { btnTexto = "YA ESTÁS PARTICIPANDO"; btnColor = "var(--green)"; btnDisabled = "disabled"; }
-
+            if (data.estado !== 'abierto') {
+                btnTexto = "SORTEO CERRADO";
+                btnColor = "gray";
+                btnDisabled = "disabled";
+            } else if (yaInscrito) {
+                btnTexto = "YA ESTÁS PARTICIPANDO";
+                btnColor = "var(--green)";
+                btnDisabled = "disabled";
+            }
+            
             let adminHTML = "";
-            if (esAdmin && data.estado === 'abierto') { adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`; }
+            if (esAdmin && data.estado === 'abierto') {
+                adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
+            }
 
             let ganadoresHTML = "";
-            if (data.estado === 'cerrado' && data.ganadores) { ganadoresHTML = `<div style="margin-top:10px; padding:10px; background:rgba(255,0,255,0.1); border:1px dashed #ff00ff; border-radius:5px;"><strong style="color:#ff00ff;"><i class="fas fa-trophy"></i> Ganador/es:</strong><br><span style="color:white; font-weight:bold;">${data.ganadores.join(', ')}</span></div>`; }
+            if (data.estado === 'cerrado' && data.ganadores) {
+                ganadoresHTML = `<div style="margin-top:10px; padding:10px; background:rgba(255,0,255,0.1); border:1px dashed #ff00ff; border-radius:5px;"><strong style="color:#ff00ff;"><i class="fas fa-crown"></i> Ganador/es:</strong><br><span style="color:white; font-weight:bold;">${data.ganadores.join(', ')}</span></div>`;
+            }
 
             listaSorteos.innerHTML += `
-                <div class="card-t container-glass" style="border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255,0,255,0.1);">
-                    <span style="color:#ff00ff; font-weight:bold; font-size: 0.8rem; background: rgba(255, 0, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid #ff00ff; display: inline-block; margin-bottom: 10px;">SORTEO OFICIAL</span>
-                    <h3 style="font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom:10px; color: white;">Premio: <span style="color:gold;">${data.premio}</span></h3>
-                    <p style="margin-bottom: 8px; color: #ccc;"><i class="fas fa-gem" style="color: #ff00ff; width: 20px;"></i> Entrada: <strong style="color:${data.precio > 0 ? 'gold' : 'var(--green)'};">${data.precio === 0 ? 'GRATIS' : data.precio + ' Diamantes'}</strong></p>
-                    <p style="margin-bottom: 15px; color: #ccc;"><i class="fas fa-users" style="color: #ff00ff; width: 20px;"></i> Participantes: ${inscritos}</p>
+                <div class="card-t container-glass" style="border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255,0,255,0.2);">
+                    <span style="color:#ff00ff; font-weight:bold; font-size: 0.8rem; background: rgba(255, 0, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid #ff00ff; display: inline-block; margin-bottom: 10px;">EVENTO ESPECIAL</span>
+                    <h3 style="margin-bottom: 10px;">Premio: <span style="color:gold;">${data.premio}</span></h3>
+                    <p style="font-size:0.9rem; margin-bottom:5px;"><i class="fas fa-gem"></i> Entrada: <strong style="color:var(--green);">${data.precio === 0 ? 'GRATIS' : data.precio + ' Diamantes'}</strong></p>
+                    <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px;"><i class="fas fa-users"></i> Participantes: ${inscritos}</p>
                     ${ganadoresHTML}
                     <div style="margin-top: auto;">
-                        <button class="btn-primary" style="width:100%; background: ${btnColor}; color: black;" onclick="unirseSorteo('${id}', ${data.precio}, '${data.estado}')" ${btnDisabled}>${btnTexto}</button>
+                        <button class="btn-primary" style="width:100%; background: ${btnColor}; color: ${btnDisabled ? '#555' : 'black'};" onclick="unirseSorteo('${id}', ${data.precio}, '${data.estado}')" ${btnDisabled}>${btnTexto}</button>
                         ${adminHTML}
                     </div>
-                </div>`;
+                </div>
+            `;
         });
     });
 }
 
 function unirseSorteo(sorteoId, precio, estado) {
     if(estado !== 'abierto') return;
-    if(currentUserName === "Héroe Anónimo") { alert("Debes ingresar primero a la Arena."); window.location.hash = "#modal-login"; return; }
+    if(currentUserName === "Héroe Anónimo") { alert("Debes iniciar sesión para participar."); return; }
+
     if (precio > 0) {
-        if (misRyos < precio) { alert(`Necesitas ${precio} Diamantes para participar. Visita el Mercado.`); return; }
-        if (!confirm(`¿Pagar ${precio} Diamantes para entrar al sorteo?`)) return;
-        db.collection('ninjas').doc(currentUserId).update({ ryos: firebase.firestore.FieldValue.increment(-precio) });
+        if (misRyos < precio) { alert("No tienes suficientes Diamantes para este sorteo."); return; }
+        if (!confirm(`¿Estás seguro de gastar ${precio} Diamantes en este ticket?`)) return;
+        
+        db.collection('ninjas').doc(currentUserId).update({
+            ryos: firebase.firestore.FieldValue.increment(-precio)
+        });
     }
-    db.collection('sorteos').doc(sorteoId).update({ participantes: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => { alert("¡Tu ticket ha sido registrado! Suerte."); });
+
+    db.collection('sorteos').doc(sorteoId).update({
+        participantes: firebase.firestore.FieldValue.arrayUnion(currentUserName)
+    }).then(() => {
+        alert("¡Ticket asegurado! Mucha suerte.");
+    });
 }
 
-let intervaloRuleta = null;
-async function ejecutarSorteo(sorteoId, premioNombre, cantidadGanadores) {
-    const doc = await db.collection('sorteos').doc(sorteoId).get();
-    if(!doc.exists) return;
-    let participantes = doc.data().participantes || [];
-    if(participantes.length === 0) { alert("No hay jugadores inscriptos."); return; }
+function ejecutarSorteo(sorteoId, premioNombre, cantidadGanadores) {
+    db.collection('sorteos').doc(sorteoId).get().then(doc => {
+        let participantes = doc.data().participantes || [];
+        if(participantes.length === 0) return alert("No hay nadie inscrito en el sorteo.");
+        
+        document.getElementById('modal-ruleta').style.display = 'flex';
+        const spanNombre = document.getElementById('nombre-ruleta');
+        const divGanadores = document.getElementById('ganadores-lista');
+        const btnCerrar = document.getElementById('btn-cerrar-ruleta');
+        
+        document.getElementById('ruleta-premio').innerText = "SORTEANDO: " + premioNombre.toUpperCase();
+        divGanadores.style.display = 'none';
+        btnCerrar.style.display = 'none';
+        spanNombre.classList.add('ruleta-blur');
+        
+        let iteracion = 0;
+        let intervalo = setInterval(() => {
+            spanNombre.innerText = participantes[Math.floor(Math.random() * participantes.length)];
+            iteracion++;
+            
+            if(iteracion > 30) {
+                clearInterval(intervalo);
+                spanNombre.classList.remove('ruleta-blur');
+                
+                let ganadores = [];
+                let pool = [...participantes];
+                
+                for(let i=0; i<cantidadGanadores; i++) {
+                    if(pool.length === 0) break;
+                    let index = Math.floor(Math.random() * pool.length);
+                    ganadores.push(pool[index]);
+                    pool.splice(index, 1);
+                }
 
-    document.getElementById('modal-ruleta').style.display = 'flex';
-    const spanNombre = document.getElementById('nombre-ruleta');
-    const divGanadores = document.getElementById('ganadores-lista');
-    const btnCerrar = document.getElementById('btn-cerrar-ruleta');
-    
-    document.getElementById('ruleta-premio').innerText = "SORTEANDO: " + premioNombre.toUpperCase();
-    divGanadores.style.display = 'none'; btnCerrar.style.display = 'none'; spanNombre.classList.add('ruleta-blur');
+                spanNombre.innerText = "¡Sorteo Finalizado!";
+                divGanadores.innerHTML = "GANADORES:<br>" + ganadores.join('<br>');
+                divGanadores.style.display = 'block';
+                btnCerrar.style.display = 'block';
+                
+                db.collection('sorteos').doc(sorteoId).update({
+                    estado: 'cerrado',
+                    ganadores: ganadores
+                });
 
-    let iteraciones = 0;
-    intervaloRuleta = setInterval(() => {
-        spanNombre.innerText = participantes[Math.floor(Math.random() * participantes.length)];
-        iteraciones++;
-        if(iteraciones > 30) {
-            clearInterval(intervaloRuleta);
-            spanNombre.classList.remove('ruleta-blur');
-            let ganadoresElegidos = [], pool = [...participantes];
-            for(let i=0; i < cantidadGanadores; i++) {
-                if(pool.length === 0) break;
-                const winIndex = Math.floor(Math.random() * pool.length);
-                ganadoresElegidos.push(pool[winIndex]); pool.splice(winIndex, 1); 
+                ganadores.forEach(ganador => {
+                    enviarNotificacion(ganador, `🎉 ¡FELICIDADES! Acabas de ganar el sorteo por: ${premioNombre}. Comunícate con un Admin.`);
+                });
             }
-            spanNombre.innerText = "¡Sorteo Finalizado!";
-            divGanadores.innerHTML = "GANADORES: <br>" + ganadoresElegidos.join('<br>');
-            divGanadores.style.display = 'block'; btnCerrar.style.display = 'block';
-            db.collection('sorteos').doc(sorteoId).update({ estado: 'cerrado', ganadores: ganadoresElegidos });
-            ganadoresElegidos.forEach(g => enviarNotificacion(g, `🎉 ¡FELICIDADES! Has ganado el sorteo de: ${premioNombre}. Contacta al Organizador.`));
-        }
-    }, 100);
+        }, 100);
+    });
 }
 
 // ==========================================
-// COMUNIDADES ALIADAS 
+// COMUNIDADES / ALIANZAS
 // ==========================================
 function crearComunidad() {
-    if (currentUserName === "Héroe Anónimo") return alert("Ingresa primero.");
-    const nombre = document.getElementById('input-crear-comunidad').value.trim(); 
-    if(!nombre) return;
+    const nombre = document.getElementById('input-crear-comunidad').value.trim();
+    if(!nombre || currentUserName === "Héroe Anónimo") return;
+    
     db.collection('comunidades').doc(nombre).get().then(doc => {
-        if(doc.exists) { alert("Esa Alianza ya existe en la Arena."); } 
-        else { db.collection('comunidades').doc(nombre).set({ nombre: nombre, lider: currentUserName, miembros: [currentUserName], creacion: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre }); alert("¡Has fundado tu propia Alianza!"); }); }
+        if(doc.exists) {
+            alert("Ya existe una Alianza con ese nombre.");
+        } else {
+            db.collection('comunidades').doc(nombre).set({
+                nombre: nombre,
+                lider: currentUserName,
+                miembros: [currentUserName],
+                creacion: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre });
+                alert("¡Alianza fundada con éxito!");
+            });
+        }
     });
 }
 
 function unirseComunidad() {
-    if (currentUserName === "Héroe Anónimo") return alert("Ingresa primero.");
-    const nombre = document.getElementById('input-unirse-comunidad').value.trim(); 
-    if(!nombre) return;
+    const nombre = document.getElementById('input-unirse-comunidad').value.trim();
+    if(!nombre || currentUserName === "Héroe Anónimo") return;
+
     db.collection('comunidades').doc(nombre).get().then(doc => {
-        if(!doc.exists) { alert("Esta Alianza no fue encontrada."); } 
-        else { db.collection('comunidades').doc(nombre).update({ miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => { db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre }); alert(`¡Te has unido a ${nombre}!`); }); }
+        if(!doc.exists) {
+            alert("No existe ninguna Alianza con ese nombre.");
+        } else {
+            db.collection('comunidades').doc(nombre).update({
+                miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName)
+            }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre });
+                alert("Te has unido a la Alianza.");
+            });
+        }
     });
 }
 
 function abandonarComunidad() {
-    if(confirm("¿Abandonar tu Alianza?")) {
+    if(confirm("¿Estás seguro de abandonar tu Alianza?")) {
         db.collection('comunidades').doc(miComunidad).get().then(doc => {
             if(doc.exists) {
                 const data = doc.data();
-                if(data.lider === currentUserName && data.miembros.length > 1) { alert("Eres el líder. La alianza no puede quedarse sin cabeza a menos que quede vacía."); return; }
-                if(data.miembros.length === 1) { db.collection('comunidades').doc(miComunidad).delete(); } else { db.collection('comunidades').doc(miComunidad).update({ miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName) }); }
-                db.collection('ninjas').doc(currentUserId).update({ comunidad: "" }).then(() => { alert("Has abandonado la Alianza."); window.location.reload(); });
+                if(data.lider === currentUserName && data.miembros.length > 1) {
+                    alert("Eres el líder. Debes nombrar a otro líder antes de irte o ser el último en salir.");
+                    return;
+                }
+                if(data.miembros.length === 1) {
+                    db.collection('comunidades').doc(miComunidad).delete();
+                } else {
+                    db.collection('comunidades').doc(miComunidad).update({
+                        miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName)
+                    });
+                }
+                db.collection('ninjas').doc(currentUserId).update({ comunidad: "" }).then(() => {
+                    window.location.reload();
+                });
             }
         });
     }
 }
 
 function cargarTopComunidades() {
-    const lista = document.getElementById('lista-top-comunidades'); 
+    const lista = document.getElementById('lista-top-comunidades');
     if(!lista) return;
+
     db.collection('comunidades').onSnapshot(snap => {
-        let comunidades = []; snap.forEach(doc => comunidades.push(doc.data()));
-        comunidades.sort((a, b) => b.miembros.length - a.miembros.length); 
+        let comunidades = [];
+        snap.forEach(doc => comunidades.push(doc.data()));
+        
+        comunidades.sort((a, b) => b.miembros.length - a.miembros.length);
+        
         lista.innerHTML = "";
-        if(comunidades.length === 0) { lista.innerHTML = "<p style='color:#666; text-align:center;'>Ninguna alianza forjada aún.</p>"; return; }
-        comunidades.slice(0, 5).forEach((d, index) => {
-            let color = index === 0 ? "gold" : (index === 1 ? "silver" : (index === 2 ? "#cd7f32" : "#333"));
+        comunidades.slice(0, 5).forEach((com, index) => {
+            let color = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? '#cd7f32' : '#333'));
             lista.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:12px; border-radius:5px; border-left:3px solid ${color}; margin-bottom: 8px;">
-                    <div><strong style="color: white; font-size: 1.1rem;">${index + 1}. ${d.nombre}</strong> <br> <span style="font-size:0.75rem; color:#888;"><i class="fas fa-crown" style="color: gold;"></i> Líder: ${d.lider}</span></div>
-                    <div style="color:var(--purple); font-weight:bold; font-size:1rem;"><i class="fas fa-users"></i> ${d.miembros.length} Jugadores</div>
-                </div>`;
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; margin-bottom:5px; border-left:3px solid ${color};">
+                    <div>
+                        <strong>${index + 1}. ${com.nombre}</strong><br>
+                        <span style="font-size:0.7rem; color:#888;">Líder: ${com.lider}</span>
+                    </div>
+                    <div style="color:var(--purple); font-weight:bold;">
+                        <i class="fas fa-users"></i> ${com.miembros.length}
+                    </div>
+                </div>
+            `;
         });
     });
 }
 
-function escucharChatComunidad(comunidadNombre) {
-    if (!comunidadNombre) return;
-    const chatContainer = document.getElementById('chat-comunidad-container');
-    if(!chatContainer) return;
-    if (unsubscribeChatComunidad) unsubscribeChatComunidad(); 
-    unsubscribeChatComunidad = db.collection('chat_comunidades').where('comunidad', '==', comunidadNombre).orderBy('timestamp').limit(50).onSnapshot(snap => {
-        chatContainer.innerHTML = '';
-        snap.forEach(doc => {
-            const d = doc.data();
-            let estiloNombre = "color: var(--purple);";
-            if (d.colorEstilo !== "") { const itemCat = CATALOGO_TIENDA.find(i => i.id === d.colorEstilo); if(itemCat) estiloNombre = itemCat.estilo; }
-            if (d.usuario === 'Matías' || d.usuario === 'Kage') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
-            chatContainer.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; font-size:0.9rem;"><strong style="${estiloNombre} margin-right: 5px; cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}:</strong> <span style="color:#ddd; word-break: break-all;">${d.texto}</span></div>`;
+function escucharChatComunidad(nombreComunidad) {
+    if(!nombreComunidad) return;
+    const cont = document.getElementById('chat-comunidad-container');
+    if(!cont) return;
+
+    if(unsubscribeChatComunidad) {
+        unsubscribeChatComunidad();
+    }
+
+    unsubscribeChatComunidad = db.collection('chat_comunidades')
+        .where('comunidad', '==', nombreComunidad)
+        .orderBy('timestamp')
+        .limit(50)
+        .onSnapshot(snap => {
+            cont.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                
+                let estiloColor = "color: var(--purple);";
+                if(data.colorEstilo) {
+                    const itemTienda = CATALOGO_TIENDA.find(i => i.id === data.colorEstilo);
+                    if(itemTienda) estiloColor = itemTienda.estilo;
+                }
+                
+                if(data.usuario === 'Matías' || data.usuario === 'Kage') {
+                    estiloColor = "color: var(--red); text-shadow: 0 0 5px red;";
+                }
+
+                cont.innerHTML += `
+                    <div style="margin-bottom:8px; font-size:0.85rem;">
+                        <strong style="${estiloColor} cursor:pointer;" onclick="abrirPerfil('${data.usuario}')">${data.usuario}:</strong> 
+                        <span style="color:#ddd; word-break:break-all;">${data.texto}</span>
+                    </div>`;
+            });
+            cont.scrollTop = cont.scrollHeight;
         });
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
 }
 
 function enviarMensajeComunidad() {
-    if(currentUserName === "Héroe Anónimo") return alert("Debes identificarte.");
     const input = document.getElementById('chat-input-comunidad');
     const texto = input.value.trim();
-    if(!texto) return;
-    let targetComunidad = (auth.currentUser?.email === ADMIN_EMAIL) ? document.getElementById('kage-comunidad-selector').value : miComunidad;
-    if(!targetComunidad) return alert("No estás en ninguna alianza.");
-    db.collection('chat_comunidades').add({ comunidad: targetComunidad, usuario: currentUserName, texto: texto, colorEstilo: miEquipamiento.colorChat || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    if(!texto || currentUserName === "Héroe Anónimo") return;
+
+    let targetComunidad = miComunidad;
+    if(auth.currentUser?.email === ADMIN_EMAIL) {
+        targetComunidad = document.getElementById('kage-comunidad-selector').value;
+    }
+
+    if(!targetComunidad) return;
+
+    db.collection('chat_comunidades').add({
+        comunidad: targetComunidad,
+        usuario: currentUserName,
+        texto: texto,
+        colorEstilo: miEquipamiento.colorChat || '',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
     input.value = '';
 }
 
 function cargarSelectorComunidadesKage() {
     const selector = document.getElementById('kage-comunidad-selector');
     db.collection('comunidades').onSnapshot(snap => {
-        selector.innerHTML = "<option value='' disabled selected>Selecciona para espiar...</option>";
-        snap.forEach(doc => selector.innerHTML += `<option value="${doc.id}">${doc.id} (${doc.data().miembros.length} jugadores)</option>`);
+        selector.innerHTML = "<option value='' disabled selected>Selecciona una Alianza para vigilar...</option>";
+        snap.forEach(doc => {
+            selector.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
+        });
     });
 }
 
-function cambiarChatComunidadKage() { const seleccionada = document.getElementById('kage-comunidad-selector').value; if(seleccionada) escucharChatComunidad(seleccionada); }
-
-// ==========================================
-// TIENDA Y DIAMANTES
-// ==========================================
-function renderizarTienda() {
-    const catalogo = document.getElementById('catalogo-tienda');
-    if(!catalogo) return;
-    catalogo.innerHTML = "";
-    CATALOGO_TIENDA.forEach(item => {
-        const loTiene = miInventario.includes(item.id);
-        const loTieneEquipado = (miEquipamiento.borde === item.id || miEquipamiento.colorChat === item.id || miEquipamiento.pin === item.id);
-        let botonHTML = "";
-        
-        if (currentUserName === "Héroe Anónimo") { botonHTML = `<button class="btn-primary" style="width: 100%; background: #444;" onclick="alert('Debes ingresar.')">IDENTIFÍCATE</button>`; } 
-        else if (loTieneEquipado) { botonHTML = `<button class="btn-primary" style="width: 100%; background: var(--green); color: black;" disabled><i class="fas fa-check"></i> EQUIPADO</button>`; } 
-        else if (loTiene) { botonHTML = `<button class="btn-primary" style="width: 100%; background: var(--blue); color: black;" onclick="equiparObjeto('${item.id}', '${item.tipo}')">EQUIPAR</button>`; } 
-        else { let textoPrecio = auth.currentUser?.email === ADMIN_EMAIL ? "GRATIS" : `ADQUIRIR (${item.precio} D)`; botonHTML = `<button class="btn-primary" style="width: 100%;" onclick="comprarObjeto('${item.id}', ${item.precio})"><i class="fas fa-shopping-cart"></i> ${textoPrecio}</button>`; }
-        
-        let previewHTML = item.tipo === 'borde' ? `<div style="width: 50px; height: 50px; border-radius: 50%; ${item.estilo} margin: 0 auto 10px auto; background: #222;"></div>` : (item.tipo === 'colorChat' ? `<div style="font-size: 1.2rem; font-weight: bold; ${item.estilo} margin-bottom: 10px;">${currentUserName !== 'Héroe Anónimo' ? currentUserName : 'Héroe'}</div>` : `<div style="font-size: 2rem; margin-bottom: 10px;">${item.icon}</div>`);
-        
-        catalogo.innerHTML += `<div class="container-glass" style="text-align: center;">${previewHTML}<h4 style="color: white; margin-bottom: 5px;">${item.nombre}</h4><p style="font-size: 0.8rem; color: #888; margin-bottom: 15px; min-height: 35px;">${item.desc}</p>${botonHTML}</div>`;
-    });
-}
-
-function comprarObjeto(id, precioBase) {
-    if(currentUserName === "Héroe Anónimo") return;
-    let costoFinal = auth.currentUser.email === ADMIN_EMAIL ? 0 : precioBase;
-    if (misRyos < costoFinal) { alert("Diamantes insuficientes."); return; }
-    if(confirm(`¿Gastar ${costoFinal} Diamantes en este artículo?`)) {
-        db.collection('ninjas').doc(currentUserId).update({ ryos: misRyos - costoFinal, inventario: firebase.firestore.FieldValue.arrayUnion(id) }).then(() => alert("¡Compra exitosa!"));
+function cambiarChatComunidadKage() {
+    const seleccion = document.getElementById('kage-comunidad-selector').value;
+    if(seleccion) {
+        escucharChatComunidad(seleccion);
     }
 }
 
-function equiparObjeto(id, tipo) {
-    const nuevoEquipamiento = { ...miEquipamiento }; nuevoEquipamiento[tipo] = id;
-    db.collection('ninjas').doc(currentUserId).update({ equipado: nuevoEquipamiento }).then(() => alert("¡Objeto equipado!"));
+// ==========================================
+// TIENDA Y MERCADO
+// ==========================================
+function renderizarTienda() {
+    const catalogoHTML = document.getElementById('catalogo-tienda');
+    if(!catalogoHTML) return;
+    
+    catalogoHTML.innerHTML = "";
+    
+    CATALOGO_TIENDA.forEach(item => {
+        const loTiene = miInventario.includes(item.id);
+        const estaEquipado = (miEquipamiento.borde === item.id || miEquipamiento.colorChat === item.id || miEquipamiento.pin === item.id);
+        
+        let botonHTML = "";
+        
+        if (currentUserName === "Héroe Anónimo") {
+            botonHTML = `<button class="btn-primary" style="width:100%; background:#444;">INICIA SESIÓN</button>`;
+        } else if (estaEquipado) {
+            botonHTML = `<button class="btn-primary" style="width:100%; background:var(--green); color:black;" disabled>EQUIPADO</button>`;
+        } else if (loTiene) {
+            botonHTML = `<button class="btn-primary" style="width:100%;" onclick="equiparObjeto('${item.id}', '${item.tipo}')">EQUIPAR</button>`;
+        } else {
+            botonHTML = `<button class="btn-primary" style="width:100%;" onclick="comprarObjeto('${item.id}', ${item.precio})">ADQUIRIR (${item.precio} D)</button>`;
+        }
+
+        let previewVisual = "";
+        if (item.tipo === 'borde') {
+            previewVisual = `<div style="width:40px; height:40px; border-radius:50%; ${item.estilo} margin:0 auto 10px auto; background:#222;"></div>`;
+        } else if (item.tipo === 'colorChat') {
+            previewVisual = `<div style="${item.estilo} font-weight:bold; margin-bottom:10px;">${currentUserName}</div>`;
+        } else if (item.tipo === 'pin') {
+            previewVisual = `<div style="font-size:1.5rem; margin-bottom:10px;">${item.icon}</div>`;
+        }
+
+        catalogoHTML.innerHTML += `
+            <div class="container-glass" style="text-align:center; padding:15px; border: 1px solid #222; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    ${previewVisual}
+                    <h4 style="color:white; margin-bottom:5px;">${item.nombre}</h4>
+                    <p style="font-size:0.75rem; color:#888; margin-bottom:15px;">${item.desc}</p>
+                </div>
+                ${botonHTML}
+            </div>
+        `;
+    });
+}
+
+function comprarObjeto(itemId, precio) {
+    if(currentUserName === "Héroe Anónimo") return;
+    
+    if (misRyos < precio) {
+        alert("No tienes suficientes Diamantes para adquirir este objeto.");
+        return;
+    }
+
+    if (confirm("¿Seguro que deseas gastar tus Diamantes en este artículo?")) {
+        db.collection('ninjas').doc(currentUserId).update({
+            ryos: misRyos - precio,
+            inventario: firebase.firestore.FieldValue.arrayUnion(itemId)
+        });
+    }
+}
+
+function equiparObjeto(itemId, tipo) {
+    const nuevosEquipos = { ...miEquipamiento };
+    nuevosEquipos[tipo] = itemId;
+    
+    db.collection('ninjas').doc(currentUserId).update({
+        equipado: nuevosEquipos
+    }).then(() => {
+        alert("¡Objeto equipado exitosamente!");
+    });
 }
 
 function misionDiaria() {
-    if(currentUserName === "Héroe Anónimo") return alert("Ingresa primero.");
-    if(trabajando) return;
+    if (currentUserName === "Héroe Anónimo" || trabajando) return;
+    
     db.collection('ninjas').doc(currentUserId).get().then(doc => {
-        if (doc.exists) {
-            const data = doc.data(); const hoy = new Date().toLocaleDateString('es-AR');
-            let countTrabajosHoy = data.trabajosHoy || 0; let fechaUltimoTrabajo = data.fechaTrabajo || "";
-            if (fechaUltimoTrabajo === hoy) { if (countTrabajosHoy >= 3) { alert("Límite diario alcanzado."); return; } countTrabajosHoy++; } 
-            else { fechaUltimoTrabajo = hoy; countTrabajosHoy = 1; }
-            trabajando = true; const btn = document.getElementById('btn-trabajar'); btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Reclamando...";
-            setTimeout(() => {
-                db.collection('ninjas').doc(currentUserId).update({ ryos: firebase.firestore.FieldValue.increment(10), trabajosHoy: countTrabajosHoy, fechaTrabajo: fechaUltimoTrabajo }).then(() => {
-                    trabajando = false; btn.innerHTML = "<i class='fas fa-gem'></i> Misión Diaria (+10 Diamantes)"; alert(`¡Ganaste 10 Diamantes! (${countTrabajosHoy}/3 hoy)`);
-                });
-            }, 1500);
+        const data = doc.data();
+        const hoy = new Date().toLocaleDateString('es-AR');
+        
+        let conteoDiario = data.trabajosHoy || 0;
+        let fechaUltimo = data.fechaTrabajo || "";
+
+        if (fechaUltimo === hoy) {
+            if (conteoDiario >= 3) {
+                alert("Has completado todas tus misiones por hoy. Vuelve mañana.");
+                return;
+            }
+            conteoDiario++;
+        } else {
+            fechaUltimo = hoy;
+            conteoDiario = 1;
         }
+
+        trabajando = true;
+        const btn = document.getElementById('btn-trabajar');
+        btn.innerText = "Reclamando recompensa...";
+        
+        setTimeout(() => {
+            db.collection('ninjas').doc(currentUserId).update({
+                ryos: firebase.firestore.FieldValue.increment(10),
+                trabajosHoy: conteoDiario,
+                fechaTrabajo: fechaUltimo
+            }).then(() => {
+                trabajando = false;
+                btn.innerHTML = "<i class='fas fa-gem'></i> Misión Diaria (+10 Diamantes)";
+                alert(`¡Misión completada! Has ganado 10 Diamantes. (Misión ${conteoDiario}/3 de hoy)`);
+            });
+        }, 1500);
     });
 }
 
 // ==========================================
-// TORNEOS, LIGAS Y SISTEMA DE EQUIPOS (v4.11)
+// TORNEOS Y LIGAS
 // ==========================================
-function filtrarTorneos(formato, event) {
-    currentFilter = formato;
+function filtrarTorneos(filtro, evento) {
+    currentFilter = filtro;
     const botones = document.querySelectorAll('#torneos .btn-filter');
-    botones.forEach(btn => btn.classList.remove('active'));
-    if(event) event.target.classList.add('active');
+    botones.forEach(b => b.classList.remove('active'));
+    if (evento) evento.target.classList.add('active');
     cargarTorneosDesdeNube();
 }
 
 function cargarTorneosDesdeNube() {
     const listaTorneos = document.getElementById('lista-torneos');
     const listaLigas = document.getElementById('lista-ligas');
+    
     if(!listaTorneos || !listaLigas) return;
     
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
-        listaTorneos.innerHTML = ''; listaLigas.innerHTML = '';
-        let hayTorneos = false; let hayLigas = false;
+        listaTorneos.innerHTML = '';
+        listaLigas.innerHTML = '';
         
         snap.forEach(doc => {
-            const data = doc.data(); const id = doc.id; const esLiga = data.tipo === 'liga';
-            if(esLiga) { hayLigas = true; listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true); } 
-            else { if (currentFilter === 'todos' || data.formato === currentFilter) { hayTorneos = true; listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id, false); } }
+            const data = doc.data();
+            const id = doc.id;
+            
+            if (data.tipo === 'liga') {
+                listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true);
+            } else {
+                if (currentFilter === 'todos' || data.formato === currentFilter) {
+                    listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id, false);
+                }
+            }
         });
-        
-        if(!hayTorneos) { listaTorneos.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay torneos con este filtro.</p>'; }
-        if(!hayLigas) { listaLigas.innerHTML = '<p style="color: #ccc; grid-column: 1 / -1; text-align: center;">No hay Ligas Mensuales activas...</p>'; }
     });
 }
 
 function generarTarjetaEventoHTML(data, id, esLiga) {
     const esIndividual = (data.formato === '1v1');
     const inscritos = esIndividual ? (data.lista_inscriptos ? data.lista_inscriptos.length : 0) : (data.lista_equipos ? data.lista_equipos.length : 0);
-    const cupos = data.cuposTotales || 0;
-    const estaLleno = inscritos >= cupos;
+    const cuposTotales = data.cuposTotales || 0;
     
     let yaInscrito = false;
+    
     if (esIndividual) {
         yaInscrito = data.lista_inscriptos && data.lista_inscriptos.includes(currentUserName);
     } else {
         if (data.lista_equipos) {
-            data.lista_equipos.forEach(eq => { if(eq.miembros && eq.miembros.includes(currentUserName)) yaInscrito = true; });
+            data.lista_equipos.forEach(eq => {
+                if(eq.miembros && eq.miembros.includes(currentUserName)) yaInscrito = true;
+            });
         }
     }
     
-    let btnTexto = esIndividual ? "UNIRSE A LA BATALLA" : "VER ESCUADRAS"; 
-    let btnColor = "var(--blue)";
-    
-    if (data.estado === "iniciado" || data.estado === "finalizado") { btnTexto = "EVENTO CERRADO"; btnColor = "gray"; } 
-    else if (yaInscrito) { btnTexto = esIndividual ? "YA ESTÁS INSCRIPTO" : "YA ESTÁS EN UN EQUIPO"; btnColor = "var(--green)"; } 
-    else if (estaLleno && esIndividual) { btnTexto = "CUPOS LLENOS"; btnColor = "gray"; }
-    
-    const etiquetaPrivado = data.privado ? '<span style="color:#ff0040; font-size:0.7rem; float:right; border:1px solid #ff0040; padding:2px 5px; border-radius:3px;">PRIVADO</span>' : '';
-    let nombresPreview = "";
-    
-    if(inscritos > 0) {
-        if (esIndividual) {
-            const primerosNombres = data.lista_inscriptos.slice(0, 3).map(n => `<span style="cursor:pointer; color:var(--blue);" onclick="abrirPerfil('${n}')">${n}</span>`).join(", ");
-            nombresPreview = `<p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">Héroes: ${primerosNombres}${inscritos > 3 ? '...' : ''}</p>`;
-        } else {
-            const primerosEquipos = data.lista_equipos.slice(0, 3).map(e => `<strong style="color:var(--blue);">${e.nombre}</strong>`).join(", ");
-            nombresPreview = `<p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">Escuadras: ${primerosEquipos}${inscritos > 3 ? '...' : ''}</p>`;
-        }
+    let btnTexto = esIndividual ? "UNIRSE AL COMBATE" : "VER ESCUADRAS";
+    let statusClass = "status-open";
+    let statusTexto = "ABIERTO";
+
+    if (data.estado === 'iniciado') {
+        btnTexto = "EVENTO EN CURSO";
+        statusClass = "status-progress";
+        statusTexto = "EN CURSO";
+    } else if (data.estado === 'finalizado') {
+        btnTexto = "EVENTO CERRADO";
+        statusClass = "status-closed";
+        statusTexto = "FINALIZADO";
+    } else if (yaInscrito) {
+        btnTexto = "YA ESTÁS INSCRIPTO";
     }
-    
-    const borderClase = esLiga ? 'border-color: gold !important; background: linear-gradient(180deg, rgba(255,215,0,0.05) 0%, rgba(10,10,15,0.95) 100%);' : '';
-    const badgeColor = esLiga ? 'gold' : 'var(--blue)';
-    
+
+    const bordeColor = esLiga ? 'gold' : 'var(--blue)';
+
     return `
-        <div class="card-t container-glass" style="${borderClase}">
-            <span style="color:${badgeColor}; font-weight:bold; font-size: 0.8rem; background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid ${badgeColor}; display: inline-block; margin-bottom: 10px;">${esLiga ? 'LIGA MENSUAL' : 'MODO ' + (data.formato || 'Libre').toUpperCase()}</span>
-            ${etiquetaPrivado}
-            <h3 style="font-size: 1.4rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom:10px; ${esLiga ? 'color: gold;' : ''}">${data.nombre}</h3>
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Creador: ${data.creador || 'Kage'}</p>
-            <p style="margin-bottom: 8px; color: #ccc;"><i class="far fa-calendar-alt" style="color: ${badgeColor}; width: 20px;"></i> ${data.fecha || 'A definir'}</p>
-            <p style="margin-bottom: 8px; color: #ccc;"><i class="fas fa-users" style="color: ${badgeColor}; width: 20px;"></i> ${esIndividual ? 'Jugadores' : 'Equipos'}: ${inscritos} / ${cupos}</p>
-            ${nombresPreview}
-            <p style="margin-bottom: 15px; margin-top:10px; color: var(--green); font-weight: bold; background: rgba(57,255,20,0.1); padding: 5px; border-radius: 4px;"><i class="fas fa-trophy"></i> Premio: ${data.premio || 'A definir'}</p>
-            <div style="display: flex; gap: 10px; margin-top: auto;">
-                <button class="btn-primary" style="flex: 2; padding: 10px; background: ${btnColor}; color: black;" onclick="unirseTorneo('${id}', '${data.estado}')" ${yaInscrito || data.estado !== "abierto" || (estaLleno && esIndividual) ? 'disabled' : ''}>${btnTexto}</button>
-                <button class="btn-secondary" style="flex: 1; padding: 10px; background: #222;" onclick="verLlaves('${id}', '${data.nombre}')"><i class="fas fa-sitemap"></i> Llaves</button>
+        <div class="card-t container-glass" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
+            ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
+                    ${data.formato.toUpperCase()}
+                </span>
+                <span class="${statusClass}" style="font-size:0.75rem; font-weight:bold;">${statusTexto}</span>
             </div>
-        </div>`;
+            
+            <h3 style="margin-bottom: 15px; font-size:1.3rem; line-height:1.2;">${data.nombre}</h3>
+            
+            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${data.fecha || 'Por definir'}</p>
+                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-users" style="color:var(--blue); width:20px;"></i> Cupos: <strong>${inscritos}</strong> / ${cuposTotales}</p>
+                <p style="font-size:0.85rem; color:#ccc; margin-bottom:0;"><i class="fas fa-trophy" style="color:gold; width:20px;"></i> Premio: <strong style="color:var(--green);">${data.premio || 'Gloria'}</strong></p>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-top: auto;">
+                <button class="btn-primary" style="flex: 2; background: ${yaInscrito ? 'var(--green)' : 'var(--blue)'}; color: black; font-size:0.8rem; padding:10px 5px;" 
+                        onclick="unirseTorneo('${id}', '${data.estado}')" 
+                        ${data.estado !== 'abierto' || yaInscrito ? 'disabled' : ''}>
+                    ${btnTexto}
+                </button>
+                <button class="btn-secondary" style="flex: 1; font-size:0.8rem; padding:10px 5px;" onclick="verLlaves('${id}', '${data.nombre}')">
+                    CRUCES
+                </button>
+            </div>
+        </div>
+    `;
 }
 
+// ==========================================
+// FUNCIONES DE INSCRIPCIÓN Y EQUIPOS
+// ==========================================
 function unirseTorneo(torneoId, estado) {
-    if(estado !== "abierto") return;
-    if(currentUserName === "Héroe Anónimo") { alert("Debes ingresar primero."); window.location.hash = "#modal-login"; return; }
-    
+    if (estado !== "abierto") return;
+    if (currentUserName === "Héroe Anónimo") {
+        window.location.hash = "#modal-login";
+        return;
+    }
+
     db.collection('torneos').doc(torneoId).get().then(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            if (data.formato === '1v1') {
-                const inscritos = data.lista_inscriptos ? data.lista_inscriptos.length : 0;
-                if (inscritos >= data.cuposTotales) { alert("El evento ya está lleno."); } 
-                else { doc.ref.update({ lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => alert("¡Inscripto exitosamente!")); }
-            } else {
-                abrirModalEquipos(torneoId, data.formato);
+        const data = doc.data();
+        
+        if (data.formato === '1v1') {
+            if ((data.lista_inscriptos?.length || 0) >= data.cuposTotales) {
+                alert("El torneo ya está lleno.");
+                return;
             }
+            doc.ref.update({
+                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName)
+            }).then(() => alert("¡Te has inscrito con éxito!"));
+        } else {
+            abrirModalEquipos(torneoId, data.formato);
         }
     });
 }
 
-// ---- NUEVAS FUNCIONES PARA RECLUTAMIENTO POR EQUIPOS (v4.11) ----
 function abrirModalEquipos(torneoId, formato) {
     document.getElementById('eq-torneo-id').value = torneoId;
     document.getElementById('eq-formato').value = formato;
@@ -653,82 +963,78 @@ function abrirModalEquipos(torneoId, formato) {
 
 function cargarListaEquiposTorneo(torneoId, formato) {
     const contenedor = document.getElementById('lista-equipos-torneo');
-    const limiteMiembros = parseInt(formato.charAt(0)); // '3v3' -> 3
-    
+    const limitePorEquipo = parseInt(formato.charAt(0));
+
     db.collection('torneos').doc(torneoId).onSnapshot(doc => {
-        if(!doc.exists) return;
+        if (!doc.exists) return;
         contenedor.innerHTML = "";
         const data = doc.data();
         const equipos = data.lista_equipos || [];
-        
+
         let usuarioYaEnEquipo = false;
-        equipos.forEach(eq => { if (eq.miembros && eq.miembros.includes(currentUserName)) usuarioYaEnEquipo = true; });
+        equipos.forEach(eq => {
+            if (eq.miembros && eq.miembros.includes(currentUserName)) {
+                usuarioYaEnEquipo = true;
+            }
+        });
 
-        if (equipos.length === 0) {
-            contenedor.innerHTML = "<p style='color:#888; text-align:center;'>Sé el primero en fundar una escuadra para este torneo.</p>";
-        } else {
-            equipos.forEach(eq => {
-                const lleno = eq.miembros.length >= limiteMiembros;
-                const tienePass = eq.pass && eq.pass.trim() !== "";
-                let badgePass = tienePass ? `<span style="color:var(--red); font-size:0.7rem; border:1px solid var(--red); padding:2px 5px; border-radius:3px; margin-left:5px;"><i class="fas fa-lock"></i> PRIVADO</span>` : '';
-                
-                let btnUnirse = "";
-                if (usuarioYaEnEquipo) {
-                    btnUnirse = `<button class="btn-secondary" style="padding: 5px 10px; font-size:0.8rem;" disabled>YA TIENES EQUIPO</button>`;
-                } else if (lleno) {
-                    btnUnirse = `<button class="btn-secondary" style="padding: 5px 10px; font-size:0.8rem; border-color: gray; color: gray;" disabled>LLENO</button>`;
-                } else {
-                    if (tienePass) {
-                        btnUnirse = `<button class="btn-primary" style="padding: 5px 10px; font-size:0.8rem; background: var(--blue); color: black;" onclick="abrirModalPassEquipo('${torneoId}', '${eq.nombre}')">INGRESAR CLAVE</button>`;
-                    } else {
-                        btnUnirse = `<button class="btn-primary" style="padding: 5px 10px; font-size:0.8rem; background: var(--green); color: black;" onclick="unirseEquipoTorneo('${torneoId}', '${eq.nombre}')">UNIRSE AL EQUIPO</button>`;
-                    }
-                }
+        equipos.forEach(eq => {
+            const estaLleno = eq.miembros.length >= limitePorEquipo;
+            let btnAction = "";
 
-                contenedor.innerHTML += `
-                    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <div>
-                            <strong style="color: white; font-size: 1.1rem;">${eq.nombre}</strong> ${badgePass}<br>
-                            <span style="font-size: 0.8rem; color: #888;">Héroes: ${eq.miembros.join(', ')} (${eq.miembros.length}/${limiteMiembros})</span>
-                        </div>
-                        <div>${btnUnirse}</div>
-                    </div>`;
-            });
-        }
+            if (usuarioYaEnEquipo) {
+                btnAction = `<button class="btn-secondary" disabled style="padding: 5px 10px; font-size:0.8rem;">YA EN ESCUADRA</button>`;
+            } else if (estaLleno) {
+                btnAction = `<button class="btn-secondary" disabled style="padding: 5px 10px; font-size:0.8rem;">LLENO</button>`;
+            } else if (eq.pass && eq.pass !== "") {
+                btnAction = `<button class="btn-primary" style="padding: 5px 10px; font-size:0.8rem;" onclick="abrirModalPassEquipo('${torneoId}', '${eq.nombre}')"><i class="fas fa-lock"></i> CLAVE</button>`;
+            } else {
+                btnAction = `<button class="btn-primary" style="background:var(--green); color:black; padding: 5px 10px; font-size:0.8rem;" onclick="unirseEquipoTorneo('${torneoId}', '${eq.nombre}')">UNIRSE</button>`;
+            }
+
+            contenedor.innerHTML += `
+                <div style="background:#111; padding:12px; margin-bottom:8px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--blue); font-size:1.1rem;">${eq.nombre}</strong>
+                        <br>
+                        <span style="font-size:0.8rem; color:#aaa;">Miembros: <span style="color:white;">${eq.miembros.join(', ')}</span> (${eq.miembros.length}/${limitePorEquipo})</span>
+                    </div>
+                    <div>${btnAction}</div>
+                </div>
+            `;
+        });
     });
 }
 
 function crearEquipoTorneo() {
-    const tId = document.getElementById('eq-torneo-id').value;
-    const nombreEq = document.getElementById('eq-nombre').value.trim();
-    const passEq = document.getElementById('eq-pass').value.trim();
-    
-    if(!nombreEq) return alert("Dale un nombre a tu equipo.");
-    
-    db.collection('torneos').doc(tId).get().then(doc => {
+    const torneoId = document.getElementById('eq-torneo-id').value;
+    const nombreEquipo = document.getElementById('eq-nombre').value.trim();
+    const passEquipo = document.getElementById('eq-pass').value.trim();
+
+    if (!nombreEquipo) return alert("Debes ingresar un nombre para tu escuadra.");
+
+    db.collection('torneos').doc(torneoId).get().then(doc => {
         const data = doc.data();
         let equipos = data.lista_equipos || [];
         
-        // Verificar si el jugador ya está en un equipo
-        let yaInscrito = false;
-        equipos.forEach(eq => { if (eq.miembros.includes(currentUserName)) yaInscrito = true; });
-        if(yaInscrito) return alert("Ya perteneces a una escuadra en este evento.");
-        
-        // Verificar cupo de equipos
-        if (equipos.length >= data.cuposTotales) return alert("Ya no hay cupos para nuevas escuadras en el torneo.");
-        
-        // Verificar nombre duplicado
-        let nombreExiste = false;
-        equipos.forEach(eq => { if (eq.nombre.toLowerCase() === nombreEq.toLowerCase()) nombreExiste = true; });
-        if(nombreExiste) return alert("Ese nombre de equipo ya está registrado.");
-        
-        const nuevoEquipo = { nombre: nombreEq, pass: passEq, miembros: [currentUserName] };
-        equipos.push(nuevoEquipo);
-        
+        let usuarioYaEnEquipo = false;
+        equipos.forEach(eq => {
+            if (eq.miembros && eq.miembros.includes(currentUserName)) usuarioYaEnEquipo = true;
+        });
+
+        if (usuarioYaEnEquipo) return alert("Ya perteneces a una escuadra en este torneo.");
+        if (equipos.length >= data.cuposTotales) return alert("Ya no hay cupos para nuevas escuadras.");
+
+        equipos.push({
+            nombre: nombreEquipo,
+            pass: passEquipo,
+            miembros: [currentUserName]
+        });
+
         doc.ref.update({ lista_equipos: equipos }).then(() => {
-            alert(`Escuadra ${nombreEq} creada con éxito.`);
             document.getElementById('eq-nombre').value = "";
             document.getElementById('eq-pass').value = "";
+            alert("¡Escuadra fundada! Espera a tus compañeros.");
         });
     });
 }
@@ -741,122 +1047,282 @@ function abrirModalPassEquipo(torneoId, nombreEq) {
 }
 
 function confirmarUnionEquipoPrivado() {
-    const tId = document.getElementById('join-eq-torneo-id').value;
+    const torneoId = document.getElementById('join-eq-torneo-id').value;
     const nombreEq = document.getElementById('join-eq-nombre').value;
-    const claveIntento = document.getElementById('join-eq-pass-input').value.trim();
-    
-    db.collection('torneos').doc(tId).get().then(doc => {
+    const claveIngresada = document.getElementById('join-eq-pass-input').value.trim();
+
+    db.collection('torneos').doc(torneoId).get().then(doc => {
         const equipos = doc.data().lista_equipos || [];
-        const eqTarget = equipos.find(e => e.nombre === nombreEq);
-        
-        if (eqTarget && eqTarget.pass === claveIntento) {
-            unirseEquipoTorneo(tId, nombreEq, equipos); // Pasamos array en memoria para no reloguear
+        const equipoDestino = equipos.find(e => e.nombre === nombreEq);
+
+        if (equipoDestino && equipoDestino.pass === claveIngresada) {
+            unirseEquipoTorneo(torneoId, nombreEq, equipos);
             document.getElementById('modal-pass-equipo').style.display = 'none';
         } else {
-            alert("Contraseña incorrecta. Pídesela al capitán.");
+            alert("Contraseña incorrecta. Pídele la clave correcta al capitán.");
         }
     });
 }
 
-function unirseEquipoTorneo(torneoId, nombreEq, equiposArray = null) {
-    const procesoUnion = (equipos) => {
+function unirseEquipoTorneo(torneoId, nombreEq, equiposYaCargados = null) {
+    const procesarUnion = (equipos) => {
+        const limitePorEquipo = parseInt(document.getElementById('eq-formato').value.charAt(0));
         let actualizado = false;
-        const limiteMiembros = parseInt(document.getElementById('eq-formato').value.charAt(0));
-        
+
         for (let i = 0; i < equipos.length; i++) {
-            if (equipos[i].nombre === nombreEq) {
-                if (equipos[i].miembros.length < limiteMiembros) {
-                    equipos[i].miembros.push(currentUserName);
-                    actualizado = true;
-                } else {
-                    return alert("La escuadra se llenó en el último segundo.");
-                }
+            if (equipos[i].nombre === nombreEq && equipos[i].miembros.length < limitePorEquipo) {
+                equipos[i].miembros.push(currentUserName);
+                actualizado = true;
                 break;
             }
         }
-        
+
         if (actualizado) {
             db.collection('torneos').doc(torneoId).update({ lista_equipos: equipos }).then(() => {
-                alert(`Te has unido a ${nombreEq}`);
+                alert(`¡Te has unido exitosamente a la escuadra ${nombreEq}!`);
             });
+        } else {
+            alert("No se pudo unir. Puede que la escuadra ya esté llena.");
         }
     };
 
-    if (equiposArray) { procesoUnion(equiposArray); } 
-    else { db.collection('torneos').doc(torneoId).get().then(doc => procesoUnion(doc.data().lista_equipos || [])); }
+    if (equiposYaCargados) {
+        procesarUnion(equiposYaCargados);
+    } else {
+        db.collection('torneos').doc(torneoId).get().then(doc => {
+            procesarUnion(doc.data().lista_equipos || []);
+        });
+    }
 }
 
 // ==========================================
-// ABISMO Y SALÓN DE LA FAMA
+// VISUALIZADOR DE LLAVES (MODAL)
+// ==========================================
+function verLlaves(torneoId, torneoNombre) {
+    document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
+    const contenedorText = document.getElementById('contenedor-llaves-texto');
+    const contenedorCampeon = document.getElementById('contenedor-campeon');
+    
+    contenedorText.innerHTML = "<p style='text-align:center; color:white;'>Desenrollando pergaminos...</p>";
+    contenedorCampeon.innerHTML = "";
+    window.location.hash = "#modal-llaves";
+
+    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
+        contenedorText.innerHTML = "";
+        
+        if (snap.empty) {
+            contenedorText.innerHTML = "<p style='text-align:center; color: var(--red); font-weight:bold;'>Los cruces aún no han sido generados por el Kage.</p>";
+            return;
+        }
+
+        db.collection('torneos').doc(torneoId).get().then(docTorneo => {
+            if(docTorneo.data().campeon) {
+                contenedorCampeon.innerHTML = `
+                    <div style="background: rgba(255,215,0,0.1); border: 2px solid gold; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
+                        <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
+                        <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
+                        <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${docTorneo.data().campeon}</h1>
+                    </div>
+                `;
+            }
+        });
+
+        let currentRonda = 0;
+        let htmlBuffer = "";
+
+        snap.forEach(doc => {
+            const partido = doc.data();
+            
+            if (partido.ronda !== currentRonda) {
+                if (currentRonda !== 0) htmlBuffer += "</div>"; 
+                currentRonda = partido.ronda;
+                htmlBuffer += `
+                    <h4 style="color: var(--blue); margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Ronda ${currentRonda}</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                `;
+            }
+
+            let p1Style = partido.ganador === partido.p1 ? "color: var(--green); font-weight:bold;" : "color: white;";
+            let p2Style = partido.ganador === partido.p2 ? "color: var(--green); font-weight:bold;" : "color: white;";
+            
+            if(partido.ganador && partido.ganador !== partido.p1) p1Style = "color: #555; text-decoration: line-through;";
+            if(partido.ganador && partido.ganador !== partido.p2) p2Style = "color: #555; text-decoration: line-through;";
+
+            let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
+
+            htmlBuffer += `
+                <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1; text-align: right; ${p1Style} font-size: 1.1rem;">${partido.p1}</div>
+                    <div style="padding: 0 15px; color: #666; font-size: 0.8rem; font-weight: bold;">VS</div>
+                    <div style="flex: 1; text-align: left; ${p2Style} font-size: 1.1rem;">${partido.p2}</div>
+                    <div style="flex: 1; text-align: right;">${estadoTexto}</div>
+                </div>
+            `;
+        });
+        
+        if (currentRonda !== 0) htmlBuffer += "</div>";
+        contenedorText.innerHTML = htmlBuffer;
+    });
+}
+
+// ==========================================
+// ABISMO (VIDEOS Y LIKES)
 // ==========================================
 function cargarVideosAbismo() {
-    const lista = document.getElementById('lista-abismo');
-    if(!lista) return;
-    
+    const listaAbismo = document.getElementById('lista-abismo');
+    if(!listaAbismo) return;
+
     db.collection('abismo_videos').orderBy('timestamp', 'desc').onSnapshot(snap => {
-        lista.innerHTML = '';
-        if(snap.empty) { lista.innerHTML = '<p style="color: #ccc; text-align: center; width: 100%;">El Abismo está en silencio. Sube una jugada.</p>'; return; }
-        
+        listaAbismo.innerHTML = '';
         snap.forEach(doc => {
-            const d = doc.data(); const id = doc.id; const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
-            let thumb = "https://via.placeholder.com/480x270/111111/00d2ff?text=Video+TikTok"; 
-            if(d.plataforma === 'youtube') { const videoId = d.url.split('embed/')[1]; thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; }
-            const btnDelete = esAdmin ? `<button class="btn-delete-abismo" onclick="borrarVideoAbismo('${id}', event)"><i class="fas fa-trash"></i> PURGAR</button>` : '';
+            const data = doc.data();
+            const id = doc.id;
+            const esMio = (data.usuario === currentUserName);
+            const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+            
+            let urlThumbnail = "https://via.placeholder.com/480x270/111111/00d2ff?text=Clip+Ninja";
+            
+            if (data.plataforma === 'youtube') {
+                const videoId = data.url.split('embed/')[1];
+                urlThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            }
+
+            let btnBorrar = (esMio || esAdmin) ? `<button class="btn-delete-abismo" onclick="borrarVideoAbismo('${id}', event)">PURGAR</button>` : '';
 
             let comentariosHTML = "";
-            if (d.comentarios && d.comentarios.length > 0) {
-                comentariosHTML = d.comentarios.slice(-3).map(c => `<div class="comentario-box"><strong style="color:var(--blue);">${c.usuario}:</strong> <span style="color:#ddd;">${c.texto}</span></div>`).join('');
+            if (data.comentarios && data.comentarios.length > 0) {
+                const ultimos = data.comentarios.slice(-3);
+                comentariosHTML = ultimos.map(c => `<div class="comentario-box"><strong>${c.usuario}:</strong> ${c.texto}</div>`).join('');
             }
-            
-            lista.innerHTML += `
-                <div class="container-glass" style="padding: 15px; border-color: var(--blue) !important;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer;" onclick="abrirPerfil('${d.usuario}')">
-                        <img src="https://ui-avatars.com/api/?name=${d.usuario}&background=random" style="width: 30px; border-radius: 50%; border: 1px solid var(--blue);"><strong style="font-size: 0.9rem; color: white;">${d.usuario}</strong>
+
+            listaAbismo.innerHTML += `
+                <div class="container-glass" style="padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="color: white; cursor: pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${data.usuario}</strong>
                     </div>
-                    <div class="video-preview-card" id="cont-${id}" onclick="activarVideo('${id}', '${d.url}')">
-                        ${btnDelete}<img src="${thumb}" class="thumbnail-img" alt="Miniatura"><div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+                    
+                    <div class="video-preview-card" id="cont-${id}" onclick="activarVideo('${id}', '${data.url}')">
+                        ${btnBorrar}
+                        <img src="${urlThumbnail}" class="thumbnail-img">
+                        <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 10px; margin-top: 10px;">
-                        <button style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem;" onclick="darLikeVideo('${id}', '${d.usuario}')"><i class="fas fa-heart" style="color: var(--red);"></i> <span style="font-size: 0.9rem; color:white;">${d.likes || 0}</span></button>
+
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 15px;">
+                        <button style="background: none; border: none; color: var(--red); font-size: 1.2rem; cursor: pointer;" onclick="darLikeVideo('${id}', '${data.usuario}')">
+                            <i class="fas fa-heart"></i> <span style="font-size: 1rem; color: white;">${data.likes || 0}</span>
+                        </button>
                     </div>
-                    <div style="margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
+
+                    <div style="margin-top: 10px;">
                         ${comentariosHTML}
-                        <form class="comentario-input-group" onsubmit="comentarVideo(event, '${id}', '${d.usuario}')">
-                            <input type="text" id="coment-${id}" class="comentario-input" placeholder="Agregar un comentario..." required><button type="submit" class="comentario-btn">Enviar</button>
+                        <form onsubmit="comentarVideo(event, '${id}', '${data.usuario}')" class="comentario-input-group">
+                            <input type="text" id="coment-${id}" class="comentario-input" placeholder="Comentar técnica...">
+                            <button type="submit" class="comentario-btn"><i class="fas fa-paper-plane"></i></button>
                         </form>
                     </div>
-                </div>`;
+                </div>
+            `;
         });
     });
 }
 
-function activarVideo(docId, url) { const contenedor = document.getElementById(`cont-${docId}`); contenedor.innerHTML = `<iframe src="${url}?autoplay=1" style="width: 100%; aspect-ratio: 16/9; border: none;" allow="autoplay; fullscreen" allowfullscreen></iframe>`; contenedor.onclick = null; }
-function borrarVideoAbismo(docId, event) { event.stopPropagation(); if(confirm("¿Deseas eliminar este archivo?")) { db.collection('abismo_videos').doc(docId).delete().then(() => alert("Archivo purgado.")); } }
-function darLikeVideo(videoId, autorVideo) { if(currentUserName === "Héroe Anónimo") return alert("Debes estar logueado."); db.collection('abismo_videos').doc(videoId).update({ likes: firebase.firestore.FieldValue.increment(1) }); if (autorVideo !== currentUserName) { enviarNotificacion(autorVideo, `A un jugador le gustó tu clip.`); } }
-
-function comentarVideo(e, videoId, autorVideo) {
-    e.preventDefault(); if(currentUserName === "Héroe Anónimo") return alert("Ingresa a la Arena.");
-    const input = document.getElementById(`coment-${videoId}`); const texto = input.value.trim(); if(!texto) return;
-    db.collection('abismo_videos').doc(videoId).update({ comentarios: firebase.firestore.FieldValue.arrayUnion({ usuario: currentUserName, texto: texto, timestamp: new Date().getTime() }) }).then(() => { input.value = ""; if(autorVideo !== currentUserName) { enviarNotificacion(autorVideo, `${currentUserName} comentó tu video.`); } });
+function activarVideo(id, url) {
+    const contenedor = document.getElementById(`cont-${id}`);
+    contenedor.innerHTML = `<iframe src="${url}?autoplay=1" style="width: 100%; aspect-ratio: 16/9; border: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
 }
 
-const formAbismo = document.getElementById('form-abismo');
-if(formAbismo) {
-    formAbismo.addEventListener('submit', (e) => {
-        e.preventDefault(); if(currentUserName === "Héroe Anónimo") return alert("Debes Ingresar.");
-        const urlInput = document.getElementById('video-url').value.trim(); let embedUrl = ""; let plataforma = "desconocida";
-        if(urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) { plataforma = "youtube"; embedUrl = `https://www.youtube.com/embed/${extraerIdLimpio(urlInput, 'youtube')}`; } 
-        else if(urlInput.includes('tiktok.com')) { plataforma = "tiktok"; const id = extraerIdLimpio(urlInput, 'tiktok'); embedUrl = id ? `https://www.tiktok.com/embed/v2/${id}` : urlInput; } 
-        else { alert("Solo links de YouTube o TikTok."); return; }
-        db.collection('abismo_videos').add({ usuario: currentUserName, url: embedUrl, urlCruda: urlInput, plataforma: plataforma, likes: 0, comentarios: [], timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { alert("¡Jugada publicada!"); formAbismo.reset(); });
+function borrarVideoAbismo(id, event) {
+    event.stopPropagation();
+    if(confirm("¿Estás seguro de que quieres borrar este clip del Abismo?")) {
+        db.collection('abismo_videos').doc(id).delete();
+    }
+}
+
+function darLikeVideo(id, autor) {
+    if(currentUserName === "Héroe Anónimo") return;
+    db.collection('abismo_videos').doc(id).update({
+        likes: firebase.firestore.FieldValue.increment(1)
     });
+    if (autor !== currentUserName) {
+        enviarNotificacion(autor, `${currentUserName} reconoció tu habilidad en el Abismo (Like).`);
+    }
 }
 
+function comentarVideo(event, id, autor) {
+    event.preventDefault();
+    if(currentUserName === "Héroe Anónimo") return;
+    const input = document.getElementById(`coment-${id}`);
+    const texto = input.value.trim();
+    
+    if (texto) {
+        db.collection('abismo_videos').doc(id).update({
+            comentarios: firebase.firestore.FieldValue.arrayUnion({
+                usuario: currentUserName,
+                texto: texto,
+                timestamp: new Date().getTime()
+            })
+        }).then(() => {
+            input.value = "";
+            if (autor !== currentUserName) {
+                enviarNotificacion(autor, `${currentUserName} comentó tu técnica en el Abismo.`);
+            }
+        });
+    }
+}
+
+document.getElementById('form-abismo').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (currentUserName === "Héroe Anónimo") { alert("Inicia sesión para subir al Abismo."); return; }
+    
+    let url = document.getElementById('video-url').value;
+    let embedUrl = "";
+    let plataforma = "";
+
+    if (url.includes("youtube.com/shorts/")) {
+        const id = url.split("shorts/")[1].split("?")[0];
+        embedUrl = `https://www.youtube.com/embed/${id}`;
+        plataforma = "youtube";
+    } else if (url.includes("tiktok.com/")) {
+        let id = "";
+        if (url.includes("/video/")) id = url.split("/video/")[1].split("?")[0];
+        else id = url; 
+        embedUrl = `https://www.tiktok.com/embed/v2/${id}`;
+        plataforma = "tiktok";
+    } else {
+        alert("Por favor, usa un enlace válido de YouTube Shorts o TikTok.");
+        return;
+    }
+
+    db.collection('abismo_videos').add({
+        usuario: currentUserName,
+        url: embedUrl,
+        plataforma: plataforma,
+        likes: 0,
+        comentarios: [],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        document.getElementById('form-abismo').reset();
+        alert("¡Tu técnica ha sido compartida en el Abismo!");
+    });
+});
+
+// ==========================================
+// SALÓN DE LA FAMA
+// ==========================================
 function cargarHallOfFame() {
-    const podio = document.getElementById('podio-leyendas'); if(!podio) return;
+    const podio = document.getElementById('podio-leyendas');
+    if(!podio) return;
+
     db.collection('ninjas').where('torneosGanados', '>', 0).orderBy('torneosGanados', 'desc').limit(3).onSnapshot(snap => {
-        if(snap.empty) { podio.innerHTML = '<p style="color: #666; width: 100%; text-align: center;">La historia recién comienza...</p>'; return; }
-        let leyendas = []; snap.forEach(doc => { leyendas.push(doc.data()); }); podio.innerHTML = "";
+        if(snap.empty) {
+            podio.innerHTML = "<p style='color:#666; width: 100%; text-align: center;'>El salón aguarda a las primeras leyendas...</p>";
+            return;
+        }
+
+        let leyendas = [];
+        snap.forEach(doc => leyendas.push(doc.data()));
+
+        podio.innerHTML = "";
         if (leyendas[1]) podio.innerHTML += crearCartaPodio(leyendas[1], 2);
         if (leyendas[0]) podio.innerHTML += crearCartaPodio(leyendas[0], 1);
         if (leyendas[2]) podio.innerHTML += crearCartaPodio(leyendas[2], 3);
@@ -865,471 +1331,866 @@ function cargarHallOfFame() {
 
 function crearCartaPodio(ninja, rank) {
     let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? ninja.fotoPerfil : `https://ui-avatars.com/api/?name=${ninja.nick}&background=random`;
-    let bordeEstilo = ""; if(ninja.equipado && ninja.equipado.borde) { const b = CATALOGO_TIENDA.find(i => i.id === ninja.equipado.borde); if(b) bordeEstilo = b.estilo; }
-    let corona = rank === 1 ? '<i class="fas fa-crown" style="color: gold; font-size: 1.5rem; position: absolute; top: -15px;"></i>' : '';
-    return `<div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">${corona}<img src="${imgSrc}" style="${bordeEstilo}"><h4>${rank}° Lugar</h4><h5>${ninja.nick}</h5><p><i class="fas fa-trophy"></i> ${ninja.torneosGanados} Copas</p></div>`;
+    let bordeEstilo = "";
+    
+    if(ninja.equipado && ninja.equipado.borde) {
+        const itemBorde = CATALOGO_TIENDA.find(i => i.id === ninja.equipado.borde);
+        if(itemBorde) bordeEstilo = itemBorde.estilo;
+    }
+
+    return `
+        <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
+            <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 2rem; color: gold; filter: drop-shadow(0 0 10px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
+            <img src="${imgSrc}" style="${bordeEstilo}">
+            <h4>${rank}° Lugar</h4>
+            <h5>${ninja.nick}</h5>
+            <p><i class="fas fa-trophy"></i> ${ninja.torneosGanados} Copas</p>
+        </div>
+    `;
 }
 
 // ==========================================
-// GREMIO Y CHAT GLOBAL
+// GREMIO (CLANES Y ANUNCIOS)
 // ==========================================
+function abrirModalClan() {
+    if (currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
+    document.getElementById('modal-clan').style.display = 'flex';
+    if (miClan !== "") {
+        document.getElementById('vista-sin-clan').style.display = 'none';
+        document.getElementById('vista-con-clan').style.display = 'block';
+        document.getElementById('clan-nombre-display').innerText = miClan;
+        
+        db.collection('clanes').doc(miClan).onSnapshot(doc => {
+            if(doc.exists) {
+                const data = doc.data();
+                document.getElementById('clan-xp-display').innerText = data.xp || 0;
+                const lista = document.getElementById('lista-miembros-clan');
+                lista.innerHTML = "";
+                data.miembros.forEach(m => {
+                    lista.innerHTML += `<li style="padding: 5px; border-bottom: 1px solid #333; color: white;"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${m}</li>`;
+                });
+            }
+        });
+    } else {
+        document.getElementById('vista-sin-clan').style.display = 'block';
+        document.getElementById('vista-con-clan').style.display = 'none';
+    }
+}
+
+function crearClan() {
+    const nombreClan = document.getElementById('input-crear-clan').value.trim();
+    if (!nombreClan) return;
+    
+    db.collection('clanes').doc(nombreClan).get().then(doc => {
+        if (doc.exists) {
+            alert("El nombre de escuadrón ya está registrado en la aldea.");
+        } else {
+            db.collection('clanes').doc(nombreClan).set({
+                nombre: nombreClan,
+                miembros: [currentUserName],
+                xp: 0,
+                lider: currentUserName
+            }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ clan: nombreClan });
+                alert("¡Escuadrón fundado con honor!");
+            });
+        }
+    });
+}
+
+function unirseClan() {
+    const nombreClan = document.getElementById('input-unirse-clan').value.trim();
+    if (!nombreClan) return;
+
+    db.collection('clanes').doc(nombreClan).get().then(doc => {
+        if (!doc.exists) {
+            alert("Este escuadrón no existe en los registros.");
+        } else {
+            doc.ref.update({
+                miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName)
+            }).then(() => {
+                db.collection('ninjas').doc(currentUserId).update({ clan: nombreClan });
+                alert("Te has unido al escuadrón.");
+            });
+        }
+    });
+}
+
+function abandonarClan() {
+    if (confirm("¿Estás seguro de abandonar a tus camaradas?")) {
+        db.collection('clanes').doc(miClan).update({
+            miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName)
+        }).then(() => {
+            db.collection('ninjas').doc(currentUserId).update({ clan: "" });
+            document.getElementById('modal-clan').style.display = 'none';
+            alert("Has abandonado el escuadrón.");
+        });
+    }
+}
+
 function cargarTopClanes() {
-    const lista = document.getElementById('lista-top-clanes'); if(!lista) return;
+    const listaClanes = document.getElementById('lista-top-clanes');
+    if(!listaClanes) return;
     db.collection('clanes').orderBy('xp', 'desc').limit(5).onSnapshot(snap => {
-        lista.innerHTML = ""; if(snap.empty) { lista.innerHTML = "<p style='color:#666; text-align:center;'>Aún no hay escuadrones.</p>"; return; }
-        let puesto = 1;
-        snap.forEach(doc => {
-            const d = doc.data(); let color = puesto === 1 ? "gold" : (puesto === 2 ? "silver" : (puesto === 3 ? "#cd7f32" : "#333"));
-            lista.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:12px; border-radius:5px; border-left:3px solid ${color}; margin-bottom: 8px;"><div><strong style="color: white; font-size: 1.1rem;">${puesto}. ${d.nombre}</strong> <br> <span style="font-size:0.75rem; color:#888;"><i class="fas fa-users"></i> ${d.miembros.length} miembros</span></div><div style="color:gold; font-weight:bold; font-size:1rem;">${d.xp} XP</div></div>`;
-            puesto++;
+        listaClanes.innerHTML = "";
+        snap.forEach((doc, index) => {
+            const data = doc.data();
+            let colorRank = "white";
+            if(index === 0) colorRank = "gold";
+            if(index === 1) colorRank = "silver";
+            if(index === 2) colorRank = "#cd7f32";
+
+            listaClanes.innerHTML += `
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.5); margin-bottom: 5px; border-radius: 5px; border-left: 3px solid ${colorRank};">
+                    <span style="font-weight: bold; color: ${colorRank};">${index + 1}. ${data.nombre}</span>
+                    <span style="color: gold; font-weight: bold;">${data.xp} XP</span>
+                </div>
+            `;
         });
     });
 }
+
+document.getElementById('form-anuncio').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (currentUserName === "Héroe Anónimo") return;
+    
+    db.collection('anuncios_gremio').add({
+        usuario: currentUserName,
+        busco: document.getElementById('a-busco').value,
+        soy: document.getElementById('a-soy').value,
+        mensaje: document.getElementById('a-mensaje').value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        document.getElementById('form-anuncio').reset();
+        document.getElementById('modal-anuncio').style.display = 'none';
+        alert("Anuncio clavado en el tablón.");
+    });
+});
 
 function cargarAnunciosGremio() {
-    const lista = document.getElementById('lista-anuncios'); if(!lista) return;
-    db.collection('anuncios_gremio').orderBy('timestamp', 'desc').limit(15).onSnapshot(snap => {
-        lista.innerHTML = ""; if(snap.empty) { lista.innerHTML = "<p style='color:#888; text-align:center;'>El tablón está vacío.</p>"; return; }
+    const listaAnuncios = document.getElementById('lista-anuncios');
+    if(!listaAnuncios) return;
+    db.collection('anuncios_gremio').orderBy('timestamp', 'desc').limit(10).onSnapshot(snap => {
+        listaAnuncios.innerHTML = "";
         snap.forEach(doc => {
-            const d = doc.data();
-            lista.innerHTML += `<div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border-left:3px solid var(--blue); margin-bottom:10px;"><strong style="color:var(--blue); cursor:pointer;" onclick="abrirPerfil('${d.usuario}')"><i class="fas fa-user"></i> ${d.usuario}</strong><div style="margin-top: 8px; font-size: 0.9rem;"><span style="color:#ccc;"><strong>Busca:</strong> ${d.busco}</span> | <span style="color:#ccc;"><strong>Ofrece:</strong> ${d.soy}</span></div><p style="color:#888; font-size:0.85rem; font-style:italic; margin-top:8px; border-top: 1px dashed #333; padding-top: 8px;">"${d.mensaje}"</p></div>`;
+            const data = doc.data();
+            listaAnuncios.innerHTML += `
+                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 5px; border: 1px solid #333; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong style="color: var(--blue); cursor:pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja"></i> ${data.usuario}</strong>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #ccc; margin-bottom: 5px;">
+                        <span style="color: var(--green);">[Busca]:</span> ${data.busco} <br>
+                        <span style="color: gold;">[Es]:</span> ${data.soy}
+                    </div>
+                    <p style="font-size: 0.9rem; color: white; font-style: italic;">"${data.mensaje}"</p>
+                </div>
+            `;
         });
     });
 }
 
-const formAnuncio = document.getElementById('form-anuncio');
-if(formAnuncio) {
-    formAnuncio.addEventListener('submit', (e) => {
-        e.preventDefault(); if(currentUserName === "Héroe Anónimo") return;
-        db.collection('anuncios_gremio').add({ usuario: currentUserName, busco: document.getElementById('a-busco').value, soy: document.getElementById('a-soy').value, mensaje: document.getElementById('a-mensaje').value, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { formAnuncio.reset(); window.location.hash = '#gremio'; alert("Anuncio publicado."); });
-    });
+function abrirModalAnuncio() {
+    if (currentUserName === "Héroe Anónimo") { window.location.hash = "#modal-login"; return; }
+    document.getElementById('modal-anuncio').style.display = 'flex';
 }
 
+// ==========================================
+// TABERNA GLOBAL (CHAT)
+// ==========================================
 function escucharTabernaGlobal() {
-    const chatContainer = document.getElementById('chat-messages-container'); if(!chatContainer) return;
-    db.collection('taberna').orderBy('timestamp').limit(100).onSnapshot(snap => {
-        chatContainer.innerHTML = '';
+    const contenedor = document.getElementById('chat-messages-container');
+    if(!contenedor) return;
+
+    db.collection('taberna').orderBy('timestamp').limit(50).onSnapshot(snap => {
+        contenedor.innerHTML = '';
         snap.forEach(doc => {
-            const d = doc.data(); let estiloNombre = "color: var(--blue);";
-            if (d.colorEstilo !== "") { const itemCat = CATALOGO_TIENDA.find(i => i.id === d.colorEstilo); if(itemCat) estiloNombre = itemCat.estilo; }
-            if (d.usuario === 'Matías' || d.usuario === 'Admin') { estiloNombre = "color: var(--red); text-shadow: 0 0 5px red;"; }
-            chatContainer.innerHTML += `<div style="margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; font-size:0.9rem;"><strong style="${estiloNombre} margin-right: 5px; cursor:pointer;" onclick="abrirPerfil('${d.usuario}')">${d.usuario}:</strong> <span style="color:#ddd; word-break: break-all;">${d.texto}</span></div>`;
+            const data = doc.data();
+            
+            let estiloColor = "color: var(--blue);";
+            if (data.colorEstilo) {
+                const itemTienda = CATALOGO_TIENDA.find(i => i.id === data.colorEstilo);
+                if (itemTienda) estiloColor = itemTienda.estilo;
+            }
+
+            if (data.usuario === 'Matías' || data.usuario === 'Admin' || data.usuario === 'Kage') {
+                estiloColor = "color: var(--red); text-shadow: 0 0 5px red;";
+            }
+
+            contenedor.innerHTML += `
+                <div style="margin-bottom: 8px; font-size: 0.9rem; word-wrap: break-word;">
+                    <strong style="${estiloColor} cursor:pointer;" onclick="abrirPerfil('${data.usuario}')">${data.usuario}:</strong> 
+                    <span style="color: #eee;">${data.texto}</span>
+                </div>
+            `;
         });
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        contenedor.scrollTop = contenedor.scrollHeight;
     });
 
     const btnSend = document.getElementById('btn-send-chat');
     if(btnSend) {
-        btnSend.addEventListener('click', () => {
+        btnSend.onclick = () => {
             const input = document.getElementById('chat-input-text');
-            if(input.value.trim() && currentUserName !== "Héroe Anónimo") { db.collection('taberna').add({ usuario: currentUserName, texto: input.value.trim(), colorEstilo: miEquipamiento.colorChat || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() }); input.value = ''; } 
-            else if (currentUserName === "Héroe Anónimo") { alert("Debes identificarte primero."); }
-        });
+            if(input.value.trim() && currentUserName !== "Héroe Anónimo") {
+                db.collection('taberna').add({
+                    usuario: currentUserName,
+                    texto: input.value.trim(),
+                    colorEstilo: miEquipamiento.colorChat || '',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                input.value = '';
+            }
+        };
+    }
+}
+
+async function limpiarTaberna() {
+    if(confirm("¿Estás seguro de quemar todos los pergaminos de la taberna global?")) {
+        const snap = await db.collection('taberna').get();
+        const batch = db.batch();
+        snap.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("La taberna ha sido vaciada.");
     }
 }
 
 // ==========================================
-// LIBRO BINGO Y PERFILES
+// PERFILES Y LIBRO BINGO
 // ==========================================
 function cargarTopIndividualBingo() {
-    const lista = document.getElementById('ranking-dinamico'); if(!lista) return;
-    db.collection('ninjas').orderBy('xp', 'desc').limit(15).onSnapshot(snap => {
-        lista.innerHTML = ""; let puesto = 1;
+    const lista = document.getElementById('ranking-dinamico');
+    if(!lista) return;
+
+    db.collection('ninjas').orderBy('xp', 'desc').limit(10).onSnapshot(snap => {
+        lista.innerHTML = "";
+        let posicion = 1;
         snap.forEach(doc => {
-            const d = doc.data(); let colorBorde = puesto === 1 ? 'gold' : (puesto === 2 ? 'silver' : (puesto === 3 ? '#cd7f32' : '#333'));
-            let colorNombre = 'var(--blue)'; if(d.equipado && d.equipado.colorChat) { const itemColor = CATALOGO_TIENDA.find(i => i.id === d.equipado.colorChat); if(itemColor) colorNombre = itemColor.estilo; }
-            lista.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 5px; border-left: 3px solid ${colorBorde}; cursor: pointer; transition: 0.3s;" onclick="abrirPerfil('${d.nick}')"><div><strong>${puesto}. <span style="${colorNombre.includes('color:') ? colorNombre : 'color:'+colorNombre}">${d.nick}</span></strong></div><div style="font-size: 0.8rem; color: #aaa; text-align: right;">${d.xp || 0} XP<br><span style="color: var(--green);"><i class="fas fa-gem"></i> ${d.ryos || 0}</span></div></div>`;
-            puesto++;
+            const data = doc.data();
+            let colorPos = posicion === 1 ? 'gold' : (posicion === 2 ? 'silver' : (posicion === 3 ? '#cd7f32' : 'white'));
+            
+            lista.innerHTML += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
+                    <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
+                    <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
+                </div>
+            `;
+            posicion++;
         });
     });
 }
 
-async function abrirPerfil(nick) {
-    const modal = document.getElementById('modal-perfil'); document.getElementById('perfil-nick').innerText = nick; const avatarImg = document.getElementById('perfil-avatar');
-    avatarImg.src = `https://ui-avatars.com/api/?name=${nick}&background=random`; avatarImg.style = "width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #444; margin-bottom: 10px; transition: 0.3s; background: #111;";
-    document.getElementById('perfil-rango').innerText = "Buscando..."; document.getElementById('perfil-xp').innerText = "..."; document.getElementById('perfil-campeonatos').innerText = "..."; document.getElementById('perfil-clan').innerHTML = ""; document.getElementById('perfil-comunidad').innerHTML = ""; document.getElementById('perfil-pin-container').innerHTML = ""; document.getElementById('perfil-bio').innerText = '"Un guerrero misterioso..."'; document.getElementById('perfil-redes-container').innerHTML = "";
-    
-    const btnEditar = document.getElementById('btn-editar-perfil-container');
-    if (nick === currentUserName && currentUserName !== "Héroe Anónimo") { btnEditar.style.display = 'block'; } else { btnEditar.style.display = 'none'; }
+async function abrirPerfil(nickBuscado) {
+    if(!nickBuscado) return;
     window.location.hash = '#modal-perfil';
     
+    document.getElementById('perfil-nick').innerText = "Buscando chakra...";
+    document.getElementById('perfil-bio').innerText = "";
+    document.getElementById('perfil-clan').innerText = "";
+    document.getElementById('perfil-comunidad').innerText = "";
+    document.getElementById('btn-editar-perfil-container').style.display = 'none';
+
     try {
-        const snapshot = await db.collection('ninjas').where('nick', '==', nick).get();
-        if(!snapshot.empty) {
+        const snapshot = await db.collection('ninjas').where('nick', '==', nickBuscado).get();
+        if (!snapshot.empty) {
             const data = snapshot.docs[0].data();
-            if(data.fotoPerfil && data.fotoPerfil !== "") { avatarImg.src = data.fotoPerfil; }
-            if(data.bio && data.bio !== "") { document.getElementById('perfil-bio').innerText = `"${data.bio}"`; }
-            if(data.redSocial && data.redSocial !== "") { document.getElementById('perfil-redes-container').innerHTML = `<a href="${data.redSocial}" target="_blank" style="color: var(--blue); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--blue); padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;"><i class="fas fa-link"></i> Visitar Enlace</a>`; }
-            document.getElementById('perfil-rango').innerText = (data.plan && data.plan !== 'genin') ? (data.plan === 'jonin' ? 'ÉPICO' : 'MÍTICO') : (data.rango || 'Guerrero');
-            if(data.plan === 'kasekage') document.getElementById('perfil-rango').style.color = "gold";
-            document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`; document.getElementById('perfil-campeonatos').innerText = data.torneosGanados || 0;
-            if(data.clan && data.clan !== "") { document.getElementById('perfil-clan').innerHTML = `<i class="fas fa-shield-alt"></i> Escuadrón: ${data.clan}`; }
-            if(data.comunidad && data.comunidad !== "") { document.getElementById('perfil-comunidad').innerHTML = `<i class="fas fa-handshake"></i> Alianza: ${data.comunidad}`; }
-            if(data.equipado) {
-                if(data.equipado.borde) { const b = CATALOGO_TIENDA.find(i => i.id === data.equipado.borde); if(b) avatarImg.style = `width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 10px; transition: 0.3s; background: #111; ${b.estilo}`; }
-                if(data.equipado.colorChat) { const c = CATALOGO_TIENDA.find(i => i.id === data.equipado.colorChat); if(c) document.getElementById('perfil-nick').style = `margin-bottom: 5px; transition: 0.3s; font-weight: bold; ${c.estilo}`; }
-                if(data.equipado.pin) { const p = CATALOGO_TIENDA.find(i => i.id === data.equipado.pin); if(p) document.getElementById('perfil-pin-container').innerHTML = p.icon; }
+            
+            let rangoTexto = "GUERRERO";
+            if(data.plan === 'jonin') rangoTexto = "ÉPICO";
+            if(data.plan === 'kasekage') rangoTexto = "MÍTICO";
+            if(data.nick === 'Matías' || data.email_oculto === ADMIN_EMAIL) rangoTexto = "KAGE SUPREMO";
+
+            document.getElementById('perfil-nick').innerText = data.nick;
+            document.getElementById('perfil-rango').innerText = rangoTexto;
+            document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+            document.getElementById('perfil-campeonatos').innerText = data.torneosGanados || 0;
+            
+            document.getElementById('perfil-bio').innerText = data.bio && data.bio.trim() !== "" ? `"${data.bio}"` : '"Un guerrero rodeado de misterio..."';
+            
+            document.getElementById('perfil-clan').innerHTML = data.clan ? `<i class="fas fa-shield-alt"></i> Escuadrón: ${data.clan}` : '';
+            document.getElementById('perfil-comunidad').innerHTML = data.comunidad ? `<i class="fas fa-users"></i> Alianza: ${data.comunidad}` : '';
+            
+            const redesCont = document.getElementById('perfil-redes-container');
+            if (data.redSocial && data.redSocial.trim() !== "") {
+                redesCont.innerHTML = `<a href="${data.redSocial}" target="_blank" class="btn-secondary" style="font-size:0.8rem; border-color:#E1306C; color:#E1306C;"><i class="fab fa-instagram"></i> Red Social</a>`;
+            } else {
+                redesCont.innerHTML = "";
             }
+
+            let imgSrc = data.fotoPerfil && data.fotoPerfil !== "" ? data.fotoPerfil : `https://ui-avatars.com/api/?name=${data.nick}&background=random`;
+            const avatarEl = document.getElementById('perfil-avatar');
+            avatarEl.src = imgSrc;
+            avatarEl.style = "width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:10px;"; 
+            
+            document.getElementById('perfil-pin-container').innerHTML = "";
+
+            if (data.equipado) {
+                if (data.equipado.borde) {
+                    const itemBorde = CATALOGO_TIENDA.find(i => i.id === data.equipado.borde);
+                    if(itemBorde) avatarEl.style = `width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:10px; ${itemBorde.estilo}`;
+                }
+                if (data.equipado.pin) {
+                    const itemPin = CATALOGO_TIENDA.find(i => i.id === data.equipado.pin);
+                    if(itemPin) document.getElementById('perfil-pin-container').innerHTML = itemPin.icon;
+                }
+            }
+
+            if (data.nick === currentUserName) {
+                document.getElementById('btn-editar-perfil-container').style.display = 'block';
+            }
+
+        } else {
+            document.getElementById('perfil-nick').innerText = "Ninja no encontrado";
         }
-    } catch(error) { console.error(error); }
-}
-
-function abrirModalEditarPerfil() { if (currentUserName === "Héroe Anónimo") return alert("Debes ingresar primero."); document.getElementById('modal-editar-perfil').style.display = 'flex'; document.getElementById('edit-bio').value = miPerfilActual.bio || ""; document.getElementById('edit-redes').value = miPerfilActual.redSocial || ""; }
-
-const formEditarPerfil = document.getElementById('form-editar-perfil');
-if(formEditarPerfil) {
-    formEditarPerfil.addEventListener('submit', async (e) => {
-        e.preventDefault(); const btn = document.getElementById('btn-guardar-perfil'); const file = document.getElementById('edit-foto-file').files[0]; btn.innerText = "SINCRONIZANDO..."; btn.disabled = true;
-        let fotoUrl = miPerfilActual.fotoPerfil || "";
-        try {
-            if(file) { const ref = storage.ref(`perfiles/${currentUserId}/${file.name}`); const snap = await ref.put(file); fotoUrl = await snap.ref.getDownloadURL(); }
-            await db.collection('ninjas').doc(currentUserId).update({ fotoPerfil: fotoUrl, bio: document.getElementById('edit-bio').value, redSocial: document.getElementById('edit-redes').value });
-            alert("Perfil actualizado."); location.reload();
-        } catch(err) { alert("Error al subir archivo."); btn.innerText = "GUARDAR CAMBIOS"; btn.disabled = false; }
-    });
-}
-
-function abrirModalClan() {
-    if (currentUserName === "Héroe Anónimo") { alert("Identifícate primero."); window.location.hash = "#modal-login"; return; }
-    document.getElementById('modal-clan').style.display = 'flex';
-    if (miClan === "") { document.getElementById('vista-sin-clan').style.display = 'block'; document.getElementById('vista-con-clan').style.display = 'none'; } 
-    else {
-        document.getElementById('vista-sin-clan').style.display = 'none'; document.getElementById('vista-con-clan').style.display = 'block'; document.getElementById('clan-nombre-display').innerText = miClan;
-        db.collection('clanes').doc(miClan).onSnapshot(doc => {
-            if(doc.exists) {
-                document.getElementById('clan-xp-display').innerText = doc.data().xp || 0; const ul = document.getElementById('lista-miembros-clan'); ul.innerHTML = "";
-                const miembros = doc.data().miembros || [];
-                miembros.forEach(m => { let liderBadge = m === doc.data().lider ? '<span style="color:gold; font-size:0.7rem; float:right;"><i class="fas fa-crown"></i> Lider</span>' : ''; ul.innerHTML += `<li style="padding: 8px 0; border-bottom: 1px solid #222;">${m} ${liderBadge}</li>`; });
-            }
-        });
+    } catch (e) {
+        console.error("Error al buscar perfil:", e);
     }
 }
 
-function crearClan() { const nombre = document.getElementById('input-crear-clan').value.trim(); if(!nombre) return; db.collection('clanes').doc(nombre).get().then(doc => { if(doc.exists) { alert("Ese Escuadrón ya existe."); } else { db.collection('clanes').doc(nombre).set({ nombre: nombre, lider: currentUserName, miembros: [currentUserName], xp: 0, creacion: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { db.collection('ninjas').doc(currentUserId).update({ clan: nombre }); alert("¡Escuadrón formado!"); }); } }); }
-function unirseClan() { const nombre = document.getElementById('input-unirse-clan').value.trim(); if(!nombre) return; db.collection('clanes').doc(nombre).get().then(doc => { if(!doc.exists) { alert("El Escuadrón no existe."); } else { db.collection('clanes').doc(nombre).update({ miembros: firebase.firestore.FieldValue.arrayUnion(currentUserName) }).then(() => { db.collection('ninjas').doc(currentUserId).update({ clan: nombre }); alert("¡Te has unido al Escuadrón!"); }); } }); }
-function abandonarClan() { if(confirm("¿Abandonar tu Escuadrón?")) { db.collection('clanes').doc(miClan).get().then(doc => { if(doc.exists) { const data = doc.data(); if(data.lider === currentUserName && data.miembros.length > 1) { alert("Eres líder. Debes nombrar a otro o disolver vacío."); return; } if(data.miembros.length === 1) { db.collection('clanes').doc(miClan).delete(); } else { db.collection('clanes').doc(miClan).update({ miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName) }); } db.collection('ninjas').doc(currentUserId).update({ clan: "" }).then(() => { document.getElementById('modal-clan').style.display='none'; alert("Has abandonado el Escuadrón."); }); } }); } }
+function abrirModalEditarPerfil() {
+    document.getElementById('modal-editar-perfil').style.display = 'flex';
+    document.getElementById('edit-bio').value = miPerfilActual.bio || "";
+    document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
+}
+
+document.getElementById('form-editar-perfil').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = document.getElementById('edit-foto-file').files[0];
+    const bio = document.getElementById('edit-bio').value.trim();
+    const red = document.getElementById('edit-redes').value.trim();
+    const btn = document.getElementById('btn-guardar-perfil');
+    
+    btn.innerText = "Sincronizando Chakra...";
+    btn.disabled = true;
+
+    try {
+        let updateData = { bio: bio, redSocial: red };
+
+        if (file) {
+            const storageRef = storage.ref(`avatars/${currentUserId}_${Date.now()}`);
+            await storageRef.put(file);
+            const url = await storageRef.getDownloadURL();
+            updateData.fotoPerfil = url;
+        }
+
+        await db.collection('ninjas').doc(currentUserId).update(updateData);
+        alert("¡Perfil actualizado correctamente!");
+        document.getElementById('modal-editar-perfil').style.display = 'none';
+        abrirPerfil(currentUserName);
+    } catch (error) {
+        alert("Error al actualizar el perfil.");
+        console.error(error);
+    } finally {
+        btn.innerText = "GUARDAR CAMBIOS";
+        btn.disabled = false;
+    }
+});
 
 // ==========================================
-// ADMIN Y CREADOR (SISTEMA DE GESTIÓN)
+// ADMINISTRACIÓN: GESTIÓN DE TORNEOS (KAGE)
 // ==========================================
-function escucharTicker() { db.collection('configuracion').doc('ticker').onSnapshot(doc => { if(doc.exists) { document.getElementById('ticker-contenido').innerHTML = `<span class="ticker-item"><i class="fas fa-bullhorn"></i> ALERTA: <span style="color: var(--blue);">${doc.data().mensaje}</span></span> <span class="ticker-item"><i class="fas fa-fire"></i> ¡La Arena está lista!</span>`; } }); }
+function mostrarTabAdmin(tabId) {
+    const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion', 'tab-personalizacion'];
+    tabs.forEach(t => {
+        document.getElementById(t).style.display = 'none';
+    });
+    document.getElementById(tabId).style.display = 'block';
+}
 
 function configurarAdminForms() {
-    const formTicker = document.getElementById('form-config-ticker');
-    if(formTicker) { formTicker.addEventListener('submit', (e) => { e.preventDefault(); db.collection('configuracion').doc('ticker').set({ mensaje: document.getElementById('input-ticker').value, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => alert("Alerta lanzada.")); }); }
-
-    const formStreamGlobalAdmin = document.getElementById('form-config-stream'); 
-    if(formStreamGlobalAdmin) { formStreamGlobalAdmin.addEventListener('submit', (e) => { e.preventDefault(); const plat = document.getElementById('stream-plataforma-admin').value; const idRaw = document.getElementById('stream-id-admin').value.trim(); const discordUrl = document.getElementById('discord-url-admin').value.trim(); let idLimpio = extraerIdLimpio(idRaw, plat); db.collection('configuracion').doc('global_media').set({ plataforma: plat, id: idLimpio, discordUrl: discordUrl, actualizadoPor: currentUserName, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => alert("¡Señales Globales Actualizadas!")); }); }
-
-    const formSorteo = document.getElementById('form-crear-sorteo');
-    if(formSorteo) { formSorteo.addEventListener('submit', (e) => { e.preventDefault(); db.collection('sorteos').add({ premio: document.getElementById('s-premio').value, precio: parseInt(document.getElementById('s-precio').value), cantidadGanadores: parseInt(document.getElementById('s-ganadores').value), creador: currentUserName, participantes: [], estado: 'abierto', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { alert("¡Sorteo oficial publicado!"); formSorteo.reset(); }); }); }
-
+    
     const formTorneo = document.getElementById('form-torneo');
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
             e.preventDefault();
             db.collection('torneos').add({
-                nombre: document.getElementById('t-nombre').value, fecha: document.getElementById('t-fecha').value, cuposTotales: parseInt(document.getElementById('t-cupos').value), premio: document.getElementById('t-premio').value, formato: document.getElementById('t-formato').value, tipo: document.getElementById('t-tipo').value, privado: document.getElementById('t-privado').checked, creador: currentUserName, 
-                lista_inscriptos: [], // Para 1v1
-                lista_equipos: [],    // Para 2v2, 3v3, 5v5
-                estado: "abierto", timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => { formTorneo.reset(); alert("¡Evento publicado en la Arena!"); });
+                nombre: document.getElementById('t-nombre').value,
+                fecha: document.getElementById('t-fecha').value,
+                cuposTotales: parseInt(document.getElementById('t-cupos').value),
+                premio: document.getElementById('t-premio').value,
+                formato: document.getElementById('t-formato').value,
+                tipo: document.getElementById('t-tipo').value,
+                privado: document.getElementById('t-privado').checked,
+                creador: currentUserName,
+                lista_inscriptos: [],
+                lista_equipos: [],
+                estado: "abierto",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('form-torneo').reset();
+                alert("¡Evento publicado en el tablón!");
+            });
         });
     }
 
-    const formBanco = document.getElementById('form-banco-kage');
-    if(formBanco) { formBanco.addEventListener('submit', async (e) => { e.preventDefault(); const usuarioDestino = document.getElementById('banco-usuario').value.trim(); const monto = parseInt(document.getElementById('banco-monto').value); try { const snapshot = await db.collection('ninjas').where('nick', '==', usuarioDestino).get(); if(snapshot.empty) { alert("Jugador no encontrado."); return; } const docId = snapshot.docs[0].id; await db.collection('ninjas').doc(docId).update({ ryos: firebase.firestore.FieldValue.increment(monto) }); alert(`Transferencia completada.`); enviarNotificacion(usuarioDestino, `Has recibido ${monto} Diamantes.`); formBanco.reset(); } catch(err) { alert("Error: " + err); } }); }
-
-    const formPersonalizacion = document.getElementById('form-config-personalizacion');
-    if(formPersonalizacion) {
-        formPersonalizacion.addEventListener('submit', (e) => {
+    const formConfig = document.getElementById('form-config-personalizacion');
+    if(formConfig) {
+        formConfig.addEventListener('submit', (e) => {
             e.preventDefault();
-            const bgTipo = document.getElementById('cfg-bg-tipo').value; const bgUrl = document.getElementById('cfg-bg-url').value; const colorAcento = document.getElementById('cfg-color-acento').value;
-            const secciones = ['stream', 'fama', 'ligas', 'planes', 'torneos', 'bingo', 'comunidades', 'sorteos', 'abismo', 'gremio', 'tienda']; const titulos = {}; const visibilidad = {};
-            secciones.forEach(sec => { const inputTit = document.getElementById(`title-cfg-${sec}`); const inputVis = document.getElementById(`vis-cfg-${sec}`); if(inputTit && inputTit.value.trim() !== "") { titulos[sec] = inputTit.value.trim(); } else { const headEl = document.getElementById(`head-${sec}`); titulos[sec] = headEl ? headEl.innerText.trim() : sec.toUpperCase(); } if(inputVis) { visibilidad[sec] = inputVis.checked; } });
-            db.collection('configuracion').doc('personalizacion').set({ bgTipo, bgUrl, colorAcento, titulos, visibilidad, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => alert("¡Entorno y Diseño actualizado!"));
+            const bgTipo = document.getElementById('cfg-bg-tipo').value;
+            const bgUrl = document.getElementById('cfg-bg-url').value;
+            const colorAcento = document.getElementById('cfg-color-acento').value;
+            
+            // NUEVO: GUARDAR LINKS EN FIREBASE
+            const linksSociales = {
+                wa: document.getElementById('cfg-link-wa').value,
+                ds: document.getElementById('cfg-link-ds').value,
+                fb: document.getElementById('cfg-link-fb').value,
+                tt: document.getElementById('cfg-link-tt').value,
+                ig: document.getElementById('cfg-link-ig').value,
+                yt: document.getElementById('cfg-link-yt').value
+            };
+
+            const visibilidad = {
+                stream: document.getElementById('vis-cfg-stream').checked,
+                fama: document.getElementById('vis-cfg-fama').checked,
+                ligas: document.getElementById('vis-cfg-ligas').checked,
+                planes: document.getElementById('vis-cfg-planes').checked,
+                torneos: document.getElementById('vis-cfg-torneos').checked,
+                bingo: document.getElementById('vis-cfg-bingo').checked,
+                comunidades: document.getElementById('vis-cfg-comunidades').checked,
+                sorteos: document.getElementById('vis-cfg-sorteos').checked,
+                abismo: document.getElementById('vis-cfg-abismo').checked,
+                gremio: document.getElementById('vis-cfg-gremio').checked,
+                tienda: document.getElementById('vis-cfg-tienda').checked
+            };
+
+            const titulos = {
+                stream: document.getElementById('title-cfg-stream').value || "Visión del Byakugan",
+                fama: document.getElementById('title-cfg-fama').value || "Salón de la Fama",
+                ligas: document.getElementById('title-cfg-ligas').value || "Ligas Mensuales",
+                planes: document.getElementById('title-cfg-planes').value || "Pases de Batalla",
+                torneos: document.getElementById('title-cfg-torneos').value || "Torneos Relámpago",
+                bingo: document.getElementById('title-cfg-bingo').value || "Libro Bingo",
+                comunidades: document.getElementById('title-cfg-comunidades').value || "Comunidades Aliadas",
+                sorteos: document.getElementById('title-cfg-sorteos').value || "Sorteos de la Aldea",
+                abismo: document.getElementById('title-cfg-abismo').value || "Archivos del Abismo",
+                gremio: document.getElementById('title-cfg-gremio').value || "Gremio y Escuadrones",
+                tienda: document.getElementById('title-cfg-tienda').value || "Mercado de la Aldea"
+            };
+
+            db.collection('configuracion').doc('personalizacion').update({
+                bgTipo, bgUrl, colorAcento, linksSociales, visibilidad, titulos
+            }).then(() => alert("¡Configuración global y redes sociales actualizadas!"));
         });
     }
 }
 
-function banearUsuario() { const nick = document.getElementById('gestion-nick').value.trim(); if(!nick) return; if(confirm(`¿Expulsar a ${nick} permanentemente?`)) { db.collection('ninjas').where('nick', '==', nick).get().then(snap => { if(snap.empty) { alert("No encontrado."); return; } snap.docs[0].ref.update({ banned: true }).then(() => alert("Expulsado.")); }); } }
-function gestionarPlan(planId) { const nick = document.getElementById('gestion-nick').value.trim(); if(!nick) return; db.collection('ninjas').where('nick', '==', nick).get().then(snap => { if(snap.empty) { alert("No encontrado."); return; } snap.docs[0].ref.update({ plan: planId }).then(() => { let nombrePlanUI = planId === 'kasekage' ? 'MÍTICO' : (planId === 'jonin' ? 'ÉPICO' : 'GUERRERO'); alert(`Plan ${nombrePlanUI} otorgado.`); enviarNotificacion(nick, `Se te ha asignado el rango de ${nombrePlanUI}.`); }); }); }
-async function limpiarTaberna() { if(!confirm("⚠️ ADVERTENCIA: Se borrarán TODOS los mensajes. ¿Proceder?")) return; try { const snap = await db.collection('taberna').get(); if (snap.empty) { alert("Taberna vacía."); return; } const batch = db.batch(); snap.forEach(doc => { batch.delete(doc.ref); }); await batch.commit(); alert("Taberna purgada."); } catch(e) { alert("Error: " + e.message); } }
-function mostrarTabAdmin(tabId) { const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion', 'tab-personalizacion']; tabs.forEach(t => { const el = document.getElementById(t); if(el) el.style.display = 'none'; }); document.getElementById(tabId).style.display = 'block'; const botones = document.querySelectorAll('#admin .btn-filter'); botones.forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); }
-
 function cargarTorneosParaAdminLlaves() {
-    const lista = document.getElementById('admin-lista-torneos-llaves'); const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
-    db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => { 
-        lista.innerHTML = ''; 
-        snap.forEach(doc => { 
-            const d = doc.data(); const id = doc.id; if(!esAdmin && d.creador !== currentUserName) return;
-            const esIndividual = d.formato === '1v1';
-            const inscritosCount = esIndividual ? (d.lista_inscriptos?.length || 0) : (d.lista_equipos?.length || 0);
+    const listaModAdmin = document.getElementById('admin-lista-torneos-llaves');
+    if(!listaModAdmin) return;
 
-            let botonesHTML = ''; const etiquetaTipo = d.tipo === 'liga' ? '<span style="color:gold;">[LIGA]</span>' : '<span style="color:var(--blue);">[TORNEO]</span>'; 
-            if(d.estado === 'iniciado') { botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}', '${d.creador}', '${d.formato}')">ADMINISTRAR</button> <button class="btn-primary" style="background: #444; padding: 8px 15px; font-size: 0.8rem;" onclick="generarLlaves('${id}', '${d.nombre}')">RE-GENERAR</button>`; } 
-            else if (d.estado === 'finalizado') { botonesHTML = `<span style="color: gold; font-weight: bold; margin-bottom: 5px; display: block;"><i class="fas fa-crown"></i> CAMPEÓN: ${d.campeon}</span>`; } 
-            else { botonesHTML = `<button class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem; margin-right: 5px;" onclick="abrirAdminPartidos('${id}', '${d.nombre}', '${d.creador}', '${d.formato}')">INSCRIPCIONES</button> <button class="btn-primary" style="background: var(--blue); color: black; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 5px;" onclick="generarLlaves('${id}', '${d.nombre}')">GENERAR LLAVES</button>`; } 
+    const esAdminSupremo = (auth.currentUser?.email === ADMIN_EMAIL);
+
+    db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        listaModAdmin.innerHTML = '';
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (!esAdminSupremo && data.creador !== currentUserName) return;
+
+            const esIndividual = data.formato === '1v1';
+            const numInscritos = esIndividual ? (data.lista_inscriptos?.length || 0) : (data.lista_equipos?.length || 0);
             
-            lista.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #222; flex-wrap: wrap; gap: 10px;"><div style="flex: 1; min-width: 150px;"><strong>${etiquetaTipo} ${d.nombre}</strong> <br> <span style="font-size:0.7rem; color:#888;">${inscritosCount} inscritos</span></div><div style="display: flex; flex-direction: column; align-items: flex-end;">${botonesHTML}</div><div style="width: 100%; margin-top: 5px; border-top: 1px dashed #333; padding-top: 10px;"><button class="btn-secondary" style="background: transparent; color: var(--red); border: 1px solid var(--red); padding: 6px; font-size: 0.7rem; width: 100%;" onclick="borrarTorneo('${id}', '${d.nombre}')"><i class="fas fa-trash"></i> Eliminar Evento</button></div></div>`; 
-        }); 
+            let accionHtml = "";
+
+            if (data.estado === 'abierto') {
+                accionHtml = `<button class="btn-primary" style="background:var(--blue); color:black;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES INICIALES</button>`;
+            } else if (data.estado === 'iniciado') {
+                accionHtml = `<button class="btn-secondary" style="border-color: gold; color: gold;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')">GESTIONAR PARTIDOS</button>`;
+            } else {
+                accionHtml = `<span style="color:var(--red); font-weight:bold;">FINALIZADO</span>`;
+            }
+
+            listaModAdmin.innerHTML += `
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color:white; font-size:1.1rem;">${data.nombre}</strong><br>
+                        <span style="font-size:0.85rem; color:#aaa;">Inscritos: ${numInscritos} / ${data.cuposTotales} | Estado: ${data.estado}</span>
+                    </div>
+                    <div>${accionHtml}</div>
+                </div>
+            `;
+        });
     });
 }
 
-function borrarTorneo(torneoId, torneoNombre) { if(confirm(`¿ELIMINAR "${torneoNombre}"?`)) { db.collection('torneos').doc(torneoId).delete().then(() => { alert("Evento borrado."); document.getElementById('contenedor-admin-partidos').innerHTML = ""; document.getElementById('btn-siguiente-ronda').style.display = "none"; }); } }
+async function generarLlaves(torneoId, torneoNombre) {
+    if(!confirm("¿Estás seguro de generar los cruces? Ya no se podrán inscribir más ninjas ni equipos.")) return;
 
-// ---- ACTUALIZADO: GENERACIÓN DE LLAVES POR EQUIPOS (v4.11) ----
-async function generarLlaves(torneoId, torneoNombre) { 
-    if(!confirm(`¿Generar cruces para ${torneoNombre}? Cierra las inscripciones.`)) return; 
-    
-    const torneoRef = db.collection('torneos').doc(torneoId); 
-    const doc = await torneoRef.get(); 
-    const data = doc.data(); 
-    
+    const torneoRef = db.collection('torneos').doc(torneoId);
+    const torneoDoc = await torneoRef.get();
+    const data = torneoDoc.data();
+
     let participantes = [];
     if (data.formato === '1v1') {
-        participantes = data.lista_inscriptos || []; 
+        participantes = data.lista_inscriptos || [];
     } else {
-        // En lugar de jugadores individuales, enfrentamos NOMBRES DE EQUIPOS
-        const equiposData = data.lista_equipos || [];
-        participantes = equiposData.map(eq => eq.nombre);
-    }
-    
-    if(participantes.length < 2) { alert("Mínimo 2 entidades (Jugadores o Equipos) para generar llaves."); return; } 
-    
-    participantes = participantes.sort(() => Math.random() - 0.5); 
-    const partidos = []; 
-    
-    for (let i = 0; i < participantes.length; i += 2) { 
-        if (participantes[i + 1]) { partidos.push({ p1: participantes[i], p2: participantes[i + 1], ganador: "", ronda: 1 }); } 
-        else { partidos.push({ p1: participantes[i], p2: "BYE", ganador: participantes[i], ronda: 1 }); } 
-    } 
-    
-    const batch = db.batch(); 
-    const llavesRef = torneoRef.collection('llaves'); 
-    const viejas = await llavesRef.get(); 
-    viejas.forEach(v => batch.delete(v.ref)); 
-    
-    partidos.forEach((p, index) => { const newDoc = llavesRef.doc(`partido_${index + 1}`); batch.set(newDoc, p); }); 
-    batch.update(torneoRef, { estado: "iniciado", campeon: "" }); 
-    await batch.commit(); 
-    
-    if (data.formato === '1v1') {
-        participantes.forEach(j => { enviarNotificacion(j, `¡Los cruces están listos en "${torneoNombre}"!`); }); 
-    } else {
-        // Avisar a todos los miembros de todos los equipos inscriptos
-        (data.lista_equipos || []).forEach(eq => { eq.miembros.forEach(m => enviarNotificacion(m, `¡Los cruces de escuadras están listos en "${torneoNombre}"!`)); });
+        participantes = (data.lista_equipos || []).map(eq => eq.nombre);
     }
 
-    alert("¡Enfrentamientos definidos!"); 
+    if (participantes.length < 2) return alert("Se necesitan al menos 2 participantes para generar combates.");
+
+    participantes = participantes.sort(() => Math.random() - 0.5);
+    
+    const partidos = [];
+    for (let i = 0; i < participantes.length; i += 2) {
+        if (participantes[i+1]) {
+            partidos.push({ p1: participantes[i], p2: participantes[i+1], ganador: "", ronda: 1 });
+        } else {
+            partidos.push({ p1: participantes[i], p2: "BYE", ganador: participantes[i], ronda: 1 });
+        }
+    }
+
+    const batch = db.batch();
+    const llavesRef = torneoRef.collection('llaves');
+
+    const viejasLlaves = await llavesRef.get();
+    viejasLlaves.forEach(doc => batch.delete(doc.ref));
+
+    partidos.forEach((partido, index) => {
+        const nuevoDoc = llavesRef.doc(`partido_${index + 1}`);
+        batch.set(nuevoDoc, partido);
+    });
+
+    batch.update(torneoRef, { estado: "iniciado", campeon: "" });
+    await batch.commit();
+
+    alert("¡Los cruces han sido forjados! El torneo ha comenzado.");
 }
 
-function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) { 
-    document.getElementById('admin-partidos-titulo').innerText = `Gestión: ${torneoNombre}`; 
-    window.location.hash = "#modal-admin-partidos"; 
+function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) {
+    document.getElementById('admin-partidos-titulo').innerText = `Tribunal Kage: ${torneoNombre}`;
+    window.location.hash = "#modal-admin-partidos";
     
-    const secManual = document.getElementById('admin-inscripcion-manual');
-    const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+    document.getElementById('input-torneo-manual-id').value = torneoId;
+    document.getElementById('input-torneo-manual-formato').value = formato;
     
-    if(creador === currentUserName || esAdmin) { 
-        secManual.style.display = 'block'; 
-        document.getElementById('input-torneo-manual-id').value = torneoId; 
-        document.getElementById('input-torneo-manual-formato').value = formato || '1v1'; 
-        
-        // Mostrar u ocultar el input de Equipo según el formato
-        const inputEquipo = document.getElementById('input-equipo-manual');
-        if (formato === '1v1') { inputEquipo.style.display = 'none'; } 
-        else { inputEquipo.style.display = 'block'; }
+    const inputEquipoManual = document.getElementById('input-equipo-manual');
+    if (formato === '1v1') {
+        inputEquipoManual.style.display = 'none';
+    } else {
+        inputEquipoManual.style.display = 'block';
+    }
 
-    } else { secManual.style.display = 'none'; }
+    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
+        const contenedor = document.getElementById('contenedor-admin-partidos');
+        contenedor.innerHTML = "";
+        
+        let todosTienenGanador = true;
+        let partidosRondaActual = 0;
+        let ganadoresParaSiguienteRonda = [];
+        let rondaMasAlta = 1;
 
-    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => { 
-        const contenedor = document.getElementById('contenedor-admin-partidos'); 
-        const btnSiguiente = document.getElementById('btn-siguiente-ronda'); 
-        contenedor.innerHTML = ""; 
+        snap.forEach(doc => {
+            const partido = doc.data();
+            const partidoId = doc.id;
+            
+            if (partido.ronda > rondaMasAlta) rondaMasAlta = partido.ronda;
+
+            let accionHtml = "";
+            if (partido.ganador) {
+                accionHtml = `<span style="color:var(--green); font-weight:bold;"><i class="fas fa-check"></i> ${partido.ganador}</span>`;
+            } else {
+                todosTienenGanador = false;
+                accionHtml = `
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}')">Gana ${partido.p1}</button>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}')">Gana ${partido.p2}</button>
+                `;
+            }
+
+            contenedor.innerHTML += `
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
+                    <span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Ronda ${partido.ronda}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
+                        <div>${accionHtml}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        snap.forEach(doc => {
+            if (doc.data().ronda === rondaMasAlta) {
+                partidosRondaActual++;
+                if(doc.data().ganador) ganadoresParaSiguienteRonda.push(doc.data().ganador);
+            }
+        });
+
+        const btnSiguienteRonda = document.getElementById('btn-siguiente-ronda');
         
-        if(snap.empty) { contenedor.innerHTML = "<p>Las llaves no se han generado aún.</p>"; btnSiguiente.style.display = "none"; return; } 
-        
-        let rondaMaxima = 1; let partidosRondaActiva = []; let todosTienenGanador = true; 
-        snap.forEach(doc => { const p = doc.data(); if(p.ronda > rondaMaxima) rondaMaxima = p.ronda; }); 
-        snap.forEach(doc => { const p = doc.data(); if(p.ronda === rondaMaxima) { partidosRondaActiva.push({id: doc.id, ...p}); if(p.ganador === "") todosTienenGanador = false; } }); 
-        
-        contenedor.innerHTML = `<h4 style="color: var(--blue); margin-bottom: 10px;">RONDA ${rondaMaxima}</h4>`; 
-        
-        partidosRondaActiva.forEach(p => { 
-            if(p.ganador !== "") { 
-                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-left: 3px solid var(--green);"><span style="color: #888;">${p.p1} vs ${p.p2}</span><br><strong style="color: var(--green);"><i class="fas fa-check"></i> Ganador: ${p.ganador}</strong></div>`; 
-            } else if (p.reporte_pendiente) { 
-                let pruebaHtml = p.reporte_pendiente.prueba !== 'Sin link' && p.reporte_pendiente.prueba !== 'No adjuntada (Revisar WS)' ? `<a href="${p.reporte_pendiente.prueba}" target="_blank" style="color: var(--blue); font-size: 0.8rem; text-decoration: underline;">Ver Captura</a>` : `<span style="color: #888; font-size: 0.8rem;">Sin captura</span>`; 
-                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid gold;"><div style="margin-bottom: 5px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div><div style="background: rgba(255, 215, 0, 0.1); padding: 8px; border-radius: 5px; margin-bottom: 10px; font-size: 0.9rem;"><i class="fas fa-exclamation-triangle" style="color: gold;"></i> <strong>${p.reporte_pendiente.reportadoPor}</strong> reportó victoria para:<br><span style="color: var(--green); font-weight: bold; font-size: 1.1rem;">${p.reporte_pendiente.ganadorPropuesto}</span><br>${pruebaHtml}</div><div style="display: flex; gap: 5px;"><button class="btn-primary" style="flex: 2; padding: 5px; font-size:0.8rem; background: var(--green); color: black;" onclick="setGanador('${torneoId}', '${p.id}', '${p.reporte_pendiente.ganadorPropuesto}')">APROBAR REPORTE</button><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem; background: var(--red); color: white; border: none;" onclick="rechazarReporte('${torneoId}', '${p.id}')">Rechazar</button></div></div>`; 
-            } else { 
-                contenedor.innerHTML += `<div style="background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--blue);"><div style="margin-bottom: 10px; font-weight: bold; text-align: center;">${p.p1} <span style="color:var(--red);">VS</span> ${p.p2}</div><p style="text-align: center; font-size: 0.7rem; color: #888; margin-bottom: 5px;">Esperando reporte...</p><div style="display: flex; gap: 5px;"><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p1}')">Forzar: ${p.p1}</button><button class="btn-secondary" style="flex: 1; padding: 5px; font-size:0.8rem;" onclick="setGanador('${torneoId}', '${p.id}', '${p.p2}')">Forzar: ${p.p2}</button></div></div>`; 
-            } 
-        }); 
-        
-        if(todosTienenGanador) { btnSiguiente.style.display = "block"; btnSiguiente.onclick = () => generarSiguienteRonda(torneoId, rondaMaxima, partidosRondaActiva); } 
-        else { btnSiguiente.style.display = "none"; } 
-    }); 
+        if (todosTienenGanador && snap.size > 0) {
+            if (partidosRondaActual === 1 && ganadoresParaSiguienteRonda.length === 1) {
+                btnSiguienteRonda.style.display = 'block';
+                btnSiguienteRonda.innerText = `CORONAR A ${ganadoresParaSiguienteRonda[0]} COMO CAMPEÓN`;
+                btnSiguienteRonda.style.background = 'gold';
+                btnSiguienteRonda.style.color = 'black';
+                btnSiguienteRonda.onclick = () => declararCampeon(torneoId, ganadoresParaSiguienteRonda[0]);
+            } else if (partidosRondaActual > 1 && ganadoresParaSiguienteRonda.length === partidosRondaActual) {
+                btnSiguienteRonda.style.display = 'block';
+                btnSiguienteRonda.innerText = "GENERAR SIGUIENTE RONDA (Sorteo)";
+                btnSiguienteRonda.style.background = 'var(--blue)';
+                btnSiguienteRonda.style.color = 'black';
+                btnSiguienteRonda.onclick = () => generarSiguienteRonda(torneoId, ganadoresParaSiguienteRonda, rondaMasAlta + 1);
+            } else {
+                btnSiguienteRonda.style.display = 'none';
+            }
+        } else {
+            btnSiguienteRonda.style.display = 'none';
+        }
+    });
 }
 
-// ---- ACTUALIZADO: INSCRIPCIÓN MANUAL CON SOPORTE PARA EQUIPOS (v4.11) ----
+function setGanadorManual(torneoId, partidoId, ganadorName) {
+    if (confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) {
+        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+            ganador: ganadorName
+        });
+    }
+}
+
+async function generarSiguienteRonda(torneoId, ganadores, nuevaRonda) {
+    if(!confirm("¿Avanzar a la siguiente ronda con los vencedores actuales?")) return;
+
+    let competidores = ganadores.sort(() => Math.random() - 0.5);
+    const partidosNuevos = [];
+    
+    for (let i = 0; i < competidores.length; i += 2) {
+        if (competidores[i+1]) {
+            partidosNuevos.push({ p1: competidores[i], p2: competidores[i+1], ganador: "", ronda: nuevaRonda });
+        } else {
+            partidosNuevos.push({ p1: competidores[i], p2: "BYE", ganador: competidores[i], ronda: nuevaRonda });
+        }
+    }
+
+    const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves');
+    
+    for(let i = 0; i < partidosNuevos.length; i++) {
+        await llavesRef.add(partidosNuevos[i]);
+    }
+    
+    alert(`Ronda ${nuevaRonda} forjada exitosamente.`);
+}
+
+async function declararCampeon(torneoId, campeonName) {
+    if(!confirm(`¿Coronar a ${campeonName} como Campeón Definitivo y finalizar el evento?`)) return;
+
+    await db.collection('torneos').doc(torneoId).update({
+        estado: 'finalizado',
+        campeon: campeonName
+    });
+
+    const torneoData = (await db.collection('torneos').doc(torneoId).get()).data();
+    
+    if (torneoData.formato === '1v1') {
+        const snap = await db.collection('ninjas').where('nick', '==', campeonName).get();
+        if (!snap.empty) {
+            const expGanada = torneoData.tipo === 'liga' ? 100 : 50;
+            snap.docs[0].ref.update({
+                torneosGanados: firebase.firestore.FieldValue.increment(1),
+                xp: firebase.firestore.FieldValue.increment(expGanada)
+            });
+        }
+    } else {
+        const equipoSnap = torneoData.lista_equipos.find(eq => eq.nombre === campeonName);
+        if (equipoSnap && equipoSnap.miembros) {
+            const expGanada = torneoData.tipo === 'liga' ? 100 : 50;
+            for(let miembro of equipoSnap.miembros) {
+                const ninjaQ = await db.collection('ninjas').where('nick', '==', miembro).get();
+                if(!ninjaQ.empty) {
+                    ninjaQ.docs[0].ref.update({
+                        torneosGanados: firebase.firestore.FieldValue.increment(1),
+                        xp: firebase.firestore.FieldValue.increment(expGanada)
+                    });
+                }
+            }
+            const clanQ = await db.collection('clanes').where('nombre', '==', campeonName).get();
+            if(!clanQ.empty) {
+                clanQ.docs[0].ref.update({
+                    xp: firebase.firestore.FieldValue.increment(expGanada * 2)
+                });
+            }
+        }
+    }
+
+    alert(`¡${campeonName} HA SIDO CORONADO CAMPEÓN DE LA ARENA!`);
+    window.location.hash = "#";
+}
+
 function inscribirJugadorManual() {
     const nick = document.getElementById('input-inscribir-manual').value.trim();
-    const tId = document.getElementById('input-torneo-manual-id').value;
+    const torneoId = document.getElementById('input-torneo-manual-id').value;
     const formato = document.getElementById('input-torneo-manual-formato').value;
-    const nombreEquipo = document.getElementById('input-equipo-manual').value.trim();
-    
-    if(!nick || !tId) return;
-    
-    db.collection('torneos').doc(tId).get().then(doc => {
+    const equipo = document.getElementById('input-equipo-manual').value.trim();
+
+    if(!nick || !torneoId) return;
+
+    db.collection('torneos').doc(torneoId).get().then(doc => {
         const data = doc.data();
         
         if (formato === '1v1') {
-            doc.ref.update({ lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick) }).then(() => { 
-                alert(`${nick} añadido al torneo individual.`); 
-                document.getElementById('input-inscribir-manual').value = ""; 
+            doc.ref.update({
+                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick)
             });
         } else {
-            if(!nombreEquipo) return alert("Debes ingresar el Nombre del Equipo para torneos 2v2/3v3/5v5");
+            if(!equipo) return alert("Debe especificar el nombre del equipo.");
             let equipos = data.lista_equipos || [];
             let equipoEncontrado = false;
             
             for(let i=0; i<equipos.length; i++) {
-                if(equipos[i].nombre.toLowerCase() === nombreEquipo.toLowerCase()) {
+                if (equipos[i].nombre.toLowerCase() === equipo.toLowerCase()) {
                     equipos[i].miembros.push(nick);
                     equipoEncontrado = true;
                     break;
                 }
             }
-            
             if(!equipoEncontrado) {
-                equipos.push({ nombre: nombreEquipo, pass: "", miembros: [nick] });
+                equipos.push({ nombre: equipo, pass: "", miembros: [nick] });
             }
-            
-            doc.ref.update({ lista_equipos: equipos }).then(() => {
-                alert(`${nick} añadido exitosamente a la escuadra ${nombreEquipo}.`);
-                document.getElementById('input-inscribir-manual').value = ""; 
-            });
+            doc.ref.update({ lista_equipos: equipos });
         }
+        alert("El jugador ha sido inscrito en los pergaminos por orden del Kage.");
+        document.getElementById('input-inscribir-manual').value = "";
     });
 }
 
-function setGanador(torneoId, partidoId, ganador) { if(confirm(`¿Confirma que ${ganador} avanza?`)) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ ganador: ganador, reporte_pendiente: firebase.firestore.FieldValue.delete() }).then(() => { enviarNotificacion(ganador, "El Organizador aprobó el reporte. ¡Avanzas de ronda!"); }); } }
-function rechazarReporte(torneoId, partidoId) { if(confirm("¿Rechazar reporte?")) { db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ reporte_pendiente: firebase.firestore.FieldValue.delete() }); } }
-
-async function generarSiguienteRonda(torneoId, rondaActual, partidos) {
-    const ganadores = partidos.map(p => p.ganador);
-    
-    if(ganadores.length === 1) {
-        const campeon = ganadores[0]; 
-        await db.collection('torneos').doc(torneoId).update({ estado: 'finalizado', campeon: campeon });
-        
-        // Si el formato era 1v1, campeon = "Matias". Si era equipo, campeon = "Los Miticos"
-        // Le damos premio a la persona individual, o si es equipo, habría que repartir. 
-        // Para simplificar, le sumamos la copa a la "Identidad Ninja" si es 1v1, si es equipo lo dejamos en el torneo.
-        db.collection('ninjas').where('nick', '==', campeon).get().then(snap => {
-            if(!snap.empty) { 
-                const docId = snap.docs[0].id; const userData = snap.docs[0].data(); 
-                db.collection('ninjas').doc(docId).update({ xp: firebase.firestore.FieldValue.increment(100), ryos: firebase.firestore.FieldValue.increment(500), torneosGanados: firebase.firestore.FieldValue.increment(1) }); 
-                if(userData.clan && userData.clan !== "") { db.collection('clanes').doc(userData.clan).update({ xp: firebase.firestore.FieldValue.increment(100) }); } 
-                enviarNotificacion(campeon, `¡ERES EL CAMPEÓN! Recibiste +100 XP, +500 Diamantes y 1 Copa.`); 
+function banearUsuario() {
+    const nickBuscado = document.getElementById('gestion-nick').value.trim();
+    if(!nickBuscado) return;
+    if(confirm(`¿Desterrar a ${nickBuscado} de la Arena de forma permanente?`)) {
+        db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
+            if(!snap.empty) {
+                snap.docs[0].ref.update({ banned: true });
+                alert("Ninja desterrado.");
+            } else {
+                alert("No se encontró al ninja.");
             }
         });
-        
-        alert(`¡EVENTO FINALIZADO! Campeón: ${campeon}.`); window.location.hash = "#admin"; return;
     }
-    
-    const nuevosPartidos = []; 
-    for (let i = 0; i < ganadores.length; i += 2) { 
-        if (ganadores[i + 1]) { nuevosPartidos.push({ p1: ganadores[i], p2: ganadores[i + 1], ganador: "", ronda: rondaActual + 1 }); } 
-        else { nuevosPartidos.push({ p1: ganadores[i], p2: "BYE", ganador: ganadores[i], ronda: rondaActual + 1 }); } 
-    } 
-    
-    const batch = db.batch(); const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves'); const time = new Date().getTime(); 
-    nuevosPartidos.forEach((p, index) => { const newDoc = llavesRef.doc(`partido_r${rondaActual + 1}_${index}_${time}`); batch.set(newDoc, p); }); 
-    await batch.commit(); 
-    
-    ganadores.forEach(g => { enviarNotificacion(g, `La Ronda ${rondaActual + 1} ha sido generada. ¡Prepárate!`); }); 
-    alert(`¡Ronda ${rondaActual + 1} generada!`);
 }
 
-// ==========================================
-// LLAVES Y ENLACES PRIVADOS DE SALA
-// ==========================================
-function verLlaves(torneoId, torneoNombre) { 
-    document.getElementById('llaves-titulo').innerText = `Llaves: ${torneoNombre}`; 
-    const contenedor = document.getElementById('contenedor-llaves-texto'); const contenedorCampeon = document.getElementById('contenedor-campeon'); 
-    contenedor.innerHTML = '<p style="color: #888;">Cargando emparejamientos...</p>'; contenedorCampeon.innerHTML = ''; window.location.hash = "#modal-llaves"; 
-    
-    // Identificar si el jugador pertenece a un equipo inscripto
-    let miEquipoTorneoNombre = currentUserName; // Por defecto es su nick (para 1v1)
-    
-    db.collection('torneos').doc(torneoId).get().then(doc => { 
-        if(!doc.exists) return;
-        const data = doc.data();
-        
-        if (data.formato !== '1v1' && data.lista_equipos) {
-            data.lista_equipos.forEach(eq => { if(eq.miembros && eq.miembros.includes(currentUserName)) { miEquipoTorneoNombre = eq.nombre; } });
+function gestionarPlan(nuevoPlan) {
+    const nickBuscado = document.getElementById('gestion-nick').value.trim();
+    if(!nickBuscado) return;
+    db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
+        if(!snap.empty) {
+            snap.docs[0].ref.update({ plan: nuevoPlan });
+            alert(`Rango ${nuevoPlan.toUpperCase()} otorgado a ${nickBuscado}.`);
+        } else {
+            alert("No se encontró al ninja en los registros.");
         }
+    });
+}
 
-        if(data.estado === 'finalizado') { 
-            contenedorCampeon.innerHTML = `<div style="background: rgba(255, 215, 0, 0.1); border: 1px solid gold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;"><h4 style="color: gold; margin-bottom: 5px;"><i class="fas fa-crown"></i> GRAN CAMPEÓN</h4><strong style="font-size: 1.5rem;">${data.campeon}</strong></div>`; 
-        } 
+const formBancoKage = document.getElementById('form-banco-kage');
+if (formBancoKage) {
+    formBancoKage.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nickDestino = document.getElementById('banco-usuario').value.trim();
+        const monto = parseInt(document.getElementById('banco-monto').value);
+
+        if(!nickDestino || isNaN(monto)) return;
+
+        db.collection('ninjas').where('nick', '==', nickDestino).get().then(snap => {
+            if(!snap.empty) {
+                snap.docs[0].ref.update({
+                    ryos: firebase.firestore.FieldValue.increment(monto)
+                }).then(() => {
+                    alert(`Transferencia de tesorería exitosa: ${monto} Diamantes a ${nickDestino}.`);
+                    document.getElementById('form-banco-kage').reset();
+                    enviarNotificacion(nickDestino, `El Kage te ha enviado ${monto} Diamantes a tu billetera.`);
+                });
+            } else {
+                alert("No se encontró al ninja destinatario.");
+            }
+        });
+    });
+}
+
+const formConfigTicker = document.getElementById('form-config-ticker');
+if(formConfigTicker) {
+    formConfigTicker.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('input-ticker').value;
+        db.collection('configuracion').doc('ticker').set({ mensaje: msg }).then(() => alert("Alerta Global Lanzada."));
+    });
+}
+
+const formConfigStream = document.getElementById('form-config-stream');
+if(formConfigStream) {
+    formConfigStream.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const plat = document.getElementById('stream-plataforma-admin').value;
+        const idCrudo = document.getElementById('stream-id-admin').value;
+        const idLimpio = extraerIdLimpio(idCrudo, plat);
+        const urlDiscord = document.getElementById('discord-url-admin').value;
+
+        db.collection('configuracion').doc('global_media').update({
+            plataforma: plat,
+            id: idLimpio,
+            discordUrl: urlDiscord
+        }).then(() => alert("Señal de Transmisión Sincronizada con la aldea."));
+    });
+}
+
+const formSorteoAdmin = document.getElementById('form-crear-sorteo');
+if (formSorteoAdmin) {
+    formSorteoAdmin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const premio = document.getElementById('s-premio').value;
+        const precio = parseInt(document.getElementById('s-precio').value);
+        const ganadores = parseInt(document.getElementById('s-ganadores').value);
         
-        db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => { 
-            if(snap.empty) { contenedor.innerHTML = '<p style="color: var(--red);">El Organizador aún no generó los cruces.</p>'; return; } 
-            contenedor.innerHTML = ""; let currentRonda = 0; 
-            
-            snap.forEach(docLlave => { 
-                const p = docLlave.data(); const docId = docLlave.id;
-                if (p.ronda !== currentRonda) { contenedor.innerHTML += `<div style="font-weight:bold; color:var(--blue); margin-top:20px; border-bottom:1px solid #333; padding-bottom:5px;">RONDA ${p.ronda}</div>`; currentRonda = p.ronda; } 
-                
-                const colorP1 = p.ganador === p.p1 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" ? 'color: #555; text-decoration: line-through;' : 'color: white;'); 
-                const colorP2 = p.ganador === p.p2 ? 'color: var(--green); font-weight: bold;' : (p.ganador !== "" && p.p2 !== "BYE" ? 'color: #555; text-decoration: line-through;' : 'color: white;'); 
-                
-                let botonAccionHTML = ""; let salaPrivadaHTML = "";
-
-                // Verifica si el jugador (o su equipo) participa en este partido
-                if (p.ganador === "" && p.p2 !== "BYE") { 
-                    if (p.reporte_pendiente) { 
-                        botonAccionHTML = `<div style="font-size: 0.7rem; color: gold; text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;"><i class="fas fa-clock"></i> Revisión pendiente...</div>`; 
-                    } else if (currentUserName !== "Héroe Anónimo" && (miEquipoTorneoNombre === p.p1 || miEquipoTorneoNombre === p.p2)) { 
-                        botonAccionHTML = `<div style="text-align: center; margin-top: 8px; border-top: 1px dashed #333; padding-top: 5px;"><button class="btn-primary" style="padding: 4px 10px; font-size: 0.7rem; background: var(--blue); color: black;" onclick="abrirModalReporte('${torneoId}', '${docId}', '${p.p1}', '${p.p2}')"><i class="fas fa-flag"></i> Cargar Resultado</button></div>`; 
-                        
-                        const linkActual = p.salaLink || "";
-                        let mostrarLink = linkActual ? `<a href="${linkActual}" target="_blank" class="btn-primary" style="padding: 4px 10px; font-size: 0.75rem;"><i class="fas fa-gamepad"></i> Entrar a Sala</a>` : `<span style="font-size: 0.75rem; color: #888;">Aún sin sala...</span>`;
-                        
-                        salaPrivadaHTML = `<div class="link-privado-box"><div style="margin-bottom: 8px; font-size: 0.85rem;"><strong style="color:var(--blue);">Sala Privada MLBB:</strong> ${mostrarLink}</div><div style="display:flex; gap: 5px;"><input type="url" id="link-sala-${docId}" class="link-privado-input" placeholder="Pega el link de invitación aquí..." value="${linkActual}"><button class="btn-secondary link-privado-btn" onclick="guardarLinkSala('${torneoId}', '${docId}')">Guardar</button></div><p style="font-size: 0.65rem; color:#888; margin-top:5px; text-align:center;">*Este panel solo lo ves tú y tu oponente.</p></div>`;
-                    } 
-                } 
-                
-                contenedor.innerHTML += `<div style="background: #111; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #222;"><div style="display: flex; justify-content: space-between; align-items: center;"><span style="${colorP1};">${p.p1}</span><span style="color: #444; font-size: 0.8rem; font-weight: bold;">VS</span><span style="${colorP2};">${p.p2}</span></div>${salaPrivadaHTML}${botonAccionHTML}</div>`; 
-            }); 
-        }); 
-    });
-}
-
-function guardarLinkSala(torneoId, partidoId) { const url = document.getElementById(`link-sala-${partidoId}`).value.trim(); if(!url) return; db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({ salaLink: url }).then(() => alert("Link de sala guardado exitosamente. Tu rival ya puede verlo.")); }
-function abrirModalReporte(torneoId, partidoId, p1, p2) { document.getElementById('rep-torneo-id').value = torneoId; document.getElementById('rep-partido-id').value = partidoId; document.getElementById('rep-ganador').innerHTML = `<option value="" disabled selected>Selecciona al ganador...</option><option value="${p1}">${p1}</option><option value="${p2}">${p2}</option>`; document.getElementById('modal-reporte').style.display = 'flex'; }
-
-const formReporte = document.getElementById('form-reporte');
-if(formReporte) {
-    formReporte.addEventListener('submit', (e) => {
-        e.preventDefault(); const tId = document.getElementById('rep-torneo-id').value; const pId = document.getElementById('rep-partido-id').value; const ganador = document.getElementById('rep-ganador').value; const prueba = document.getElementById('rep-prueba').value.trim() || 'No adjuntada (Revisar WS)'; 
-        db.collection('torneos').doc(tId).collection('llaves').doc(pId).update({ reporte_pendiente: { reportadoPor: currentUserName, ganadorPropuesto: ganador, prueba: prueba } }).then(() => { alert("Reporte enviado al Juez/Organizador."); document.getElementById('modal-reporte').style.display = 'none'; window.location.hash = "#modal-llaves"; }); 
+        db.collection('sorteos').add({
+            premio: premio,
+            precio: precio,
+            cantidadGanadores: ganadores,
+            estado: 'abierto',
+            participantes: [],
+            ganadores: [],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert("¡Sorteo Mágico lanzado a la comunidad!");
+            formSorteoAdmin.reset();
+        });
     });
 }
 
 // ==========================================
-// NOTIFICACIONES
+// AVISOS Y ALERTAS (NOTIFICACIONES)
 // ==========================================
-function enviarNotificacion(paraUsuario, mensaje) { if (!paraUsuario || paraUsuario === "Héroe Anónimo") return; db.collection('notificaciones').add({ para: paraUsuario, texto: mensaje, leida: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
+function escucharTicker() {
+    db.collection('configuracion').doc('ticker').onSnapshot(doc => {
+        if(doc.exists) {
+            const data = doc.data();
+            document.getElementById('ticker-contenido').innerHTML = `<span class="ticker-item"><i class="fas fa-bullhorn"></i> ALERTA DEL KAGE: <span style="color: var(--blue); font-weight: bold;">${data.mensaje}</span></span>`;
+        }
+    });
+}
+
+function enviarNotificacion(usuario, textoMensaje) {
+    if (!usuario || usuario === "Héroe Anónimo") return;
+    db.collection('notificaciones').add({
+        para: usuario,
+        texto: textoMensaje,
+        leida: false,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
 
 function escucharNotificaciones() {
-    const badge = document.getElementById('notif-badge'); const contenedorHTML = document.getElementById('lista-notificaciones-contenido'); if(!badge || !contenedorHTML) return;
+    const badge = document.getElementById('notif-badge');
+    const contenedorHTML = document.getElementById('lista-notificaciones-contenido');
+    if(!contenedorHTML) return;
+
     db.collection('notificaciones').where('para', '==', currentUserName).orderBy('timestamp', 'desc').onSnapshot(snap => {
-        let noLeidas = 0; contenedorHTML.innerHTML = "";
-        if(snap.empty) { contenedorHTML.innerHTML = '<p style="color:#888; text-align:center;">No hay avisos.</p>'; badge.style.display = 'none'; return; }
+        let noLeidas = 0;
+        contenedorHTML.innerHTML = "";
+        
+        if (snap.empty) {
+            contenedorHTML.innerHTML = "<p style='color:#888; text-align:center;'>El cuervo no ha traído mensajes nuevos.</p>";
+            badge.style.display = 'none';
+            return;
+        }
+
         snap.forEach(doc => { 
             const data = doc.data(); if(!data.leida) noLeidas++; 
             const bg = data.leida ? '#0a0a0f' : '#1a1a24'; const border = data.leida ? '1px solid #222' : '1px solid var(--blue)'; 
@@ -1339,11 +2200,18 @@ function escucharNotificaciones() {
     });
 }
 
-function abrirNotificaciones(e) { e.preventDefault(); document.getElementById('modal-notificaciones').style.display = 'flex'; db.collection('notificaciones').where('para', '==', currentUserName).where('leida', '==', false).get().then(snap => { const batch = db.batch(); snap.forEach(doc => { batch.update(doc.ref, { leida: true }); }); batch.commit(); }); }
+function abrirNotificaciones(e) { 
+    e.preventDefault(); 
+    document.getElementById('modal-notificaciones').style.display = 'flex'; 
+    db.collection('notificaciones').where('para', '==', currentUserName).where('leida', '==', false).get().then(snap => { 
+        const batch = db.batch(); 
+        snap.forEach(doc => { batch.update(doc.ref, { leida: true }); }); 
+        batch.commit(); 
+    }); 
+}
 
 // ==========================================
 // UTILIDADES (CERRAR MODALES, SESIÓN)
 // ==========================================
 function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
-function abrirModalAnuncio(e) { if(e) e.preventDefault(); if(currentUserName === "Héroe Anónimo") { alert("Debes Ingresar."); window.location.hash = "#modal-login"; } else { window.location.hash = "#modal-anuncio"; } }
