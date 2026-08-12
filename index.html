@@ -571,18 +571,20 @@
         <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
             <h3 id="admin-partidos-titulo" style="color: var(--red); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;">Tribunal Kage</h3>
-            <div id="admin-inscripcion-manual" style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            
+            <div id="admin-inscripcion-manual" style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: block;">
                 <h4 style="color: var(--blue); margin-bottom: 10px;"><i class="fas fa-user-plus"></i> Inscripción Manual</h4>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" id="input-inscribir-manual" placeholder="Nick del jugador" style="flex:1;">
+                    <input type="text" id="input-inscribir-manual" placeholder="Nick del jugador" style="flex:1; padding: 8px; background: #000; border: 1px solid #333; color: white;">
                     <input type="hidden" id="input-torneo-manual-id">
                     <input type="hidden" id="input-torneo-manual-formato">
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="input-equipo-manual" placeholder="Nombre Equipo (Si aplica)" style="flex:1;">
-                    <button class="btn-primary" style="padding:10px 20px;" onclick="inscribirJugadorManual()">AÑADIR</button>
+                    <input type="text" id="input-equipo-manual" placeholder="Nombre Equipo (Si aplica)" style="flex:1; padding: 8px; background: #000; border: 1px solid #333; color: white;">
+                    <button class="btn-primary" style="padding:10px 20px; background: var(--blue); color: black; border: none; font-weight: bold; cursor: pointer;" onclick="inscribirJugadorManual()">AÑADIR</button>
                 </div>
             </div>
+
             <div id="contenedor-admin-partidos" style="display: flex; flex-direction: column; gap: 15px;"></div>
             <button id="btn-siguiente-ronda" class="btn-primary" style="width: 100%; margin-top: 20px; display: none;">GENERAR SIGUIENTE RONDA</button>
         </div>
