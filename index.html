@@ -338,7 +338,6 @@
                     <h3 style="margin: 35px 0 15px 0; color: var(--red); border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-trash-alt"></i> Purgar Catálogo de Eventos</h3>
                     <p style="color: #888; font-size: 0.85rem; margin-bottom: 15px;">Elimina torneos finalizados o mal creados. Esta acción no se puede deshacer.</p>
                     <div id="admin-lista-borrar-torneos" style="display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed var(--red);"></div>
-
                 </div>
 
                 <div id="tab-llaves-admin" style="display: none;">
@@ -480,9 +479,14 @@
                 <button class="btn-secondary" style="width:100%; font-size:0.8rem; padding:5px; margin-bottom:15px;" onclick="cambiarSeccionAuth(false)">Volver al inicio de sesión</button>
             </div>
 
-            <div style="text-align:center; color:#555; border-top:1px solid #222; padding-top:15px; margin-top:5px; font-size:0.8rem;">O CONTINÚA CON TU CUENTA GOOGLE</div>
+            <div style="text-align:center; color:#555; border-top:1px solid #222; padding-top:15px; margin-top:5px; font-size:0.8rem;">O CONTINÚA CON REDES SOCIALES</div>
+            
             <button class="btn-google" id="login-google" style="margin-top:10px; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; background: white; color: black; border: none; font-size: 1rem;">
                 <i class="fab fa-google" style="color: #4285F4;"></i> Continuar con Google
+            </button>
+            
+            <button class="btn-google" id="login-facebook" style="margin-top:10px; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; background: #1877F2; color: white; border: none; font-size: 1rem;">
+                <i class="fab fa-facebook"></i> Continuar con Facebook
             </button>
         </div>
     </div>
@@ -590,11 +594,6 @@
         </div>
     </div>
 
-            <div id="contenedor-admin-partidos" style="display: flex; flex-direction: column; gap: 15px;"></div>
-            <button id="btn-siguiente-ronda" class="btn-primary" style="width: 100%; margin-top: 20px; display: none;">GENERAR SIGUIENTE RONDA</button>
-        </div>
-    </div>
-
     <div id="modal-anuncio" class="modal">
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
@@ -611,13 +610,22 @@
     <div id="modal-reporte" class="modal">
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-reporte').style.display='none';">&times;</a>
-            <h3>Reportar Resultado</h3>
+            <h3 style="color:var(--blue); margin-bottom:15px;"><i class="fas fa-flag"></i> Reportar Resultado</h3>
             <form id="form-reporte">
                 <input type="hidden" id="rep-torneo-id">
                 <input type="hidden" id="rep-partido-id">
-                <select id="rep-ganador" required style="width:100%; margin-bottom:15px; background:#000; color:white; padding:8px;"></select>
-                <input type="url" id="rep-prueba" placeholder="Link a captura de pantalla" style="width:100%; margin-bottom:20px;">
-                <button type="submit" class="btn-save" style="width:100%;">ENVIAR REPORTE</button>
+                
+                <label style="font-size:0.85rem; color:#aaa; margin-bottom:5px; display:block;">Selecciona al ganador:</label>
+                <select id="rep-ganador" required style="width:100%; margin-bottom:15px; background:#000; color:white; padding:8px; border: 1px solid #333;">
+                    <option value="">Selecciona quién ganó...</option>
+                    <option id="opt-p1" value=""></option>
+                    <option id="opt-p2" value=""></option>
+                </select>
+                
+                <label style="font-size:0.85rem; color:#aaa; margin-bottom:5px; display:block;">Sube la captura de pantalla (Prueba):</label>
+                <input type="file" id="rep-prueba-file" accept="image/*" required style="width:100%; margin-bottom:20px; background:#111; color:white; padding: 5px; border: 1px solid #333;">
+                
+                <button type="submit" class="btn-save" style="width:100%;" id="btn-enviar-reporte">ENVIAR REPORTE AL KAGE</button>
             </form>
         </div>
     </div>
@@ -676,6 +684,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
-    <script src="app.js?v=4.16"></script>
+    <script src="app.js?v=4.20"></script>
 </body>
 </html>
