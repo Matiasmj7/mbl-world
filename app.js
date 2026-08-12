@@ -2047,7 +2047,7 @@ function inscribirJugadorManual() {
             }
             doc.ref.update({ lista_equipos: equipos });
         }
-        alert("El jugador ha sido inscrito en los pergaminos por orden del Kage.");
+        alert("El jugador ha sido inscrito manualmente.");
         document.getElementById('input-inscribir-manual').value = "";
     });
 }
@@ -2216,42 +2216,3 @@ function abrirNotificaciones(e) {
 function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
 function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
 
-// ==========================================
-// FUNCIÓN RESTAURADA: INSCRIPCIÓN MANUAL (KAGE)
-// ==========================================
-function inscribirJugadorManual() {
-    const nick = document.getElementById('input-inscribir-manual').value.trim();
-    const torneoId = document.getElementById('input-torneo-manual-id').value;
-    const formato = document.getElementById('input-torneo-manual-formato').value;
-    const equipo = document.getElementById('input-equipo-manual').value.trim();
-
-    if(!nick || !torneoId) return;
-
-    db.collection('torneos').doc(torneoId).get().then(doc => {
-        const data = doc.data();
-        
-        if (formato === '1v1') {
-            doc.ref.update({
-                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick)
-            });
-        } else {
-            if(!equipo) return alert("Debe especificar el nombre del equipo.");
-            let equipos = data.lista_equipos || [];
-            let equipoEncontrado = false;
-            
-            for(let i=0; i<equipos.length; i++) {
-                if (equipos[i].nombre.toLowerCase() === equipo.toLowerCase()) {
-                    equipos[i].miembros.push(nick);
-                    equipoEncontrado = true;
-                    break;
-                }
-            }
-            if(!equipoEncontrado) {
-                equipos.push({ nombre: equipo, pass: "", miembros: [nick] });
-            }
-            doc.ref.update({ lista_equipos: equipos });
-        }
-        alert("El jugador ha sido inscrito manualmente.");
-        document.getElementById('input-inscribir-manual').value = "";
-    });
-}
