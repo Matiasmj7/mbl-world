@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('btn-notif').style.display = 'inline-block';
                     renderizarTienda();
                     
-                    // Aceptamos cuentas admin que vengan de Google o del nuevo login manual
                     const esAdmin = (user.email === ADMIN_EMAIL || data.email_oculto === ADMIN_EMAIL);
                     
                     if (miComunidad !== "") {
@@ -139,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         cargarTorneosParaAdminLlaves();
-                        cargarListaBorrarTorneosAdmin(); // Nueva función (Punto 1)
+                        cargarListaBorrarTorneosAdmin(); 
                     }
                 } else {
                     window.location.hash = "#modal-registro-nick";
@@ -161,6 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBtn.addEventListener('click', () => { 
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
         }); 
+    }
+    
+    const loginFbBtn = document.getElementById('login-facebook');
+    if(loginFbBtn) {
+        loginFbBtn.addEventListener('click', () => {
+            auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
+        });
     }
 
     const formNick = document.getElementById('form-registro-nick');
@@ -193,6 +199,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const formReporte = document.getElementById('form-reporte');
+    if(formReporte) {
+        formReporte.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const torneoId = document.getElementById('rep-torneo-id').value;
+            const partidoId = document.getElementById('rep-partido-id').value;
+            const ganador = document.getElementById('rep-ganador').value;
+            const fileInput = document.getElementById('rep-prueba-file');
+            const file = fileInput ? fileInput.files[0] : null;
+            const btnSubmit = document.getElementById('btn-enviar-reporte');
+
+            if(!file || !ganador) return alert("Debes seleccionar al ganador y adjuntar la captura (foto) de prueba.");
+
+            btnSubmit.innerText = "SUBIENDO PRUEBA...";
+            btnSubmit.disabled = true;
+
+            try {
+                const storageRef = storage.ref(`reportes/${torneoId}_${partidoId}_${Date.now()}`);
+                await storageRef.put(file);
+                const capturaUrl = await storageRef.getDownloadURL();
+
+                await db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+                    reporte: {
+                        ganador: ganador,
+                        capturaUrl: capturaUrl,
+                        reportadoPor: currentUserName,
+                        timestamp: new Date().getTime()
+                    }
+                });
+
+                alert("¡Reporte enviado con éxito! El Kage verificará la imagen.");
+                document.getElementById('modal-reporte').style.display = 'none';
+            } catch (error) {
+                console.error("Error al reportar:", error);
+                alert("Hubo un error al subir la prueba. Intenta nuevamente.");
+            } finally {
+                btnSubmit.innerText = "ENVIAR REPORTE AL KAGE";
+                btnSubmit.disabled = false;
+            }
+        });
+    }
+
     escucharPersonalizacion();
     escucharTicker();
     escucharStreamYDiscordGlobal(); 
@@ -209,14 +257,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// NUEVO: SISTEMA DE LOGIN MANUAL (SIN GOOGLE)
+// NUEVO: SISTEMA DE LOGIN MANUAL Y REPORTES
 // ==========================================
-function cambiarSeccionAuth(mostrarRegistro) {
+window.abrirModalReporte = function(torneoId, partidoId, p1, p2) {
+    document.getElementById('rep-torneo-id').value = torneoId;
+    document.getElementById('rep-partido-id').value = partidoId;
+    
+    const optP1 = document.getElementById('opt-p1');
+    const optP2 = document.getElementById('opt-p2');
+    optP1.value = p1; optP1.innerText = "Ganó " + p1;
+    optP2.value = p2; optP2.innerText = "Ganó " + p2;
+    
+    document.getElementById('rep-ganador').value = "";
+    document.getElementById('rep-prueba-file').value = "";
+    
+    document.getElementById('modal-reporte').style.display = 'flex';
+};
+
+window.cambiarSeccionAuth = function(mostrarRegistro) {
     document.getElementById('login-normal-section').style.display = mostrarRegistro ? 'none' : 'block';
     document.getElementById('register-manual-section').style.display = mostrarRegistro ? 'block' : 'none';
-}
+};
 
-function registrarUsuarioManual() {
+window.registrarUsuarioManual = function() {
     const user = document.getElementById('reg-usuario').value.trim().toLowerCase();
     const pass = document.getElementById('reg-pass').value.trim();
     if(user.length < 4 || pass.length < 6) {
@@ -229,9 +292,9 @@ function registrarUsuarioManual() {
     }).catch(err => {
         alert("Error: Es posible que el nombre de usuario ya esté en uso o la clave sea muy débil.");
     });
-}
+};
 
-function autenticarUsuarioManual() {
+window.autenticarUsuarioManual = function() {
     const user = document.getElementById('login-email-falso').value.trim().toLowerCase();
     const pass = document.getElementById('login-pass').value.trim();
     if(!user || !pass) return alert("Completa todos los campos para ingresar.");
@@ -243,12 +306,12 @@ function autenticarUsuarioManual() {
     }).catch(err => {
         alert("Credenciales incorrectas o el usuario no existe.");
     });
-}
+};
 
 // ==========================================
 // NUEVO: BORRADO DE TORNEOS Y RESET BINGO
 // ==========================================
-function cargarListaBorrarTorneosAdmin() {
+window.cargarListaBorrarTorneosAdmin = function() {
     const cont = document.getElementById('admin-lista-borrar-torneos');
     if(!cont) return;
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
@@ -266,17 +329,17 @@ function cargarListaBorrarTorneosAdmin() {
                 </div>`;
         });
     });
-}
+};
 
-function borrarTorneoDefinitivo(id, nombre) {
+window.borrarTorneoDefinitivo = function(id, nombre) {
     if(confirm(`⚠️ ¿ESTÁS SEGURO?\nVas a eliminar permanentemente "${nombre}". Esto borrará sus llaves y todos los datos asociados.`)) {
         db.collection('torneos').doc(id).delete().then(() => {
             alert("Torneo purgado con éxito.");
         });
     }
-}
+};
 
-async function reiniciarTopBingo() {
+window.reiniciarTopBingo = async function() {
     if(!confirm("🚨 ¡ADVERTENCIA MÁXIMA!\n¿Deseas reiniciar el ranking del Libro Bingo? Esto pondrá los XP de todos los jugadores en 0. Sus Diamantes, Inventarios y Clanes quedarán intactos.")) return;
     if(!confirm("¿Confirmas la acción para iniciar la Nueva Temporada competitiva?")) return;
     
@@ -291,7 +354,7 @@ async function reiniciarTopBingo() {
     } catch(e) {
         alert("Error al reiniciar: " + e.message);
     }
-}
+};
 
 // ==========================================
 // PERSONALIZACIÓN DINÁMICA
@@ -317,7 +380,6 @@ function escucharPersonalizacion() {
                 if (colorInput) colorInput.value = data.colorAcento;
             }
 
-            // NUEVO: CARGAR REDES SOCIALES DESDE FIREBASE
             const redes = ['wa', 'ds', 'fb', 'tt', 'ig', 'yt'];
             redes.forEach(red => {
                 const linkEl = document.getElementById(`link-soc-${red}`);
@@ -466,7 +528,7 @@ function cargarSorteos() {
     });
 }
 
-function unirseSorteo(sorteoId, precio, estado) {
+window.unirseSorteo = function(sorteoId, precio, estado) {
     if(estado !== 'abierto') return;
     if(currentUserName === "Héroe Anónimo") { alert("Debes iniciar sesión para participar."); return; }
 
@@ -484,9 +546,9 @@ function unirseSorteo(sorteoId, precio, estado) {
     }).then(() => {
         alert("¡Ticket asegurado! Mucha suerte.");
     });
-}
+};
 
-function ejecutarSorteo(sorteoId, premioNombre, cantidadGanadores) {
+window.ejecutarSorteo = function(sorteoId, premioNombre, cantidadGanadores) {
     db.collection('sorteos').doc(sorteoId).get().then(doc => {
         let participantes = doc.data().participantes || [];
         if(participantes.length === 0) return alert("No hay nadie inscrito en el sorteo.");
@@ -536,12 +598,12 @@ function ejecutarSorteo(sorteoId, premioNombre, cantidadGanadores) {
             }
         }, 100);
     });
-}
+};
 
 // ==========================================
 // COMUNIDADES / ALIANZAS
 // ==========================================
-function crearComunidad() {
+window.crearComunidad = function() {
     const nombre = document.getElementById('input-crear-comunidad').value.trim();
     if(!nombre || currentUserName === "Héroe Anónimo") return;
     
@@ -560,9 +622,9 @@ function crearComunidad() {
             });
         }
     });
-}
+};
 
-function unirseComunidad() {
+window.unirseComunidad = function() {
     const nombre = document.getElementById('input-unirse-comunidad').value.trim();
     if(!nombre || currentUserName === "Héroe Anónimo") return;
 
@@ -578,9 +640,9 @@ function unirseComunidad() {
             });
         }
     });
-}
+};
 
-function abandonarComunidad() {
+window.abandonarComunidad = function() {
     if(confirm("¿Estás seguro de abandonar tu Alianza?")) {
         db.collection('comunidades').doc(miComunidad).get().then(doc => {
             if(doc.exists) {
@@ -602,7 +664,7 @@ function abandonarComunidad() {
             }
         });
     }
-}
+};
 
 function cargarTopComunidades() {
     const lista = document.getElementById('lista-top-comunidades');
@@ -670,7 +732,7 @@ function escucharChatComunidad(nombreComunidad) {
         });
 }
 
-function enviarMensajeComunidad() {
+window.enviarMensajeComunidad = function() {
     const input = document.getElementById('chat-input-comunidad');
     const texto = input.value.trim();
     if(!texto || currentUserName === "Héroe Anónimo") return;
@@ -691,7 +753,7 @@ function enviarMensajeComunidad() {
     });
 
     input.value = '';
-}
+};
 
 function cargarSelectorComunidadesKage() {
     const selector = document.getElementById('kage-comunidad-selector');
@@ -703,12 +765,12 @@ function cargarSelectorComunidadesKage() {
     });
 }
 
-function cambiarChatComunidadKage() {
+window.cambiarChatComunidadKage = function() {
     const seleccion = document.getElementById('kage-comunidad-selector').value;
     if(seleccion) {
         escucharChatComunidad(seleccion);
     }
-}
+};
 
 // ==========================================
 // TIENDA Y MERCADO
@@ -757,7 +819,7 @@ function renderizarTienda() {
     });
 }
 
-function comprarObjeto(itemId, precio) {
+window.comprarObjeto = function(itemId, precio) {
     if(currentUserName === "Héroe Anónimo") return;
     
     if (misRyos < precio) {
@@ -771,9 +833,9 @@ function comprarObjeto(itemId, precio) {
             inventario: firebase.firestore.FieldValue.arrayUnion(itemId)
         });
     }
-}
+};
 
-function equiparObjeto(itemId, tipo) {
+window.equiparObjeto = function(itemId, tipo) {
     const nuevosEquipos = { ...miEquipamiento };
     nuevosEquipos[tipo] = itemId;
     
@@ -782,9 +844,9 @@ function equiparObjeto(itemId, tipo) {
     }).then(() => {
         alert("¡Objeto equipado exitosamente!");
     });
-}
+};
 
-function misionDiaria() {
+window.misionDiaria = function() {
     if (currentUserName === "Héroe Anónimo" || trabajando) return;
     
     db.collection('ninjas').doc(currentUserId).get().then(doc => {
@@ -821,18 +883,18 @@ function misionDiaria() {
             });
         }, 1500);
     });
-}
+};
 
 // ==========================================
 // TORNEOS Y LIGAS
 // ==========================================
-function filtrarTorneos(filtro, evento) {
+window.filtrarTorneos = function(filtro, evento) {
     currentFilter = filtro;
     const botones = document.querySelectorAll('#torneos .btn-filter');
     botones.forEach(b => b.classList.remove('active'));
     if (evento) evento.target.classList.add('active');
     cargarTorneosDesdeNube();
-}
+};
 
 function cargarTorneosDesdeNube() {
     const listaTorneos = document.getElementById('lista-torneos');
@@ -930,7 +992,7 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
 // ==========================================
 // FUNCIONES DE INSCRIPCIÓN Y EQUIPOS
 // ==========================================
-function unirseTorneo(torneoId, estado) {
+window.unirseTorneo = function(torneoId, estado) {
     if (estado !== "abierto") return;
     if (currentUserName === "Héroe Anónimo") {
         window.location.hash = "#modal-login";
@@ -952,14 +1014,14 @@ function unirseTorneo(torneoId, estado) {
             abrirModalEquipos(torneoId, data.formato);
         }
     });
-}
+};
 
-function abrirModalEquipos(torneoId, formato) {
+window.abrirModalEquipos = function(torneoId, formato) {
     document.getElementById('eq-torneo-id').value = torneoId;
     document.getElementById('eq-formato').value = formato;
     document.getElementById('modal-equipos').style.display = 'flex';
     cargarListaEquiposTorneo(torneoId, formato);
-}
+};
 
 function cargarListaEquiposTorneo(torneoId, formato) {
     const contenedor = document.getElementById('lista-equipos-torneo');
@@ -1006,7 +1068,7 @@ function cargarListaEquiposTorneo(torneoId, formato) {
     });
 }
 
-function crearEquipoTorneo() {
+window.crearEquipoTorneo = function() {
     const torneoId = document.getElementById('eq-torneo-id').value;
     const nombreEquipo = document.getElementById('eq-nombre').value.trim();
     const passEquipo = document.getElementById('eq-pass').value.trim();
@@ -1037,16 +1099,16 @@ function crearEquipoTorneo() {
             alert("¡Escuadra fundada! Espera a tus compañeros.");
         });
     });
-}
+};
 
-function abrirModalPassEquipo(torneoId, nombreEq) {
+window.abrirModalPassEquipo = function(torneoId, nombreEq) {
     document.getElementById('join-eq-torneo-id').value = torneoId;
     document.getElementById('join-eq-nombre').value = nombreEq;
     document.getElementById('join-eq-pass-input').value = "";
     document.getElementById('modal-pass-equipo').style.display = 'flex';
-}
+};
 
-function confirmarUnionEquipoPrivado() {
+window.confirmarUnionEquipoPrivado = function() {
     const torneoId = document.getElementById('join-eq-torneo-id').value;
     const nombreEq = document.getElementById('join-eq-nombre').value;
     const claveIngresada = document.getElementById('join-eq-pass-input').value.trim();
@@ -1062,9 +1124,9 @@ function confirmarUnionEquipoPrivado() {
             alert("Contraseña incorrecta. Pídele la clave correcta al capitán.");
         }
     });
-}
+};
 
-function unirseEquipoTorneo(torneoId, nombreEq, equiposYaCargados = null) {
+window.unirseEquipoTorneo = function(torneoId, nombreEq, equiposYaCargados = null) {
     const procesarUnion = (equipos) => {
         const limitePorEquipo = parseInt(document.getElementById('eq-formato').value.charAt(0));
         let actualizado = false;
@@ -1093,51 +1155,12 @@ function unirseEquipoTorneo(torneoId, nombreEq, equiposYaCargados = null) {
             procesarUnion(doc.data().lista_equipos || []);
         });
     }
-}
+};
 
-function inscribirJugadorManual() {
-    const nick = document.getElementById('input-inscribir-manual').value.trim();
-    const torneoId = document.getElementById('input-torneo-manual-id').value;
-    const formato = document.getElementById('input-torneo-manual-formato').value;
-    const equipo = document.getElementById('input-equipo-manual').value.trim();
-
-    if(!nick || !torneoId) return;
-
-    db.collection('torneos').doc(torneoId).get().then(doc => {
-        const data = doc.data();
-        
-        if (formato === '1v1') {
-            doc.ref.update({
-                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick)
-            });
-        } else {
-            if(!equipo) return alert("Debe especificar el nombre del equipo.");
-            let equipos = data.lista_equipos || [];
-            let equipoEncontrado = false;
-            
-            for(let i=0; i<equipos.length; i++) {
-                if (equipos[i].nombre.toLowerCase() === equipo.toLowerCase()) {
-                    equipos[i].miembros.push(nick);
-                    equipoEncontrado = true;
-                    break;
-                }
-            }
-            if(!equipoEncontrado) {
-                equipos.push({ nombre: equipo, pass: "", miembros: [nick] });
-            }
-            doc.ref.update({ lista_equipos: equipos });
-        }
-        alert("El jugador ha sido inscrito manualmente.");
-        document.getElementById('input-inscribir-manual').value = "";
-        if(document.getElementById('input-equipo-manual')) {
-            document.getElementById('input-equipo-manual').value = "";
-        }
-    });
-}
 // ==========================================
-// VISUALIZADOR DE LLAVES (MODAL)
+// VISUALIZADOR DE LLAVES Y SALAS (RESTAURADO)
 // ==========================================
-function verLlaves(torneoId, torneoNombre) {
+window.verLlaves = function(torneoId, torneoNombre) {
     document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
     const contenedorText = document.getElementById('contenedor-llaves-texto');
     const contenedorCampeon = document.getElementById('contenedor-campeon');
@@ -1146,63 +1169,102 @@ function verLlaves(torneoId, torneoNombre) {
     contenedorCampeon.innerHTML = "";
     window.location.hash = "#modal-llaves";
 
-    db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
-        contenedorText.innerHTML = "";
-        
-        if (snap.empty) {
-            contenedorText.innerHTML = "<p style='text-align:center; color: var(--red); font-weight:bold;'>Los cruces aún no han sido generados por el Kage.</p>";
-            return;
-        }
+    // Necesitamos traer el torneo para ver los equipos (si aplica) y poder mostrar la sala
+    db.collection('torneos').doc(torneoId).get().then(docTorneo => {
+        if (!docTorneo.exists) return;
+        const torneoData = docTorneo.data();
 
-        db.collection('torneos').doc(torneoId).get().then(docTorneo => {
-            if(docTorneo.data().campeon) {
-                contenedorCampeon.innerHTML = `
-                    <div style="background: rgba(255,215,0,0.1); border: 2px solid gold; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
-                        <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
-                        <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
-                        <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${docTorneo.data().campeon}</h1>
-                    </div>
-                `;
-            }
-        });
-
-        let currentRonda = 0;
-        let htmlBuffer = "";
-
-        snap.forEach(doc => {
-            const partido = doc.data();
-            
-            if (partido.ronda !== currentRonda) {
-                if (currentRonda !== 0) htmlBuffer += "</div>"; 
-                currentRonda = partido.ronda;
-                htmlBuffer += `
-                    <h4 style="color: var(--blue); margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Ronda ${currentRonda}</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                `;
-            }
-
-            let p1Style = partido.ganador === partido.p1 ? "color: var(--green); font-weight:bold;" : "color: white;";
-            let p2Style = partido.ganador === partido.p2 ? "color: var(--green); font-weight:bold;" : "color: white;";
-            
-            if(partido.ganador && partido.ganador !== partido.p1) p1Style = "color: #555; text-decoration: line-through;";
-            if(partido.ganador && partido.ganador !== partido.p2) p2Style = "color: #555; text-decoration: line-through;";
-
-            let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
-
-            htmlBuffer += `
-                <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="flex: 1; text-align: right; ${p1Style} font-size: 1.1rem;">${partido.p1}</div>
-                    <div style="padding: 0 15px; color: #666; font-size: 0.8rem; font-weight: bold;">VS</div>
-                    <div style="flex: 1; text-align: left; ${p2Style} font-size: 1.1rem;">${partido.p2}</div>
-                    <div style="flex: 1; text-align: right;">${estadoTexto}</div>
+        if (torneoData.campeon) {
+            contenedorCampeon.innerHTML = `
+                <div style="background: rgba(255,215,0,0.1); border: 2px solid gold; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
+                    <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
+                    <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
+                    <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${torneoData.campeon}</h1>
                 </div>
             `;
+        }
+
+        db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
+            contenedorText.innerHTML = "";
+            
+            if (snap.empty) {
+                contenedorText.innerHTML = "<p style='text-align:center; color: var(--red); font-weight:bold;'>Los cruces aún no han sido generados por el Kage.</p>";
+                return;
+            }
+
+            let currentRonda = 0;
+            let htmlBuffer = "";
+
+            snap.forEach(doc => {
+                const partido = doc.data();
+                const partidoId = doc.id;
+                
+                if (partido.ronda !== currentRonda) {
+                    if (currentRonda !== 0) htmlBuffer += "</div>"; 
+                    currentRonda = partido.ronda;
+                    htmlBuffer += `
+                        <h4 style="color: var(--blue); margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Ronda ${currentRonda}</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                    `;
+                }
+
+                let p1Style = partido.ganador === partido.p1 ? "color: var(--green); font-weight:bold;" : "color: white;";
+                let p2Style = partido.ganador === partido.p2 ? "color: var(--green); font-weight:bold;" : "color: white;";
+                
+                if(partido.ganador && partido.ganador !== partido.p1) p1Style = "color: #555; text-decoration: line-through;";
+                if(partido.ganador && partido.ganador !== partido.p2) p2Style = "color: #555; text-decoration: line-through;";
+
+                let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
+
+                // VERIFICAR SI SOY PARTICIPANTE PARA MOSTRAR LA SALA Y REPORTE
+                let soyParticipante = false;
+                if (torneoData.formato === '1v1') {
+                    if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
+                } else {
+                    const eq1 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p1);
+                    const eq2 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p2);
+                    if (eq1 && eq1.miembros && eq1.miembros.includes(currentUserName)) soyParticipante = true;
+                    if (eq2 && eq2.miembros && eq2.miembros.includes(currentUserName)) soyParticipante = true;
+                }
+
+                let salaHtml = "";
+                let reportarHtml = "";
+
+                if (soyParticipante && partido.p2 !== "BYE") {
+                    if (partido.salaId) {
+                        salaHtml = `
+                            <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.85rem;">
+                                <span style="color: white;">ID Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
+                                <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
+                            </div>
+                        `;
+                    }
+                    if (!partido.ganador) {
+                        reportarHtml = `
+                            <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.8rem; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
+                        `;
+                    }
+                }
+
+                htmlBuffer += `
+                    <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1; text-align: right; ${p1Style} font-size: 1.1rem;">${partido.p1}</div>
+                            <div style="padding: 0 15px; color: #666; font-size: 0.8rem; font-weight: bold;">VS</div>
+                            <div style="flex: 1; text-align: left; ${p2Style} font-size: 1.1rem;">${partido.p2}</div>
+                            <div style="flex: 1; text-align: right;">${estadoTexto}</div>
+                        </div>
+                        ${salaHtml}
+                        ${reportarHtml}
+                    </div>
+                `;
+            });
+            
+            if (currentRonda !== 0) htmlBuffer += "</div>";
+            contenedorText.innerHTML = htmlBuffer;
         });
-        
-        if (currentRonda !== 0) htmlBuffer += "</div>";
-        contenedorText.innerHTML = htmlBuffer;
     });
-}
+};
 
 // ==========================================
 // ABISMO (VIDEOS Y LIKES)
@@ -1265,19 +1327,19 @@ function cargarVideosAbismo() {
     });
 }
 
-function activarVideo(id, url) {
+window.activarVideo = function(id, url) {
     const contenedor = document.getElementById(`cont-${id}`);
     contenedor.innerHTML = `<iframe src="${url}?autoplay=1" style="width: 100%; aspect-ratio: 16/9; border: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-}
+};
 
-function borrarVideoAbismo(id, event) {
+window.borrarVideoAbismo = function(id, event) {
     event.stopPropagation();
     if(confirm("¿Estás seguro de que quieres borrar este clip del Abismo?")) {
         db.collection('abismo_videos').doc(id).delete();
     }
-}
+};
 
-function darLikeVideo(id, autor) {
+window.darLikeVideo = function(id, autor) {
     if(currentUserName === "Héroe Anónimo") return;
     db.collection('abismo_videos').doc(id).update({
         likes: firebase.firestore.FieldValue.increment(1)
@@ -1285,9 +1347,9 @@ function darLikeVideo(id, autor) {
     if (autor !== currentUserName) {
         enviarNotificacion(autor, `${currentUserName} reconoció tu habilidad en el Abismo (Like).`);
     }
-}
+};
 
-function comentarVideo(event, id, autor) {
+window.comentarVideo = function(event, id, autor) {
     event.preventDefault();
     if(currentUserName === "Héroe Anónimo") return;
     const input = document.getElementById(`coment-${id}`);
@@ -1307,43 +1369,46 @@ function comentarVideo(event, id, autor) {
             }
         });
     }
-}
+};
 
-document.getElementById('form-abismo').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (currentUserName === "Héroe Anónimo") { alert("Inicia sesión para subir al Abismo."); return; }
-    
-    let url = document.getElementById('video-url').value;
-    let embedUrl = "";
-    let plataforma = "";
+const formAbismo = document.getElementById('form-abismo');
+if (formAbismo) {
+    formAbismo.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (currentUserName === "Héroe Anónimo") { alert("Inicia sesión para subir al Abismo."); return; }
+        
+        let url = document.getElementById('video-url').value;
+        let embedUrl = "";
+        let plataforma = "";
 
-    if (url.includes("youtube.com/shorts/")) {
-        const id = url.split("shorts/")[1].split("?")[0];
-        embedUrl = `https://www.youtube.com/embed/${id}`;
-        plataforma = "youtube";
-    } else if (url.includes("tiktok.com/")) {
-        let id = "";
-        if (url.includes("/video/")) id = url.split("/video/")[1].split("?")[0];
-        else id = url; 
-        embedUrl = `https://www.tiktok.com/embed/v2/${id}`;
-        plataforma = "tiktok";
-    } else {
-        alert("Por favor, usa un enlace válido de YouTube Shorts o TikTok.");
-        return;
-    }
+        if (url.includes("youtube.com/shorts/")) {
+            const id = url.split("shorts/")[1].split("?")[0];
+            embedUrl = `https://www.youtube.com/embed/${id}`;
+            plataforma = "youtube";
+        } else if (url.includes("tiktok.com/")) {
+            let id = "";
+            if (url.includes("/video/")) id = url.split("/video/")[1].split("?")[0];
+            else id = url; 
+            embedUrl = `https://www.tiktok.com/embed/v2/${id}`;
+            plataforma = "tiktok";
+        } else {
+            alert("Por favor, usa un enlace válido de YouTube Shorts o TikTok.");
+            return;
+        }
 
-    db.collection('abismo_videos').add({
-        usuario: currentUserName,
-        url: embedUrl,
-        plataforma: plataforma,
-        likes: 0,
-        comentarios: [],
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        document.getElementById('form-abismo').reset();
-        alert("¡Tu técnica ha sido compartida en el Abismo!");
+        db.collection('abismo_videos').add({
+            usuario: currentUserName,
+            url: embedUrl,
+            plataforma: plataforma,
+            likes: 0,
+            comentarios: [],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            document.getElementById('form-abismo').reset();
+            alert("¡Tu técnica ha sido compartida en el Abismo!");
+        });
     });
-});
+}
 
 // ==========================================
 // SALÓN DE LA FAMA
@@ -1391,7 +1456,7 @@ function crearCartaPodio(ninja, rank) {
 // ==========================================
 // GREMIO (CLANES Y ANUNCIOS)
 // ==========================================
-function abrirModalClan() {
+window.abrirModalClan = function() {
     if (currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
     document.getElementById('modal-clan').style.display = 'flex';
     if (miClan !== "") {
@@ -1414,9 +1479,9 @@ function abrirModalClan() {
         document.getElementById('vista-sin-clan').style.display = 'block';
         document.getElementById('vista-con-clan').style.display = 'none';
     }
-}
+};
 
-function crearClan() {
+window.crearClan = function() {
     const nombreClan = document.getElementById('input-crear-clan').value.trim();
     if (!nombreClan) return;
     
@@ -1435,9 +1500,9 @@ function crearClan() {
             });
         }
     });
-}
+};
 
-function unirseClan() {
+window.unirseClan = function() {
     const nombreClan = document.getElementById('input-unirse-clan').value.trim();
     if (!nombreClan) return;
 
@@ -1453,9 +1518,9 @@ function unirseClan() {
             });
         }
     });
-}
+};
 
-function abandonarClan() {
+window.abandonarClan = function() {
     if (confirm("¿Estás seguro de abandonar a tus camaradas?")) {
         db.collection('clanes').doc(miClan).update({
             miembros: firebase.firestore.FieldValue.arrayRemove(currentUserName)
@@ -1465,7 +1530,7 @@ function abandonarClan() {
             alert("Has abandonado el escuadrón.");
         });
     }
-}
+};
 
 function cargarTopClanes() {
     const listaClanes = document.getElementById('lista-top-clanes');
@@ -1489,22 +1554,25 @@ function cargarTopClanes() {
     });
 }
 
-document.getElementById('form-anuncio').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (currentUserName === "Héroe Anónimo") return;
-    
-    db.collection('anuncios_gremio').add({
-        usuario: currentUserName,
-        busco: document.getElementById('a-busco').value,
-        soy: document.getElementById('a-soy').value,
-        mensaje: document.getElementById('a-mensaje').value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        document.getElementById('form-anuncio').reset();
-        document.getElementById('modal-anuncio').style.display = 'none';
-        alert("Anuncio clavado en el tablón.");
+const formAnuncio = document.getElementById('form-anuncio');
+if(formAnuncio) {
+    formAnuncio.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (currentUserName === "Héroe Anónimo") return;
+        
+        db.collection('anuncios_gremio').add({
+            usuario: currentUserName,
+            busco: document.getElementById('a-busco').value,
+            soy: document.getElementById('a-soy').value,
+            mensaje: document.getElementById('a-mensaje').value,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            document.getElementById('form-anuncio').reset();
+            document.getElementById('modal-anuncio').style.display = 'none';
+            alert("Anuncio clavado en el tablón.");
+        });
     });
-});
+}
 
 function cargarAnunciosGremio() {
     const listaAnuncios = document.getElementById('lista-anuncios');
@@ -1529,10 +1597,10 @@ function cargarAnunciosGremio() {
     });
 }
 
-function abrirModalAnuncio() {
+window.abrirModalAnuncio = function() {
     if (currentUserName === "Héroe Anónimo") { window.location.hash = "#modal-login"; return; }
     document.getElementById('modal-anuncio').style.display = 'flex';
-}
+};
 
 // ==========================================
 // TABERNA GLOBAL (CHAT)
@@ -1583,7 +1651,7 @@ function escucharTabernaGlobal() {
     }
 }
 
-async function limpiarTaberna() {
+window.limpiarTaberna = async function() {
     if(confirm("¿Estás seguro de quemar todos los pergaminos de la taberna global?")) {
         const snap = await db.collection('taberna').get();
         const batch = db.batch();
@@ -1591,7 +1659,7 @@ async function limpiarTaberna() {
         await batch.commit();
         alert("La taberna ha sido vaciada.");
     }
-}
+};
 
 // ==========================================
 // PERFILES Y LIBRO BINGO
@@ -1618,7 +1686,7 @@ function cargarTopIndividualBingo() {
     });
 }
 
-async function abrirPerfil(nickBuscado) {
+window.abrirPerfil = async function(nickBuscado) {
     if(!nickBuscado) return;
     window.location.hash = '#modal-perfil';
     
@@ -1683,57 +1751,100 @@ async function abrirPerfil(nickBuscado) {
     } catch (e) {
         console.error("Error al buscar perfil:", e);
     }
-}
+};
 
-function abrirModalEditarPerfil() {
+window.abrirModalEditarPerfil = function() {
     document.getElementById('modal-editar-perfil').style.display = 'flex';
     document.getElementById('edit-bio').value = miPerfilActual.bio || "";
     document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
-}
+};
 
-document.getElementById('form-editar-perfil').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const file = document.getElementById('edit-foto-file').files[0];
-    const bio = document.getElementById('edit-bio').value.trim();
-    const red = document.getElementById('edit-redes').value.trim();
-    const btn = document.getElementById('btn-guardar-perfil');
-    
-    btn.innerText = "Sincronizando Chakra...";
-    btn.disabled = true;
+const formEditarPerfil = document.getElementById('form-editar-perfil');
+if(formEditarPerfil) {
+    formEditarPerfil.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = document.getElementById('edit-foto-file').files[0];
+        const bio = document.getElementById('edit-bio').value.trim();
+        const red = document.getElementById('edit-redes').value.trim();
+        const btn = document.getElementById('btn-guardar-perfil');
+        
+        btn.innerText = "Sincronizando Chakra...";
+        btn.disabled = true;
 
-    try {
-        let updateData = { bio: bio, redSocial: red };
+        try {
+            let updateData = { bio: bio, redSocial: red };
 
-        if (file) {
-            const storageRef = storage.ref(`avatars/${currentUserId}_${Date.now()}`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            updateData.fotoPerfil = url;
+            if (file) {
+                const storageRef = storage.ref(`avatars/${currentUserId}_${Date.now()}`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                updateData.fotoPerfil = url;
+            }
+
+            await db.collection('ninjas').doc(currentUserId).update(updateData);
+            alert("¡Perfil actualizado correctamente!");
+            document.getElementById('modal-editar-perfil').style.display = 'none';
+            abrirPerfil(currentUserName);
+        } catch (error) {
+            alert("Error al actualizar el perfil.");
+            console.error(error);
+        } finally {
+            btn.innerText = "GUARDAR CAMBIOS";
+            btn.disabled = false;
         }
-
-        await db.collection('ninjas').doc(currentUserId).update(updateData);
-        alert("¡Perfil actualizado correctamente!");
-        document.getElementById('modal-editar-perfil').style.display = 'none';
-        abrirPerfil(currentUserName);
-    } catch (error) {
-        alert("Error al actualizar el perfil.");
-        console.error(error);
-    } finally {
-        btn.innerText = "GUARDAR CAMBIOS";
-        btn.disabled = false;
-    }
-});
+    });
+}
 
 // ==========================================
 // ADMINISTRACIÓN: GESTIÓN DE TORNEOS (KAGE)
 // ==========================================
-function mostrarTabAdmin(tabId) {
+window.mostrarTabAdmin = function(tabId) {
     const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion', 'tab-personalizacion'];
     tabs.forEach(t => {
         document.getElementById(t).style.display = 'none';
     });
     document.getElementById(tabId).style.display = 'block';
-}
+};
+
+window.inscribirJugadorManual = function() {
+    const nick = document.getElementById('input-inscribir-manual').value.trim();
+    const torneoId = document.getElementById('input-torneo-manual-id').value;
+    const formato = document.getElementById('input-torneo-manual-formato').value;
+    const equipo = document.getElementById('input-equipo-manual').value.trim();
+
+    if(!nick || !torneoId) return;
+
+    db.collection('torneos').doc(torneoId).get().then(doc => {
+        const data = doc.data();
+        
+        if (formato === '1v1') {
+            doc.ref.update({
+                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick)
+            });
+        } else {
+            if(!equipo) return alert("Debe especificar el nombre del equipo.");
+            let equipos = data.lista_equipos || [];
+            let equipoEncontrado = false;
+            
+            for(let i=0; i<equipos.length; i++) {
+                if (equipos[i].nombre.toLowerCase() === equipo.toLowerCase()) {
+                    equipos[i].miembros.push(nick);
+                    equipoEncontrado = true;
+                    break;
+                }
+            }
+            if(!equipoEncontrado) {
+                equipos.push({ nombre: equipo, pass: "", miembros: [nick] });
+            }
+            doc.ref.update({ lista_equipos: equipos });
+        }
+        alert("El jugador ha sido inscrito manualmente.");
+        document.getElementById('input-inscribir-manual').value = "";
+        if(document.getElementById('input-equipo-manual')) {
+            document.getElementById('input-equipo-manual').value = "";
+        }
+    });
+};
 
 function configurarAdminForms() {
     
@@ -1769,7 +1880,6 @@ function configurarAdminForms() {
             const bgUrl = document.getElementById('cfg-bg-url').value;
             const colorAcento = document.getElementById('cfg-color-acento').value;
             
-            // NUEVO: GUARDAR LINKS EN FIREBASE
             const linksSociales = {
                 wa: document.getElementById('cfg-link-wa').value,
                 ds: document.getElementById('cfg-link-ds').value,
@@ -1852,7 +1962,7 @@ function cargarTorneosParaAdminLlaves() {
     });
 }
 
-async function generarLlaves(torneoId, torneoNombre) {
+window.generarLlaves = async function(torneoId, torneoNombre) {
     if(!confirm("¿Estás seguro de generar los cruces? Ya no se podrán inscribir más ninjas ni equipos.")) return;
 
     const torneoRef = db.collection('torneos').doc(torneoId);
@@ -1894,9 +2004,9 @@ async function generarLlaves(torneoId, torneoNombre) {
     await batch.commit();
 
     alert("¡Los cruces han sido forjados! El torneo ha comenzado.");
-}
+};
 
-function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) {
+window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
     document.getElementById('admin-partidos-titulo').innerText = `Tribunal Kage: ${torneoNombre}`;
     window.location.hash = "#modal-admin-partidos";
     
@@ -1936,6 +2046,29 @@ function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) {
                 `;
             }
 
+            // NUEVO: VISUALIZACIÓN DE REPORTE Y PRUEBA (FOTO)
+            let reporteHtml = "";
+            if (partido.reporte) {
+                reporteHtml = `
+                    <div style="background: rgba(255,215,0,0.1); padding: 10px; margin-top: 10px; border: 1px dashed gold; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color:gold; font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> <strong>${partido.reporte.reportadoPor}</strong> reportó victoria de: <strong>${partido.reporte.ganador}</strong></span>
+                        <a href="${partido.reporte.capturaUrl}" target="_blank" class="btn-primary" style="padding: 5px 10px; font-size: 0.75rem; background: gold; color: black;"><i class="fas fa-image"></i> VER PRUEBA</a>
+                    </div>
+                `;
+            }
+
+            // NUEVO: ASIGNACIÓN DE SALAS
+            let salaHtml = "";
+            if (!partido.ganador && partido.p2 !== "BYE") {
+                salaHtml = `
+                    <div style="margin-top:10px; display:flex; gap:5px;">
+                        <input type="text" id="sala-id-${partidoId}" placeholder="ID de Sala" value="${partido.salaId || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
+                        <input type="text" id="sala-pass-${partidoId}" placeholder="Contraseña" value="${partido.salaPass || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
+                        <button onclick="guardarSala('${torneoId}', '${partidoId}')" class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; border-color: var(--blue); color: var(--blue);">FIJAR SALA</button>
+                    </div>
+                `;
+            }
+
             contenedor.innerHTML += `
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
                     <span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Ronda ${partido.ronda}</span>
@@ -1943,6 +2076,8 @@ function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) {
                         <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
                         <div>${accionHtml}</div>
                     </div>
+                    ${reporteHtml}
+                    ${salaHtml}
                 </div>
             `;
         });
@@ -1976,17 +2111,28 @@ function abrirAdminPartidos(torneoId, torneoNombre, creador, formato) {
             btnSiguienteRonda.style.display = 'none';
         }
     });
-}
+};
 
-function setGanadorManual(torneoId, partidoId, ganadorName) {
+window.guardarSala = function(torneoId, partidoId) {
+    const salaId = document.getElementById(`sala-id-${partidoId}`).value.trim();
+    const salaPass = document.getElementById(`sala-pass-${partidoId}`).value.trim();
+    db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
+        salaId: salaId,
+        salaPass: salaPass
+    }).then(() => {
+        alert("Datos de la sala actualizados. Los jugadores ya pueden verlos en la llave.");
+    });
+};
+
+window.setGanadorManual = function(torneoId, partidoId, ganadorName) {
     if (confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) {
         db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
             ganador: ganadorName
         });
     }
-}
+};
 
-async function generarSiguienteRonda(torneoId, ganadores, nuevaRonda) {
+window.generarSiguienteRonda = async function(torneoId, ganadores, nuevaRonda) {
     if(!confirm("¿Avanzar a la siguiente ronda con los vencedores actuales?")) return;
 
     let competidores = ganadores.sort(() => Math.random() - 0.5);
@@ -2007,9 +2153,9 @@ async function generarSiguienteRonda(torneoId, ganadores, nuevaRonda) {
     }
     
     alert(`Ronda ${nuevaRonda} forjada exitosamente.`);
-}
+};
 
-async function declararCampeon(torneoId, campeonName) {
+window.declararCampeon = async function(torneoId, campeonName) {
     if(!confirm(`¿Coronar a ${campeonName} como Campeón Definitivo y finalizar el evento?`)) return;
 
     await db.collection('torneos').doc(torneoId).update({
@@ -2052,46 +2198,9 @@ async function declararCampeon(torneoId, campeonName) {
 
     alert(`¡${campeonName} HA SIDO CORONADO CAMPEÓN DE LA ARENA!`);
     window.location.hash = "#";
-}
+};
 
-function inscribirJugadorManual() {
-    const nick = document.getElementById('input-inscribir-manual').value.trim();
-    const torneoId = document.getElementById('input-torneo-manual-id').value;
-    const formato = document.getElementById('input-torneo-manual-formato').value;
-    const equipo = document.getElementById('input-equipo-manual').value.trim();
-
-    if(!nick || !torneoId) return;
-
-    db.collection('torneos').doc(torneoId).get().then(doc => {
-        const data = doc.data();
-        
-        if (formato === '1v1') {
-            doc.ref.update({
-                lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(nick)
-            });
-        } else {
-            if(!equipo) return alert("Debe especificar el nombre del equipo.");
-            let equipos = data.lista_equipos || [];
-            let equipoEncontrado = false;
-            
-            for(let i=0; i<equipos.length; i++) {
-                if (equipos[i].nombre.toLowerCase() === equipo.toLowerCase()) {
-                    equipos[i].miembros.push(nick);
-                    equipoEncontrado = true;
-                    break;
-                }
-            }
-            if(!equipoEncontrado) {
-                equipos.push({ nombre: equipo, pass: "", miembros: [nick] });
-            }
-            doc.ref.update({ lista_equipos: equipos });
-        }
-        alert("El jugador ha sido inscrito manualmente.");
-        document.getElementById('input-inscribir-manual').value = "";
-    });
-}
-
-function banearUsuario() {
+window.banearUsuario = function() {
     const nickBuscado = document.getElementById('gestion-nick').value.trim();
     if(!nickBuscado) return;
     if(confirm(`¿Desterrar a ${nickBuscado} de la Arena de forma permanente?`)) {
@@ -2104,9 +2213,9 @@ function banearUsuario() {
             }
         });
     }
-}
+};
 
-function gestionarPlan(nuevoPlan) {
+window.gestionarPlan = function(nuevoPlan) {
     const nickBuscado = document.getElementById('gestion-nick').value.trim();
     if(!nickBuscado) return;
     db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
@@ -2117,7 +2226,7 @@ function gestionarPlan(nuevoPlan) {
             alert("No se encontró al ninja en los registros.");
         }
     });
-}
+};
 
 const formBancoKage = document.getElementById('form-banco-kage');
 if (formBancoKage) {
@@ -2239,7 +2348,7 @@ function escucharNotificaciones() {
     });
 }
 
-function abrirNotificaciones(e) { 
+window.abrirNotificaciones = function(e) { 
     e.preventDefault(); 
     document.getElementById('modal-notificaciones').style.display = 'flex'; 
     db.collection('notificaciones').where('para', '==', currentUserName).where('leida', '==', false).get().then(snap => { 
@@ -2247,11 +2356,10 @@ function abrirNotificaciones(e) {
         snap.forEach(doc => { batch.update(doc.ref, { leida: true }); }); 
         batch.commit(); 
     }); 
-}
+};
 
 // ==========================================
 // UTILIDADES (CERRAR MODALES, SESIÓN)
 // ==========================================
-function cerrarModalPerfil(e) { if(e) e.preventDefault(); history.back(); }
-function cerrarSesion() { auth.signOut().then(() => window.location.reload()); }
-
+window.cerrarModalPerfil = function(e) { if(e) e.preventDefault(); history.back(); };
+window.cerrarSesion = function() { auth.signOut().then(() => window.location.reload()); };
