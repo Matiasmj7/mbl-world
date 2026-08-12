@@ -1169,7 +1169,6 @@ window.verLlaves = function(torneoId, torneoNombre) {
     contenedorCampeon.innerHTML = "";
     window.location.hash = "#modal-llaves";
 
-    // Necesitamos traer el torneo para ver los equipos (si aplica) y poder mostrar la sala
     db.collection('torneos').doc(torneoId).get().then(docTorneo => {
         if (!docTorneo.exists) return;
         const torneoData = docTorneo.data();
@@ -1216,7 +1215,6 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
                 let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
 
-                // VERIFICAR SI SOY PARTICIPANTE PARA MOSTRAR LA SALA Y REPORTE
                 let soyParticipante = false;
                 if (torneoData.formato === '1v1') {
                     if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
@@ -1942,7 +1940,10 @@ function cargarTorneosParaAdminLlaves() {
             let accionHtml = "";
 
             if (data.estado === 'abierto') {
-                accionHtml = `<button class="btn-primary" style="background:var(--blue); color:black;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES INICIALES</button>`;
+                accionHtml = `
+                    <button class="btn-secondary" style="border-color: var(--blue); color: var(--blue); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')"><i class="fas fa-user-plus"></i> AÑADIR JUGADOR/EQUIPO</button>
+                    <button class="btn-primary" style="background:var(--blue); color:black; padding: 5px 10px; font-size: 0.8rem;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES</button>
+                `;
             } else if (data.estado === 'iniciado') {
                 accionHtml = `<button class="btn-secondary" style="border-color: gold; color: gold;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')">GESTIONAR PARTIDOS</button>`;
             } else {
@@ -2046,7 +2047,6 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
                 `;
             }
 
-            // NUEVO: VISUALIZACIÓN DE REPORTE Y PRUEBA (FOTO)
             let reporteHtml = "";
             if (partido.reporte) {
                 reporteHtml = `
@@ -2057,7 +2057,6 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
                 `;
             }
 
-            // NUEVO: ASIGNACIÓN DE SALAS
             let salaHtml = "";
             if (!partido.ganador && partido.p2 !== "BYE") {
                 salaHtml = `
