@@ -502,8 +502,12 @@ function cargarSorteos() {
             }
             
             let adminHTML = "";
-            if (esAdmin && data.estado === 'abierto') {
-                adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
+            if (esAdmin) {
+                if (data.estado === 'abierto') {
+                    adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
+                } else {
+                    adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:var(--red); color:white; border:none;" onclick="borrarSorteo('${id}', '${data.premio}')"><i class="fas fa-trash"></i> BORRAR SORTEO</button>`;
+                }
             }
 
             let ganadoresHTML = "";
@@ -598,6 +602,14 @@ window.ejecutarSorteo = function(sorteoId, premioNombre, cantidadGanadores) {
             }
         }, 100);
     });
+};
+
+window.borrarSorteo = function(sorteoId, premioNombre) {
+    if(confirm(`⚠️ ¿Estás seguro de eliminar permanentemente el sorteo por: ${premioNombre}?`)) {
+        db.collection('sorteos').doc(sorteoId).delete().then(() => {
+            alert("Sorteo eliminado de los registros.");
+        });
+    }
 };
 
 // ==========================================
