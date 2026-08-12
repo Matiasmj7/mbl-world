@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBL Arg | La Arena del Kage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.11"> 
+    <link rel="stylesheet" href="style.css?v=4.12"> 
 </head>
 <body>
 
@@ -66,23 +66,30 @@
 
         <section id="fama" class="section">
             <h2 class="section-head" id="head-fama"><i class="fas fa-monument"></i> Salón de la Fama</h2>
-            <p style="text-align: center; color: #888; margin-bottom: 20px;">Las leyendas inmortales con más campeonatos de la Arena.</p>
             <div class="podium-container" id="podio-leyendas"></div>
         </section>
 
         <section id="stream" class="section">
             <h2 class="section-head" id="head-stream">Visión del Byakugan</h2>
             <div class="container-glass stream-box">
-                <div id="status-stream" style="text-align: center; font-size: 0.9rem; color: var(--blue); margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                <div id="status-stream" style="text-align: center; font-size: 0.9rem; color: var(--blue); margin-bottom: 15px; font-weight: bold; text-transform: uppercase;">
                     <i class="fas fa-satellite-dish"></i> Sintonizando señal del Kage...
                 </div>
                 <div class="stream-grid">
                     <div class="video-container" id="reproductor-principal">
-                        <iframe id="stream-frame" src="" frameborder="0" allowfullscreen scrolling="no" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                        <iframe id="stream-frame" src="" frameborder="0" allowfullscreen scrolling="no" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
                     </div>
                     <div class="chat-container">
-                        <div class="chat-head">Chat de la Aldea</div>
-                        <iframe id="chat-externo-frame" class="chat-frame" src="" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
+                        <div class="chat-head">Pergaminos de Comunidad</div>
+                        <div style="display: flex; justify-content: space-around; background: #111; padding: 10px; border-bottom: 1px solid #222; font-size: 1.2rem;">
+                            <a href="https://wa.me/5491165658881" target="_blank" style="color: #25D366;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://discord.gg/tu-invitacion" target="_blank" style="color: #5865F2;" title="Discord"><i class="fab fa-discord"></i></a>
+                            <a href="https://facebook.com/groups/tu-grupo" target="_blank" style="color: #1877F2;" title="Facebook"><i class="fab fa-facebook"></i></a>
+                            <a href="https://tiktok.com/@tu-usuario" target="_blank" style="color: #000000; text-shadow: 0 0 3px #fff;" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                            <a href="https://instagram.com/tu-usuario" target="_blank" style="color: #E1306C;" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://youtube.com/@tu-canal" target="_blank" style="color: #FF0000;" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        </div>
+                        <iframe id="chat-externo-frame" class="chat-frame" src="" style="min-height: 400px; flex-grow: 1; border:none;"></iframe>
                     </div>
                 </div>
             </div>
@@ -96,48 +103,38 @@
         <section id="planes" class="section">
             <h2 class="section-head" id="head-planes" style="color: var(--green); border-left-color: var(--green);">Pases de Batalla</h2>
             <div class="torneos-grid">
-                
                 <div class="container-glass plan-card" style="border-top: 4px solid #cd7f32;">
                     <h3>Genin</h3>
                     <div class="price">Gratis</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-check"></i> Eventos públicos</li>
-                        <li><i class="fas fa-check"></i> Chat de Aldea</li>
+                        <li><i class="fas fa-check"></i> Chat de  Aldea</li>
                         <li><i class="fas fa-times" style="color:var(--red);"></i> Sin Ryos extra</li>
                     </ul>
                     <button class="btn-secondary" style="width:100%" disabled>Rango Actual</button>
                 </div>
-
                 <div class="container-glass plan-card" style="border-top: 4px solid silver; transform: scale(1.05);">
                     <div class="badge-plan">ELITE</div>
                     <h3 style="color: silver;">Jonin</h3>
-                    <div class="price">$4000 ARS <span style="font-size:0.8rem; color:#888;">(o eq. USDT)</span></div>
-                    <p style="color: #aaa; font-size: 0.85rem; margin-top:-10px; margin-bottom: 15px;">2 Horas de uso de plataforma<br>(+$2000 ARS por hora extra)</p>
+                    <div class="price">$4000 ARS</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-star" style="color:gold;"></i> 500 Ryos</li>
                         <li><i class="fas fa-palette"></i> Color Plata en Chat</li>
-                        <li><i class="fas fa-bolt"></i> Prioridad torneos</li>
                         <li><i class="fas fa-tools"></i> <strong>Crear Torneos (1v1 y 2v2)</strong></li>
-                        <li><i class="fas fa-sitemap"></i> Administrar Llaves y Resultados</li>
                     </ul>
-                    <a href="#modal-pago-jonin" class="btn-primary" style="background: silver; color: black; width:100%">VER MÉTODOS DE PAGO</a>
+                    <a href="#modal-pago-jonin" class="btn-primary" style="background: silver; color: black; width:100%">PAGAR</a>
                 </div>
-
                 <div class="container-glass plan-card" style="border-top: 4px solid gold;">
                     <div class="badge-plan" style="background:gold;">SUPREMO</div>
                     <h3 style="color: gold;">Kasekage</h3>
-                    <div class="price">$10000 ARS <span style="font-size:0.8rem; color:#888;">(o eq. USDT)</span></div>
-                    <p style="color: #aaa; font-size: 0.85rem; margin-top:-10px; margin-bottom: 15px;">4 Horas de uso de plataforma<br>(+$5000 ARS x 2 horas extra)</p>
+                    <div class="price">$10000 ARS</div>
                     <ul class="plan-features">
                         <li><i class="fas fa-crown" style="color:gold;"></i> 1500 Ryos</li>
                         <li><i class="fas fa-shield-alt"></i> Borde Dorado Exclusivo</li>
-                        <li><i class="fas fa-trophy"></i> Pase Libre a Ligas</li>
                         <li><i class="fas fa-tools"></i> <strong>Crear TODOS los Torneos</strong></li>
-                        <li><i class="fas fa-sitemap"></i> Administrador Total de Eventos</li>
                     </ul>
-                    <a href="#modal-pago-kasekage" class="btn-primary" style="background: gold; color: black; width:100%">VER MÉTODOS DE PAGO</a>
+                    <a href="#modal-pago-kasekage" class="btn-primary" style="background: gold; color: black; width:100%">PAGAR</a>
                 </div>
-
             </div>
         </section>
 
@@ -174,36 +171,28 @@
 
         <section id="comunidades" class="section">
             <h2 class="section-head" id="head-comunidades" style="color: var(--purple); border-left-color: var(--purple);">Comunidades Aliadas</h2>
-            <p style="text-align: center; color: #888; margin-bottom: 30px;">Fortalece la Arena. Las comunidades con más de 20 ninjas pueden solicitarle al Kage un Pase Jonin gratis para su líder.</p>
-            
             <div class="torneos-grid">
                 <div class="container-glass" id="vista-sin-comunidad">
                     <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-handshake"></i> Forjar Alianza</h3>
                     <input type="text" id="input-crear-comunidad" placeholder="Nombre de tu Comunidad" style="width:100%; margin-bottom:10px;">
                     <button class="btn-primary" style="width:100%; background: var(--purple); color: white; margin-bottom:20px;" onclick="crearComunidad()">FUNDAR COMUNIDAD</button>
-                    <p style="text-align:center; color:#888; margin-bottom: 10px;">O únete a una existente</p>
                     <input type="text" id="input-unirse-comunidad" placeholder="Nombre de Comunidad" style="width:100%; margin-bottom:10px;">
                     <button class="btn-secondary" style="width:100%; border-color: var(--purple); color: var(--purple);" onclick="unirseComunidad()">UNIRSE A COMUNIDAD</button>
                 </div>
-
                 <div class="container-glass" id="vista-con-comunidad" style="display: none; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
                         <h3 style="color: var(--purple);"><i class="fas fa-users"></i> <span id="nombre-mi-comunidad">Mi Comunidad</span></h3>
                         <button id="btn-abandonar-comunidad" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; border-color: var(--red); color: var(--red);" onclick="abandonarComunidad()">Abandonar</button>
                     </div>
-                    
                     <div id="kage-comunidad-selector-container" style="display: none; margin-bottom: 15px; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 5px; border: 1px solid gold;">
-                        <span style="color: gold; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-eye"></i> Visión del Kage:</span>
-                        <select id="kage-comunidad-selector" style="width: 100%; padding: 8px; margin-top: 5px; background: #000; border: 1px solid gold; color: gold;" onchange="cambiarChatComunidadKage()"></select>
+                        <select id="kage-comunidad-selector" style="width: 100%; padding: 8px; background: #000; border: 1px solid gold; color: gold;" onchange="cambiarChatComunidadKage()"></select>
                     </div>
-
                     <div id="chat-comunidad-container" style="height: 250px; overflow-y: auto; background: #050508; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;"></div>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="chat-input-comunidad" placeholder="Mensaje privado de comunidad..." style="flex: 1;">
+                        <input type="text" id="chat-input-comunidad" placeholder="Mensaje..." style="flex: 1;">
                         <button class="btn-primary" style="background: var(--purple); color: white;" onclick="enviarMensajeComunidad()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
-                
                 <div class="container-glass">
                     <h3 style="color: gold; margin-bottom: 15px;"><i class="fas fa-star"></i> Top Comunidades</h3>
                     <div id="lista-top-comunidades"></div>
@@ -239,7 +228,7 @@
                 </div>
                 <div class="container-glass">
                     <h3 style="color:var(--blue);"><i class="fas fa-scroll"></i> Reclutamiento</h3>
-                    <button class="btn-secondary" style="width:100%; margin: 10px 0;" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Publicar Anuncio</button>
+                    <button class="btn-secondary" style="width:100%; margin: 10px 0;" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Anuncio</button>
                     <div id="lista-anuncios"></div>
                 </div>
             </div>
@@ -247,7 +236,7 @@
                 <h3 style="color:var(--red);"><i class="fas fa-comments"></i> Taberna Global</h3>
                 <div id="chat-messages-container" style="height: 300px; overflow-y: auto; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; margin: 15px 0;"></div>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="chat-input-text" placeholder="Escribe en la Taberna..." style="flex: 1;">
+                    <input type="text" id="chat-input-text" placeholder="Escribe..." style="flex: 1;">
                     <button id="btn-send-chat" class="btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
                 </div>
             </div>
@@ -263,16 +252,13 @@
                 <div class="container-glass plan-card" style="border: 2px solid gold;">
                     <h3 style="color: gold;">Bolsa de Ryos</h3>
                     <div class="price">120 Ryos</div>
-                    <p style="font-size: 0.8rem; margin-bottom: 15px;">Precio: $1200 ARS / 1.2 USDT</p>
-                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 120 Ryos | A pagar: $1200 ARS / 1.2 USDT'">COMPRAR</a>
+                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 120 Ryos'">COMPRAR</a>
                 </div>
                 <div class="container-glass plan-card" style="border: 2px solid gold;">
                     <h3 style="color: gold;">Cofre de Ryos</h3>
                     <div class="price">240 Ryos</div>
-                    <p style="font-size: 0.8rem; margin-bottom: 15px;">Precio: $2000 ARS / 2 USDT</p>
-                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 240 Ryos | A pagar: $2000 ARS / 2 USDT'">COMPRAR</a>
+                    <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 240 Ryos'">COMPRAR</a>
                 </div>
-                
                 <div id="catalogo-tienda" style="display: contents;"></div>
             </div>
         </section>
@@ -280,7 +266,6 @@
         <section id="admin" class="section" style="display: none;">
             <h2 class="section-head" id="titulo-panel-admin" style="color: var(--red);"><i class="fas fa-fire"></i> Sistema Kage Supremo</h2>
             <div class="container-glass">
-                
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Eventos</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Mis Llaves</button>
@@ -294,12 +279,12 @@
                     <h3 style="margin-bottom: 15px; color:var(--blue);">Publicar Evento</h3>
                     <form id="form-torneo" class="admin-form">
                         <div class="form-row">
-                            <input type="text" id="t-nombre" placeholder="Nombre (Ej: Torneo Verano)" required>
-                            <input type="text" id="t-fecha" placeholder="Fecha (Ej: Sab 20hs)">
+                            <input type="text" id="t-nombre" placeholder="Nombre" required>
+                            <input type="text" id="t-fecha" placeholder="Fecha">
                         </div>
                         <div class="form-row">
-                            <input type="number" id="t-cupos" placeholder="Cupos Totales (Si es por equipo, pon la cantidad de equipos)" required>
-                            <input type="text" id="t-premio" placeholder="Premio (Ej: 1000 Ryos)">
+                            <input type="number" id="t-cupos" placeholder="Cupos Totales" required>
+                            <input type="text" id="t-premio" placeholder="Premio">
                         </div>
                         <div class="form-row">
                             <select id="t-formato">
@@ -315,10 +300,13 @@
                         </div>
                         <div style="display:flex; align-items:center; gap:10px;">
                             <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> 
-                            <label>Evento Privado (Solo invitados)</label>
+                            <label>Evento Privado</label>
                         </div>
                         <button type="submit" class="btn-save">PUBLICAR EVENTO</button>
                     </form>
+                    
+                    <h3 style="margin: 25px 0 15px 0; color: var(--red);"><i class="fas fa-trash-alt"></i> Purgar Catálogo de Eventos</h3>
+                    <div id="admin-lista-borrar-torneos" style="display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed var(--red);"></div>
                 </div>
 
                 <div id="tab-llaves-admin" style="display: none;">
@@ -329,30 +317,30 @@
                 <div id="tab-moderacion" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:var(--blue);">Alerta Global (Ticker)</h3>
                     <form id="form-config-ticker" style="display:flex; gap:10px; margin-bottom: 25px;">
-                        <input type="text" id="input-ticker" placeholder="Mensaje para toda la aldea..." required style="flex:1;">
+                        <input type="text" id="input-ticker" placeholder="Mensaje..." required style="flex:1;">
                         <button type="submit" class="btn-primary">Lanzar</button>
                     </form>
                     
-                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica y Chat (v4.00)</h3>
+                    <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica</h3>
                     <form id="form-config-stream" class="admin-form">
                         <div class="form-row">
                             <select id="stream-plataforma-admin">
-                                <option value="kick">Kick (En Vivo)</option>
-                                <option value="youtube">YouTube (Video Promo)</option>
-                                <option value="tiktok">TikTok (Video Promo)</option>
-                                <option value="twitch">Twitch (En Vivo)</option>
+                                <option value="kick">Kick</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="twitch">Twitch</option>
                             </select>
-                            <input type="text" id="stream-id-admin" placeholder="ID de Usuario, Video o Link" required>
+                            <input type="text" id="stream-id-admin" placeholder="ID o Enlace" required>
                         </div>
-                        <input type="url" id="discord-url-admin" placeholder="URL de WidgetBot Discord (Opcional)" style="width:100%; margin-bottom:10px;">
+                        <input type="url" id="discord-url-admin" placeholder="URL de WidgetBot Discord" style="width:100%; margin-bottom:10px;">
                         <button type="submit" class="btn-primary" style="background: var(--red); color: white;">ACTUALIZAR SEÑAL GLOBAL</button>
                     </form>
 
-                    <h3 style="margin: 30px 0 15px 0; color:#ff00ff;">Generar Sorteo de la Aldea</h3>
+                    <h3 style="margin: 30px 0 15px 0; color:#ff00ff;">Generar Sorteo</h3>
                     <form id="form-crear-sorteo" class="admin-form">
                         <div class="form-row">
-                            <input type="text" id="s-premio" placeholder="Premio (Ej: Pase Estelar)" required>
-                            <input type="number" id="s-precio" placeholder="Costo en Ryos (0 = Gratis)" required>
+                            <input type="text" id="s-premio" placeholder="Premio" required>
+                            <input type="number" id="s-precio" placeholder="Costo" required>
                         </div>
                         <div class="form-row">
                             <input type="number" id="s-ganadores" placeholder="Cantidad de Ganadores" required>
@@ -360,15 +348,19 @@
                         </div>
                     </form>
 
+                    <h3 style="margin: 25px 0 15px 0; color: gold;"><i class="fas fa-history"></i> Reinicio de Temporada (Libro Bingo)</h3>
+                    <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Este botón restaurará los puntos de experiencia (XP) de TODOS los ninjas registrados a 0. Sus inventarios, rangos y diamantes no se verán afectados.</p>
+                    <button class="btn-primary" style="background: gold; color: black; font-weight: bold;" onclick="reiniciarTopBingo()"><i class="fas fa-sync"></i> REINICIAR RANKING GLOBAL AHORA</button>
+
                     <h3 style="margin: 25px 0 15px 0; color:var(--red);">Purgar Taberna</h3>
-                    <button class="btn-secondary" style="border-color:var(--red); color:var(--red);" onclick="limpiarTaberna()"><i class="fas fa-trash"></i> VACIAR CHAT AHORA</button>
+                    <button class="btn-secondary" style="border-color:var(--red); color:var(--red);" onclick="limpiarTaberna()">VACIAR CHAT</button>
                 </div>
 
                 <div id="tab-banco" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:gold;">Tesorería Central</h3>
                     <form id="form-banco-kage" class="admin-form">
-                        <input type="text" id="banco-usuario" placeholder="Nick del Ninja destino" required>
-                        <input type="number" id="banco-monto" placeholder="Monto de Ryos" required>
+                        <input type="text" id="banco-usuario" placeholder="Nick" required>
+                        <input type="number" id="banco-monto" placeholder="Monto" required>
                         <button type="submit" class="btn-primary" style="background:gold; color:black;"><i class="fas fa-coins"></i> ENVIAR RYOS</button>
                     </form>
                 </div>
@@ -376,7 +368,7 @@
                 <div id="tab-gestion" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:var(--green);">Gestión de Identidades</h3>
                     <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #333; border-radius: 8px;">
-                        <input type="text" id="gestion-nick" placeholder="Buscar Nick del Ninja..." style="width: 100%; margin-bottom: 15px;">
+                        <input type="text" id="gestion-nick" placeholder="Buscar Nick..." style="width: 100%; margin-bottom: 15px;">
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn-secondary" onclick="gestionarPlan('jonin')">Hacer Jonin</button>
                             <button class="btn-secondary" style="color: gold; border-color: gold;" onclick="gestionarPlan('kasekage')">Hacer Kasekage</button>
@@ -389,85 +381,35 @@
                 <div id="tab-personalizacion" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:var(--blue);">Personalización del Entorno</h3>
                     <form id="form-config-personalizacion" class="admin-form">
-                        <h4 style="color:white; margin-top:10px;"><i class="fas fa-palette"></i> Fondo y Color Temático</h4>
                         <div class="form-row">
                             <select id="cfg-bg-tipo">
                                 <option value="video">Fondo de Video (.mp4)</option>
                                 <option value="imagen">Fondo de Imagen (.jpg, .png)</option>
                             </select>
-                            <input type="url" id="cfg-bg-url" placeholder="URL directa del archivo multimedia de fondo" required>
+                            <input type="url" id="cfg-bg-url" placeholder="URL directa" required>
                         </div>
                         <div class="form-row">
                             <label style="display:flex; align-items:center; gap:15px; color:white; font-size:0.9rem;">
-                                Color de Iluminación / Acento Principal (Neones):
-                                <input type="color" id="cfg-color-acento" value="#00d2ff" style="padding:0; border:none; width:60px; height:35px; cursor:pointer; background:transparent;">
+                                Color Temático:
+                                <input type="color" id="cfg-color-acento" value="#00d2ff" style="width:60px; height:35px; background:transparent; border:none; cursor:pointer;">
                             </label>
                         </div>
-
-                        <h4 style="color:white; margin-top:25px; border-top:1px solid #222; padding-top:15px;"><i class="fas fa-eye-slash"></i> Títulos y Control de Bloques</h4>
-                        <p style="font-size:0.8rem; color:#888; margin-bottom:10px;">Modifica los títulos visibles y desmarca las secciones que deseas ocultar temporalmente de la página y del menú superior.</p>
-                        
                         <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Sección En Vivo</span>
-                                <input type="text" id="title-cfg-stream" placeholder="Por defecto: Visión del Byakugan" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-stream" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Salón de la Fama</span>
-                                <input type="text" id="title-cfg-fama" placeholder="Por defecto: Salón de la Fama" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-fama" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Ligas Mensuales</span>
-                                <input type="text" id="title-cfg-ligas" placeholder="Por defecto: Ligas Mensuales" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-ligas" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Pases de Batalla</span>
-                                <input type="text" id="title-cfg-planes" placeholder="Por defecto: Pases de Batalla" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-planes" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Torneos Relámpago</span>
-                                <input type="text" id="title-cfg-torneos" placeholder="Por defecto: Torneos Relámpago" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-torneos" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Libro Bingo</span>
-                                <input type="text" id="title-cfg-bingo" placeholder="Por defecto: Libro Bingo" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-bingo" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Comunidades Aliadas</span>
-                                <input type="text" id="title-cfg-comunidades" placeholder="Por defecto: Comunidades Aliadas" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-comunidades" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Sorteos de la Aldea</span>
-                                <input type="text" id="title-cfg-sorteos" placeholder="Por defecto: Sorteos de la Aldea" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-sorteos" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Archivos del Abismo</span>
-                                <input type="text" id="title-cfg-abismo" placeholder="Por defecto: Archivos del Abismo" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-abismo" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center; border-bottom: 1px solid #222; padding-bottom:5px;">
-                                <span style="color:#aaa; font-size:0.85rem;">Gremio / Taberna</span>
-                                <input type="text" id="title-cfg-gremio" placeholder="Por defecto: Gremio y Escuadrones" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-gremio" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;">
-                                <span style="color:#aaa; font-size:0.85rem;">Mercado de la Aldea</span>
-                                <input type="text" id="title-cfg-tienda" placeholder="Por defecto: Mercado de la Aldea" style="padding:8px;">
-                                <label style="font-size:0.85rem;"><input type="checkbox" id="vis-cfg-tienda" checked style="width:16px; height:16px; vertical-align:middle;"> Mostrar</label>
-                            </div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">En Vivo</span><input type="text" id="title-cfg-stream"><label><input type="checkbox" id="vis-cfg-stream" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Fama</span><input type="text" id="title-cfg-fama"><label><input type="checkbox" id="vis-cfg-fama" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Ligas</span><input type="text" id="title-cfg-ligas"><label><input type="checkbox" id="vis-cfg-ligas" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Pases</span><input type="text" id="title-cfg-planes"><label><input type="checkbox" id="vis-cfg-planes" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Torneos</span><input type="text" id="title-cfg-torneos"><label><input type="checkbox" id="vis-cfg-torneos" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Libro Bingo</span><input type="text" id="title-cfg-bingo"><label><input type="checkbox" id="vis-cfg-bingo" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Alianzas</span><input type="text" id="title-cfg-comunidades"><label><input type="checkbox" id="vis-cfg-comunidades" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Sorteos</span><input type="text" id="title-cfg-sorteos"><label><input type="checkbox" id="vis-cfg-sorteos" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Abismo</span><input type="text" id="title-cfg-abismo"><label><input type="checkbox" id="vis-cfg-abismo" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Gremio</span><input type="text" id="title-cfg-gremio"><label><input type="checkbox" id="vis-cfg-gremio" checked> Mostrar</label></div>
+                            <div style="display:grid; grid-template-columns: 1.2fr 2fr 1fr; gap:10px; align-items:center;"><span style="color:#aaa; font-size:0.85rem;">Mercado</span><input type="text" id="title-cfg-tienda"><label><input type="checkbox" id="vis-cfg-tienda" checked> Mostrar</label></div>
                         </div>
-                        <button type="submit" class="btn-save" style="margin-top:10px;">GUARDAR EN LA BASE DE DATOS GLOBAL</button>
+                        <button type="submit" class="btn-save" style="margin-top:10px;">GUARDAR EN CONFIGURACIÓN</button>
                     </form>
                 </div>
-
             </div>
         </section>
     </main>
@@ -475,8 +417,24 @@
     <div id="modal-login" class="modal">
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
-            <h3 style="text-align:center;">IDENTIFICACIÓN</h3>
-            <button class="btn-google" id="login-google" style="margin-top:20px; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
+            <h3 style="text-align:center; margin-bottom: 15px;">ACCESO A LA ARENA</h3>
+            
+            <div id="login-normal-section">
+                <input type="text" id="login-email-falso" placeholder="Nombre de Usuario o Alias" style="width:100%; margin-bottom:10px;">
+                <input type="password" id="login-pass" placeholder="Contraseña Privada" style="width:100%; margin-bottom:15px;">
+                <button class="btn-primary" style="width:100%; margin-bottom:10px;" onclick="autenticarUsuarioManual()">INGRESAR</button>
+                <button class="btn-secondary" style="width:100%; font-size:0.8rem; padding:5px; margin-bottom:15px;" onclick="cambiarSeccionAuth(true)">¿No tienes cuenta? Regístrate aquí</button>
+            </div>
+
+            <div id="register-manual-section" style="display:none;">
+                <input type="text" id="reg-usuario" placeholder="Crea tu Nombre de Usuario / Nick" style="width:100%; margin-bottom:10px;">
+                <input type="password" id="reg-pass" placeholder="Crea tu Contraseña" style="width:100%; margin-bottom:15px;">
+                <button class="btn-primary" style="width:100%; background:var(--green); color:black; margin-bottom:10px;" onclick="registrarUsuarioManual()">CREAR CUENTA PRIVADA</button>
+                <button class="btn-secondary" style="width:100%; font-size:0.8rem; padding:5px; margin-bottom:15px;" onclick="cambiarSeccionAuth(false)">Volver al login</button>
+            </div>
+
+            <div style="text-align:center; color:#555; border-top:1px solid #222; padding-top:15px; margin-top:5px; font-size:0.8rem;">O CONTINÚA CON TU CUENTA TRADICIONAL</div>
+            <button class="btn-google" id="login-google" style="margin-top:10px; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
                 <i class="fab fa-google"></i> Continuar con Google
             </button>
         </div>
@@ -484,56 +442,17 @@
     
     <div id="modal-registro-nick" class="modal">
         <div class="modal-box">
-            <h3 style="text-align:center;">Tu Identidad Ninja</h3>
+            <h3 style="text-align:center;">Completa tu Identidad</h3>
             <form id="form-registro-nick">
-                <input type="text" id="nuevo-nick" required placeholder="Ingresa tu Nickname" style="width:100%; margin:20px 0;">
+                <input type="text" id="nuevo-nick" required placeholder="Confirma tu Nickname Definitivo" style="width:100%; margin:20px 0;">
                 <button type="submit" class="btn-save" style="width:100%;">ENTRAR A LA ARENA</button>
             </form>
         </div>
     </div>
 
-    <div id="modal-pago-ryos" class="modal">
-        <div class="modal-box" style="text-align: center; border-color: gold;">
-            <a href="#" class="btn-close">&times;</a>
-            <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-coins"></i> Comprar Ryos</h3>
-            <p id="info-pago-ryos" style="font-weight: bold; margin-bottom: 10px;">Pack seleccionado...</p>
-            <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;">
-                <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
-                <p style="color: white; margin-bottom: 5px;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
-                <p style="color: white; margin-bottom: 5px; margin-top: 10px; border-top: 1px dashed #555; padding-top: 10px;">Red Cripto: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
-                <p style="color: white;">USDT: <strong style="color:var(--green);">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p>
-            </div>
-            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
-        </div>
-    </div>
-
-    <div id="modal-pago-jonin" class="modal">
-        <div class="modal-box" style="text-align: center; border-color: silver;">
-            <a href="#" class="btn-close">&times;</a>
-            <h3 style="color: silver; margin-bottom: 20px;"><i class="fas fa-mask"></i> Pase Jonin</h3>
-            <div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;">
-                <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
-                <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
-                <p style="color: white;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
-            </div>
-            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
-        </div>
-    </div>
-
-    <div id="modal-pago-kasekage" class="modal">
-        <div class="modal-box" style="text-align: center; border-color: gold;">
-            <a href="#" class="btn-close">&times;</a>
-            <h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-dragon"></i> Pase Kasekage</h3>
-            <div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; text-align: left; word-break: break-all;">
-                <p style="color: white; margin-bottom: 5px;">MP Pesos: <strong style="color:var(--green);">matias.mj7</strong></p>
-                <p style="color: white; margin-bottom: 5px;">MP Dólares: <strong style="color:var(--green);">incubar.soja.salida</strong></p>
-                <p style="color: white; margin-bottom: 5px;">LemonTag: <strong style="color:var(--green);">$matias.moto7</strong></p>
-                <p style="color: white; margin-bottom: 5px; margin-top: 10px; border-top: 1px dashed #555; padding-top: 10px;">Red Cripto: <strong style="color:var(--green);">BEP-20 (BSC)</strong></p>
-                <p style="color: white;">USDT: <strong style="color:var(--green);">0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p>
-            </div>
-            <a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: gold; color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE AL KAGE</a>
-        </div>
-    </div>
+    <div id="modal-pago-ryos" class="modal"><div class="modal-box" style="text-align: center; border-color: gold;"><a href="#" class="btn-close">&times;</a><h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-coins"></i> Comprar Ryos</h3><p id="info-pago-ryos">Pack...</p><div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;"><p>MP: <strong>matias.mj7</strong></p><p>LemonTag: <strong>$matias.moto7</strong></p><p>BSC BEP-20 USDT: <strong>0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
+    <div id="modal-pago-jonin" class="modal"><div class="modal-box" style="text-align: center; border-color: silver;"><a href="#" class="btn-close">&times;</a><h3>Pase Jonin</h3><div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;"><p>MP: <strong>matias.mj7</strong></p><p>LemonTag: <strong>$matias.moto7</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
+    <div id="modal-pago-kasekage" class="modal"><div class="modal-box" style="text-align: center; border-color: gold;"><a href="#" class="btn-close">&times;</a><h3>Pase Kasekage</h3><div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; text-align: left; word-break: break-all;"><p>MP: <strong>matias.mj7</strong></p><p>USDT (BSC): <strong>0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: gold; color: black; width: 100%; text-decoration:none;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
 
     <div id="modal-perfil" class="modal">
         <div class="modal-box" style="text-align: center;">
@@ -563,10 +482,9 @@
             <a href="#" class="btn-close" onclick="document.getElementById('modal-editar-perfil').style.display='none';">&times;</a>
             <h3 style="margin-bottom: 20px; color: var(--blue);">Personalizar Perfil</h3>
             <form id="form-editar-perfil">
-                <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Foto de Perfil (Solo selecciona si quieres cambiarla)</label>
                 <input type="file" id="edit-foto-file" accept="image/*" style="margin-bottom: 15px; background: #111;">
-                <textarea id="edit-bio" placeholder="Tu Biografía Ninja (Máx 100 caract.)" maxlength="100" style="resize: none; height: 80px;"></textarea>
-                <input type="text" id="edit-redes" placeholder="Enlace a Red Social o Stream">
+                <textarea id="edit-bio" placeholder="Tu Biografía Ninja" maxlength="100" style="resize: none; height: 80px;"></textarea>
+                <input type="text" id="edit-redes" placeholder="Enlace a Red Social">
                 <button type="submit" class="btn-save" id="btn-guardar-perfil">GUARDAR CAMBIOS</button>
             </form>
         </div>
@@ -588,16 +506,14 @@
             <div id="vista-sin-clan">
                 <input type="text" id="input-crear-clan" placeholder="Nombre Nuevo Clan" style="width:100%; margin-bottom:10px;">
                 <button class="btn-primary" style="width:100%; margin-bottom:20px;" onclick="crearClan()">CREAR NUEVO</button>
-                <p style="text-align:center; color:#888;">O</p>
                 <input type="text" id="input-unirse-clan" placeholder="Nombre Clan Existente" style="width:100%; margin:10px 0;">
                 <button class="btn-secondary" style="width:100%;" onclick="unirseClan()">UNIRSE</button>
             </div>
             <div id="vista-con-clan" style="display: none; text-align: center;">
                 <h2 id="clan-nombre-display" style="color: white; margin-bottom: 10px;">NOMBRE CLAN</h2>
-                <p style="color: gold; font-weight: bold; margin-bottom: 20px;"><span id="clan-xp-display">0</span> XP Total</p>
-                <h4 style="color: var(--blue); margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">Camaradas</h4>
+                <p style="color: gold; font-weight: bold; margin-bottom: 20px;"><span id="clan-xp-display">0</span> XP</p>
                 <ul id="lista-miembros-clan" style="list-style: none; padding: 0; margin-bottom: 20px; text-align: left; max-height: 150px; overflow-y: auto;"></ul>
-                <button class="btn-secondary" style="border-color: var(--red); color: var(--red); width: 100%;" onclick="abandonarClan()"><i class="fas fa-sign-out-alt"></i> Abandonar</button>
+                <button class="btn-secondary" style="border-color: var(--red); color: var(--red); width: 100%;" onclick="abandonarClan()">Abandonar</button>
             </div>
         </div>
     </div>
@@ -614,10 +530,9 @@
                     <input type="hidden" id="input-torneo-manual-formato">
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="input-equipo-manual" placeholder="Nombre Equipo (Solo si es 2v2, 3v3 o 5v5)" style="flex:1;">
+                    <input type="text" id="input-equipo-manual" placeholder="Nombre Equipo" style="flex:1;">
                     <button class="btn-primary" style="padding:10px 20px;" onclick="inscribirJugadorManual()">AÑADIR</button>
                 </div>
-                <p style="font-size: 0.7rem; color: #888; margin-top: 5px;">*Deja el equipo vacío si es un torneo 1v1 individual.</p>
             </div>
             <div id="contenedor-admin-partidos" style="display: flex; flex-direction: column; gap: 15px;"></div>
             <button id="btn-siguiente-ronda" class="btn-primary" style="width: 100%; margin-top: 20px; display: none;">GENERAR SIGUIENTE RONDA</button>
@@ -627,12 +542,12 @@
     <div id="modal-anuncio" class="modal">
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
-            <h3 style="margin-bottom: 20px; color: var(--blue);">Publicar en Tablón</h3>
+            <h3>Publicar en Tablón</h3>
             <form id="form-anuncio" style="display:flex; flex-direction:column; gap:15px;">
                 <input type="text" id="a-busco" placeholder="¿Qué buscas?" required>
                 <input type="text" id="a-soy" placeholder="¿Qué ofreces?" required>
-                <textarea id="a-mensaje" placeholder="Mensaje adicional..." required style="height: 80px; resize: none;"></textarea>
-                <button type="submit" class="btn-save">PUBLICAR</button>
+                <textarea id="a-mensaje" placeholder="Mensaje..." required style="height: 80px; resize: none;"></textarea>
+                <button type="submit" class="btn-save">PUBLICA</button>
             </form>
         </div>
     </div>
@@ -640,64 +555,42 @@
     <div id="modal-reporte" class="modal">
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-reporte').style.display='none';">&times;</a>
-            <h3 style="margin-bottom: 20px; color: var(--blue);">Reportar Resultado</h3>
+            <h3>Reportar Resultado</h3>
             <form id="form-reporte">
                 <input type="hidden" id="rep-torneo-id">
                 <input type="hidden" id="rep-partido-id">
                 <select id="rep-ganador" required style="width:100%; margin-bottom:15px;"></select>
-                <input type="url" id="rep-prueba" placeholder="Link a captura de pantalla (Opcional)" style="width:100%; margin-bottom:20px;">
+                <input type="url" id="rep-prueba" placeholder="Link a captura (Opcional)" style="width:100%; margin-bottom:20px;">
                 <button type="submit" class="btn-save" style="width:100%;">ENVIAR REPORTE</button>
             </form>
         </div>
     </div>
 
-    <div id="modal-ruleta" class="modal">
-        <div class="modal-box" style="text-align: center; max-width: 400px; border-color: #ff00ff;">
-            <h3 id="ruleta-premio" style="color:#ff00ff; margin-bottom: 10px;">SORTEANDO...</h3>
-            <div id="ruleta-visual" style="height: 100px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; background: #000; border: 3px solid #ff00ff; margin: 20px 0; border-radius: 10px; overflow: hidden; color: white; text-shadow: 0 0 10px #ff00ff;">
-                <span id="nombre-ruleta">?</span>
-            </div>
-            <div id="ganadores-lista" style="display: none; color: gold; font-weight: bold; margin-bottom: 15px; font-size: 1.2rem;"></div>
-            <button id="btn-cerrar-ruleta" class="btn-primary" style="display:none; width: 100%; background: #ff00ff; color: white;" onclick="document.getElementById('modal-ruleta').style.display='none'">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-notificaciones" class="modal">
-        <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
-            <a href="#" class="btn-close" onclick="document.getElementById('modal-notificaciones').style.display='none';">&times;</a>
-            <h3 style="color: var(--blue); margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-envelope"></i> Avisos de la Aldea</h3>
-            <div id="lista-notificaciones-contenido" style="display: flex; flex-direction: column; gap: 10px;"></div>
-        </div>
-    </div>
+    <div id="modal-ruleta" class="modal"><div class="modal-box" style="text-align: center; max-width: 400px; border-color: #ff00ff;"><h3 id="ruleta-premio" style="color:#ff00ff;">SORTEANDO...</h3><div id="ruleta-visual" style="height: 100px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; background: #000; border: 3px solid #ff00ff; margin: 20px 0; border-radius: 10px; color: white; text-shadow: 0 0 10px #ff00ff;"><span id="nombre-ruleta">?</span></div><div id="ganadores-lista" style="display: none; color: gold; font-weight: bold; margin-bottom: 15px; font-size: 1.2rem;"></div><button id="btn-cerrar-ruleta" class="btn-primary" style="display:none; width: 100%; background: #ff00ff; color: white;" onclick="document.getElementById('modal-ruleta').style.display='none'">CERRAR</button></div></div>
+    <div id="modal-notificaciones" class="modal"><div class="modal-box" style="max-height: 80vh; overflow-y: auto;"><a href="#" class="btn-close" onclick="document.getElementById('modal-notificaciones').style.display='none';">&times;</a><h3 style="color: var(--blue); margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-envelope"></i> Avisos</h3><div id="lista-notificaciones-contenido" style="display: flex; flex-direction: column; gap: 10px;"></div></div></div>
 
     <div id="modal-equipos" class="modal">
         <div class="modal-box" style="max-height: 85vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-equipos').style.display='none';">&times;</a>
             <h3 style="color: var(--blue); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-users"></i> Reclutamiento de Escuadras</h3>
-            
             <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="color: white; margin-bottom: 10px;">Crear Nueva Escuadra</h4>
-                <input type="hidden" id="eq-torneo-id">
-                <input type="hidden" id="eq-formato">
+                <input type="hidden" id="eq-torneo-id"><input type="hidden" id="eq-formato">
                 <input type="text" id="eq-nombre" placeholder="Nombre de tu Equipo" style="width: 100%; margin-bottom: 10px;">
-                <input type="password" id="eq-pass" placeholder="Contraseña (Opcional - Déjalo vacío si es público)" style="width: 100%; margin-bottom: 10px;">
+                <input type="password" id="eq-pass" placeholder="Contraseña (Opcional)" style="width: 100%; margin-bottom: 10px;">
                 <button class="btn-primary" style="width: 100%; background: var(--blue); color: black;" onclick="crearEquipoTorneo()">FUNDAR EQUIPO</button>
             </div>
-
             <h4 style="color: gold; margin-bottom: 10px;">Escuadras buscando miembros</h4>
-            <div id="lista-equipos-torneo" style="display: flex; flex-direction: column; gap: 10px;">
-                </div>
+            <div id="lista-equipos-torneo" style="display: flex; flex-direction: column; gap: 10px;"></div>
         </div>
     </div>
 
     <div id="modal-pass-equipo" class="modal" style="z-index: 1010;">
         <div class="modal-box" style="text-align: center; max-width: 350px;">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-pass-equipo').style.display='none';">&times;</a>
-            <h3 style="color: var(--blue); margin-bottom: 15px;"><i class="fas fa-lock"></i> Equipo Privado</h3>
-            <p style="color: #ccc; margin-bottom: 15px; font-size: 0.9rem;">Ingresa la clave proporcionada por el capitán.</p>
-            <input type="hidden" id="join-eq-torneo-id">
-            <input type="hidden" id="join-eq-nombre">
-            <input type="password" id="join-eq-pass-input" placeholder="Contraseña del Equipo" style="width: 100%; margin-bottom: 15px;">
+            <h3><i class="fas fa-lock"></i> Equipo Privado</h3>
+            <input type="hidden" id="join-eq-torneo-id"><input type="hidden" id="join-eq-nombre">
+            <input type="password" id="join-eq-pass-input" placeholder="Contraseña" style="width: 100%; margin-bottom: 15px;">
             <button class="btn-primary" style="width: 100%; background: var(--green); color: black;" onclick="confirmarUnionEquipoPrivado()">ENTRAR AL EQUIPO</button>
         </div>
     </div>
@@ -706,6 +599,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
-    <script src="app.js?v=4.11"></script>
+    <script src="app.js?v=4.12"></script>
 </body>
 </html>
