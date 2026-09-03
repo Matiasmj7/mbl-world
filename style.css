@@ -13,6 +13,12 @@
     --border-glass: rgba(0, 210, 255, 0.3);
 }
 
+html {
+    scroll-behavior: smooth;
+    /* FIX: Evita que la barra de navegación superior tape el contenido al hacer clic en el menú */
+    scroll-padding-top: 140px; 
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -24,11 +30,10 @@ body {
     background-color: var(--bg-dark);
     color: white;
     overflow-x: hidden;
-    scroll-behavior: smooth;
 }
 
 /* ==========================================
-   EFECTOS ESTÉTICOS Y ANIMACIONES (NUEVO)
+   EFECTOS ESTÉTICOS Y ANIMACIONES
 ========================================= */
 .fade-in {
     opacity: 0;
@@ -210,6 +215,8 @@ body {
     height: 35px;
     display: flex;
     align-items: center;
+    position: relative;
+    z-index: 999;
 }
 
 .ticker-move {
@@ -238,6 +245,11 @@ body {
     max-width: 1300px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.hero-section {
+    padding: 60px 0;
+    text-align: left;
 }
 
 .section {
@@ -348,21 +360,26 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ==========================================
-   MODALES (CORRECCIÓN Z-INDEX)
+   MODALES (CORRECCIÓN Z-INDEX Y :TARGET)
 ========================================= */
 .modal {
-    display: none;
+    display: none; /* Por defecto oculto */
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.85);
-    z-index: 2500; /* Alto z-index para evitar superposiciones */
+    z-index: 2500;
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(5px);
     padding: 20px;
+}
+
+/* FIX CRÍTICO: Esto hace que las ventanas funcionen cuando la URL cambia a #modal-algo */
+.modal:target {
+    display: flex;
 }
 
 .modal-box {
@@ -372,6 +389,8 @@ input:focus, select:focus, textarea:focus {
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh; /* Permite scroll interno si es muy largo en celulares */
+    overflow-y: auto;
     position: relative;
     box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
     animation: modalPop 0.3s ease-out;
