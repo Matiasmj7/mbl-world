@@ -29,6 +29,9 @@ let trabajando = false;
 let miPerfilActual = {};
 let unsubscribeChatComunidad = null; 
 
+// VARIABLE NEXUS STORE (Por defecto tu número)
+let nexusWhatsapp = "+5492920279201";
+
 // ==========================================
 // MERCADO (CATÁLOGO)
 // ==========================================
@@ -155,6 +158,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ACTIVADOR DE ANIMACIONES SCROLL (AESTHETICS)
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
     const loginBtn = document.getElementById('login-google');
     if(loginBtn) { 
         loginBtn.addEventListener('click', () => { 
@@ -254,7 +267,126 @@ document.addEventListener('DOMContentLoaded', () => {
     escucharTabernaGlobal();
     configurarAdminForms();
     cargarTopComunidades();
+    
+    // Iniciar funciones Nexus
+    escucharConfigNexus();
+    cargarProductosNexus();
 });
+
+// ==========================================
+// NUEVO: SISTEMA NEXUS STORE (RECARGAS)
+// ==========================================
+function escucharConfigNexus() {
+    db.collection('configuracion').doc('nexus').onSnapshot(doc => {
+        if(doc.exists) {
+            const data = doc.data();
+            if(data.whatsapp) nexusWhatsapp = data.whatsapp;
+            
+            if(data.bgImage) {
+                const bgEl = document.getElementById('nexus-bg-image');
+                if(bgEl) {
+                    bgEl.src = data.bgImage;
+                    bgEl.style.display = 'block';
+                }
+            }
+            
+            // Actualizar panel admin si existe
+            if(document.getElementById('cfg-nexus-wa')) document.getElementById('cfg-nexus-wa').value = data.whatsapp || "";
+            if(document.getElementById('cfg-nexus-bg')) document.getElementById('cfg-nexus-bg').value = data.bgImage || "";
+        }
+    });
+}
+
+function cargarProductosNexus() {
+    const listaPublica = document.getElementById('lista-productos-nexus');
+    const listaAdmin = document.getElementById('admin-lista-nexus');
+    if(!listaPublica) return;
+
+    db.collection('nexus_productos').orderBy('timestamp', 'asc').onSnapshot(snap => {
+        listaPublica.innerHTML = "";
+        if(listaAdmin) listaAdmin.innerHTML = "";
+
+        if (snap.empty) {
+            listaPublica.innerHTML = "<p style='color:#ccc; grid-column: 1 / -1; text-align:center;'>La tienda está reabasteciéndose. Vuelve pronto.</p>";
+            return;
+        }
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            
+            let imgIcon = data.img && data.img !== "" 
+                ? `<img src="${data.img}" style="width:50px; height:50px; object-fit:contain; margin-bottom:10px;">` 
+                : `<i class="fas fa-gem" style="font-size:2rem; color:#00ffff; margin-bottom:10px; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
+            
+            if (data.tipo === 'pase' && (!data.img || data.img === "")) {
+                imgIcon = `<i class="fas fa-ticket-alt" style="font-size:2rem; color:gold; margin-bottom:10px; filter: drop-shadow(0 0 10px gold);"></i>`;
+            }
+
+            // Renderizado Público
+            listaPublica.innerHTML += `
+                <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        ${imgIcon}
+                        <h3 style="color: white; font-size:1.4rem;">${data.nombre}</h3>
+                        <div class="price" style="color: gold; font-size: 1.6rem; text-shadow: 0 0 5px rgba(255,215,0,0.5);">${data.precio}</div>
+                    </div>
+                    <button class="btn-primary" style="background: #00ffff; color: black; width: 100%; box-shadow: 0 0 10px #00ffff; margin-top: 15px;" onclick="abrirModalCompraNexus('${data.nombre}', '${data.precio}')">COMPRAR</button>
+                </div>
+            `;
+
+            // Renderizado Admin
+            if(listaAdmin) {
+                listaAdmin.innerHTML += `
+                    <div style="background:rgba(0,0,0,0.5); padding:10px 15px; border:1px solid #333; border-radius:5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <div>
+                            <strong style="color:#00ffff; font-size: 1.1rem;">${data.nombre}</strong><br>
+                            <span style="color:gold;">${data.precio}</span> | <span style="color:#888; font-size:0.8rem;">${data.tipo.toUpperCase()}</span>
+                        </div>
+                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="borrarProductoNexus('${id}', '${data.nombre}')"><i class="fas fa-trash"></i> BORRAR</button>
+                    </div>
+                `;
+            }
+        });
+    });
+}
+
+window.abrirModalCompraNexus = function(nombre, precio) {
+    document.getElementById('nexus-producto-desc').innerText = "Paquete: " + nombre;
+    document.getElementById('nexus-producto-precio').innerText = "Monto a Transferir: " + precio;
+    document.getElementById('nexus-item-name').value = nombre;
+    document.getElementById('nexus-item-price').value = precio;
+    document.getElementById('nexus-player-id').value = "";
+    document.getElementById('nexus-player-zone').value = "";
+    document.getElementById('modal-compra-nexus').style.display = 'flex';
+};
+
+window.enviarPedidoNexus = function() {
+    const nombre = document.getElementById('nexus-item-name').value;
+    const precio = document.getElementById('nexus-item-price').value;
+    const pid = document.getElementById('nexus-player-id').value.trim();
+    const pzone = document.getElementById('nexus-player-zone').value.trim();
+
+    if(!pid || !pzone) {
+        alert("Por favor, completa tu ID y Servidor para poder enviarte los diamantes.");
+        return;
+    }
+
+    const mensaje = `Hola Nexus Store ⚡\nQuiero adquirir: *${nombre}* (${precio}).\n\n🎮 Mis datos de Mobile Legends:\nID: *${pid}*\nServer: *${pzone}*\n\nAdjunto mi comprobante de pago a continuación.`;
+    
+    // Limpiamos el número de cualquier caracter raro
+    const numeroLimpio = nexusWhatsapp.replace(/\D/g, ''); 
+    const urlWa = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+    
+    window.open(urlWa, '_blank');
+    document.getElementById('modal-compra-nexus').style.display = 'none';
+};
+
+window.borrarProductoNexus = function(id, nombre) {
+    if(confirm(`¿Estás seguro de retirar "${nombre}" de la Nexus Store?`)) {
+        db.collection('nexus_productos').doc(id).delete();
+    }
+};
 
 // ==========================================
 // NUEVO: SISTEMA DE LOGIN MANUAL Y REPORTES
@@ -390,9 +522,9 @@ function escucharPersonalizacion() {
                 }
             });
 
-            const secciones = ['stream', 'fama', 'ligas', 'planes', 'torneos', 'bingo', 'comunidades', 'sorteos', 'abismo', 'gremio', 'tienda'];
+            const secciones = ['stream', 'fama', 'ligas', 'planes', 'torneos', 'bingo', 'comunidades', 'sorteos', 'abismo', 'gremio', 'tienda', 'nexus'];
             secciones.forEach(sec => {
-                const sectionEl = document.getElementById(sec);
+                const sectionEl = document.getElementById(sec === 'nexus' ? 'nexus-store' : sec);
                 const menuEl = document.getElementById(`menu-${sec === 'bingo' ? 'registro-bingo' : sec}`);
                 if (data.visibilidad && typeof data.visibilidad[sec] !== 'undefined') {
                     const isVisible = data.visibilidad[sec];
@@ -819,7 +951,7 @@ function renderizarTienda() {
         }
 
         catalogoHTML.innerHTML += `
-            <div class="container-glass" style="text-align:center; padding:15px; border: 1px solid #222; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="container-glass plan-card glow-hover" style="text-align:center; padding:15px; border: 1px solid #222; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     ${previewVisual}
                     <h4 style="color:white; margin-bottom:5px;">${item.nombre}</h4>
@@ -969,7 +1101,7 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     const bordeColor = esLiga ? 'gold' : 'var(--blue)';
 
     return `
-        <div class="card-t container-glass" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
+        <div class="card-t container-glass glow-hover" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
             ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
@@ -1170,7 +1302,7 @@ window.unirseEquipoTorneo = function(torneoId, nombreEq, equiposYaCargados = nul
 };
 
 // ==========================================
-// VISUALIZADOR DE LLAVES Y SALAS (RESTAURADO)
+// VISUALIZADOR DE LLAVES Y SALAS
 // ==========================================
 window.verLlaves = function(torneoId, torneoNombre) {
     document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
@@ -1307,7 +1439,7 @@ function cargarVideosAbismo() {
             }
 
             listaAbismo.innerHTML += `
-                <div class="container-glass" style="padding: 10px;">
+                <div class="container-glass glow-hover" style="padding: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong style="color: white; cursor: pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${data.usuario}</strong>
                     </div>
@@ -1809,7 +1941,7 @@ if(formEditarPerfil) {
 // ADMINISTRACIÓN: GESTIÓN DE TORNEOS (KAGE)
 // ==========================================
 window.mostrarTabAdmin = function(tabId) {
-    const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion', 'tab-personalizacion'];
+    const tabs = ['tab-torneos', 'tab-llaves-admin', 'tab-moderacion', 'tab-banco', 'tab-gestion', 'tab-personalizacion', 'tab-nexus'];
     tabs.forEach(t => {
         document.getElementById(t).style.display = 'none';
     });
@@ -1910,7 +2042,8 @@ function configurarAdminForms() {
                 sorteos: document.getElementById('vis-cfg-sorteos').checked,
                 abismo: document.getElementById('vis-cfg-abismo').checked,
                 gremio: document.getElementById('vis-cfg-gremio').checked,
-                tienda: document.getElementById('vis-cfg-tienda').checked
+                tienda: document.getElementById('vis-cfg-tienda').checked,
+                nexus: document.getElementById('vis-cfg-nexus') ? document.getElementById('vis-cfg-nexus').checked : true
             };
 
             const titulos = {
@@ -1930,6 +2063,36 @@ function configurarAdminForms() {
             db.collection('configuracion').doc('personalizacion').update({
                 bgTipo, bgUrl, colorAcento, linksSociales, visibilidad, titulos
             }).then(() => alert("¡Configuración global y redes sociales actualizadas!"));
+        });
+    }
+
+    const formConfigNexus = document.getElementById('form-config-nexus');
+    if(formConfigNexus) {
+        formConfigNexus.addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection('configuracion').doc('nexus').set({
+                whatsapp: document.getElementById('cfg-nexus-wa').value.trim(),
+                bgImage: document.getElementById('cfg-nexus-bg').value.trim()
+            }, { merge: true }).then(() => {
+                alert("¡Base de datos de Nexus Store sincronizada!");
+            });
+        });
+    }
+
+    const formProdNexus = document.getElementById('form-producto-nexus');
+    if(formProdNexus) {
+        formProdNexus.addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection('nexus_productos').add({
+                nombre: document.getElementById('n-prod-nombre').value.trim(),
+                precio: document.getElementById('n-prod-precio').value.trim(),
+                tipo: document.getElementById('n-prod-tipo').value,
+                img: document.getElementById('n-prod-img').value.trim(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                formProdNexus.reset();
+                alert("Producto añadido exitosamente al catálogo de Nexus Store.");
+            });
         });
     }
 }
@@ -1953,7 +2116,8 @@ function cargarTorneosParaAdminLlaves() {
 
             if (data.estado === 'abierto') {
                 accionHtml = `
-                    <button class="btn-secondary" style="border-color: var(--blue); color: var(--blue); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')"><i class="fas fa-user-plus"></i> AÑADIR JUGADOR/EQUIPO</button>
+                    <button class="btn-secondary" style="border-color: var(--purple); color: var(--purple); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirGestionInscritos('${doc.id}', '${data.formato}', '${data.nombre}')"><i class="fas fa-users-cog"></i> GESTIONAR INSCRITOS</button>
+                    <button class="btn-secondary" style="border-color: var(--blue); color: var(--blue); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')"><i class="fas fa-user-plus"></i> AÑADIR</button>
                     <button class="btn-primary" style="background:var(--blue); color:black; padding: 5px 10px; font-size: 0.8rem;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES</button>
                 `;
             } else if (data.estado === 'iniciado') {
@@ -1974,6 +2138,67 @@ function cargarTorneosParaAdminLlaves() {
         });
     });
 }
+
+// NUEVO: SISTEMA DE GESTIÓN (ELIMINAR Y VER INSCRITOS)
+window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
+    document.getElementById('admin-inscritos-torneo-id').value = torneoId;
+    document.getElementById('admin-inscritos-formato').value = formato;
+    document.getElementById('modal-admin-inscritos').style.display = 'flex';
+
+    db.collection('torneos').doc(torneoId).onSnapshot(doc => {
+        if(!doc.exists) return;
+        const data = doc.data();
+        const listaCont = document.getElementById('lista-gestion-inscritos');
+        listaCont.innerHTML = "";
+
+        if(formato === '1v1') {
+            const inscritos = data.lista_inscriptos || [];
+            if(inscritos.length === 0) listaCont.innerHTML = "<p style='color:#666; text-align:center;'>No hay ninjas inscritos aún.</p>";
+            
+            inscritos.forEach(jugador => {
+                listaCont.innerHTML += `
+                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:white; font-weight:bold;">${jugador}</span>
+                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', '1v1', '${jugador}')"><i class="fas fa-trash"></i> EXPULSAR</button>
+                    </div>
+                `;
+            });
+        } else {
+            const equipos = data.lista_equipos || [];
+            if(equipos.length === 0) listaCont.innerHTML = "<p style='color:#666; text-align:center;'>No hay escuadras inscritas aún.</p>";
+            
+            equipos.forEach(eq => {
+                listaCont.innerHTML += `
+                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="color:var(--blue); font-weight:bold; font-size:1.1rem;">${eq.nombre}</span><br>
+                            <span style="color:#aaa; font-size:0.8rem;">Integrantes: <strong style="color:white;">${eq.miembros.join(', ')}</strong></span>
+                        </div>
+                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', 'equipos', '${eq.nombre}')"><i class="fas fa-trash"></i> EXPULSAR EQUIPO</button>
+                    </div>
+                `;
+            });
+        }
+    });
+};
+
+window.eliminarInscrito = function(torneoId, tipo, nombre) {
+    if(!confirm(`⚠️ ¿Estás completamente seguro de eliminar a ${nombre} del torneo?`)) return;
+
+    const ref = db.collection('torneos').doc(torneoId);
+    
+    if(tipo === '1v1') {
+        ref.update({
+            lista_inscriptos: firebase.firestore.FieldValue.arrayRemove(nombre)
+        });
+    } else {
+        ref.get().then(doc => {
+            const equipos = doc.data().lista_equipos || [];
+            const nuevosEquipos = equipos.filter(eq => eq.nombre !== nombre);
+            ref.update({ lista_equipos: nuevosEquipos });
+        });
+    }
+};
 
 window.generarLlaves = async function(torneoId, torneoNombre) {
     if(!confirm("¿Estás seguro de generar los cruces? Ya no se podrán inscribir más ninjas ni equipos.")) return;
