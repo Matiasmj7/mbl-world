@@ -29,8 +29,10 @@ let trabajando = false;
 let miPerfilActual = {};
 let unsubscribeChatComunidad = null; 
 
-// VARIABLE NEXUS STORE (Por defecto tu número)
+// VARIABLES NEXUS STORE
 let nexusWhatsapp = "+5492920279201";
+let nexusCBU = "0000003100021643816388";
+let nexusTitular = "Bruno Jaramillo";
 
 // ==========================================
 // MERCADO (CATÁLOGO)
@@ -158,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ACTIVADOR DE ANIMACIONES SCROLL (AESTHETICS)
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -274,13 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// NUEVO: SISTEMA NEXUS STORE (RECARGAS)
+// SISTEMA NEXUS STORE (RECARGAS BANCARIAS)
 // ==========================================
 function escucharConfigNexus() {
     db.collection('configuracion').doc('nexus').onSnapshot(doc => {
         if(doc.exists) {
             const data = doc.data();
+            
             if(data.whatsapp) nexusWhatsapp = data.whatsapp;
+            if(data.cbu) nexusCBU = data.cbu;
+            if(data.titular) nexusTitular = data.titular;
             
             if(data.bgImage) {
                 const bgEl = document.getElementById('nexus-bg-image');
@@ -290,12 +294,35 @@ function escucharConfigNexus() {
                 }
             }
             
-            // Actualizar panel admin si existe
+            // Actualizar panel admin
             if(document.getElementById('cfg-nexus-wa')) document.getElementById('cfg-nexus-wa').value = data.whatsapp || "";
             if(document.getElementById('cfg-nexus-bg')) document.getElementById('cfg-nexus-bg').value = data.bgImage || "";
+            if(document.getElementById('cfg-nexus-cbu')) document.getElementById('cfg-nexus-cbu').value = data.cbu || "";
+            if(document.getElementById('cfg-nexus-titular')) document.getElementById('cfg-nexus-titular').value = data.titular || "";
+
+            // Actualizar vista pública del modal
+            if(document.getElementById('nexus-display-cbu')) document.getElementById('nexus-display-cbu').innerText = nexusCBU;
+            if(document.getElementById('nexus-display-titular')) document.getElementById('nexus-display-titular').innerText = nexusTitular;
         }
     });
 }
+
+window.copiarCBUNexus = function(btnElement) {
+    navigator.clipboard.writeText(nexusCBU).then(() => {
+        const originalText = btnElement.innerText;
+        btnElement.innerText = "¡COPIADO!";
+        btnElement.style.background = "#00ffff";
+        btnElement.style.color = "black";
+        
+        setTimeout(() => {
+            btnElement.innerText = "COPIAR";
+            btnElement.style.background = "transparent";
+            btnElement.style.color = "#00ffff";
+        }, 2000);
+    }).catch(err => {
+        alert("No se pudo copiar. Intenta seleccionando el texto manualmente.");
+    });
+};
 
 function cargarProductosNexus() {
     const listaPublica = document.getElementById('lista-productos-nexus');
@@ -323,9 +350,9 @@ function cargarProductosNexus() {
                 imgIcon = `<i class="fas fa-ticket-alt" style="font-size:2rem; color:gold; margin-bottom:10px; filter: drop-shadow(0 0 10px gold);"></i>`;
             }
 
-            // Renderizado Público
+            // Renderizado Público (Añadido background transparente)
             listaPublica.innerHTML += `
-                <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; background: transparent; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         ${imgIcon}
                         <h3 style="color: white; font-size:1.4rem;">${data.nombre}</h3>
@@ -389,7 +416,7 @@ window.borrarProductoNexus = function(id, nombre) {
 };
 
 // ==========================================
-// NUEVO: SISTEMA DE LOGIN MANUAL Y REPORTES
+// SISTEMA DE LOGIN MANUAL Y REPORTES
 // ==========================================
 window.abrirModalReporte = function(torneoId, partidoId, p1, p2) {
     document.getElementById('rep-torneo-id').value = torneoId;
@@ -441,7 +468,7 @@ window.autenticarUsuarioManual = function() {
 };
 
 // ==========================================
-// NUEVO: BORRADO DE TORNEOS Y RESET BINGO
+// BORRADO DE TORNEOS Y RESET BINGO
 // ==========================================
 window.cargarListaBorrarTorneosAdmin = function() {
     const cont = document.getElementById('admin-lista-borrar-torneos');
@@ -2072,7 +2099,9 @@ function configurarAdminForms() {
             e.preventDefault();
             db.collection('configuracion').doc('nexus').set({
                 whatsapp: document.getElementById('cfg-nexus-wa').value.trim(),
-                bgImage: document.getElementById('cfg-nexus-bg').value.trim()
+                bgImage: document.getElementById('cfg-nexus-bg').value.trim(),
+                titular: document.getElementById('cfg-nexus-titular').value.trim(),
+                cbu: document.getElementById('cfg-nexus-cbu').value.trim()
             }, { merge: true }).then(() => {
                 alert("¡Base de datos de Nexus Store sincronizada!");
             });
@@ -2139,7 +2168,6 @@ function cargarTorneosParaAdminLlaves() {
     });
 }
 
-// NUEVO: SISTEMA DE GESTIÓN (ELIMINAR Y VER INSCRITOS)
 window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
     document.getElementById('admin-inscritos-torneo-id').value = torneoId;
     document.getElementById('admin-inscritos-formato').value = formato;
