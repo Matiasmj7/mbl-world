@@ -15,7 +15,6 @@
 
 html {
     scroll-behavior: smooth;
-    /* FIX: Evita que la barra de navegación superior tape el contenido al hacer clic en el menú */
     scroll-padding-top: 140px; 
 }
 
@@ -363,7 +362,7 @@ input:focus, select:focus, textarea:focus {
    MODALES (CORRECCIÓN Z-INDEX Y :TARGET)
 ========================================= */
 .modal {
-    display: none; /* Por defecto oculto */
+    display: none; 
     position: fixed;
     top: 0;
     left: 0;
@@ -377,7 +376,6 @@ input:focus, select:focus, textarea:focus {
     padding: 20px;
 }
 
-/* FIX CRÍTICO: Esto hace que las ventanas funcionen cuando la URL cambia a #modal-algo */
 .modal:target {
     display: flex;
 }
@@ -389,7 +387,7 @@ input:focus, select:focus, textarea:focus {
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
-    max-height: 90vh; /* Permite scroll interno si es muy largo en celulares */
+    max-height: 90vh; 
     overflow-y: auto;
     position: relative;
     box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
