@@ -4,8 +4,12 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker PWA activo:', reg.scope))
-            .catch(err => console.error('Error al registrar Service Worker:', err));
+            .then(registration => {
+                console.log('App lista para instalarse. Scope:', registration.scope);
+            })
+            .catch(error => {
+                console.log('Error en Service Worker:', error);
+            });
     });
 }
 
@@ -60,7 +64,7 @@ const CATALOGO_TIENDA = [
     { id: 'color_sangre', nombre: 'Voz Sanguinaria', tipo: 'colorChat', precio: 150, desc: 'Rojo sangre.', estilo: 'color: #ff0000; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);' },
     { id: 'color_rosa', nombre: 'Voz Sakura', tipo: 'colorChat', precio: 150, desc: 'Rosa cerezo.', estilo: 'color: #ffb7c5; text-shadow: 0 0 5px rgba(255, 183, 197, 0.5);' },
     { id: 'pin_shuriken', nombre: 'Pin Shuriken', tipo: 'pin', precio: 200, desc: 'Insignia básica.', icon: '<i class="fas fa-dharmachakra" style="color: #ccc; filter: drop-shadow(0 0 2px #fff);"></i>' },
-    { id: 'pin_mitico', nombre: 'Pin Mítico', tipo: 'pin', precio: 500, desc: 'Insignia élite.', icon: '<i class="fas fa-dragon" style="color: #ff007f; filter: drop-shadow(0 0 5px #ff007f);"></i>' },
+    { id: 'pin_mitico', nombre: 'Pin Mítico', tipo: 'pin', precio: 500, desc: 'Insignia élite.', icon: '<i class="fas fa-dragon" style="color: #ff0007f; filter: drop-shadow(0 0 5px #ff007f);"></i>' },
     { id: 'pin_rey', nombre: 'Corona del Rey', tipo: 'pin', precio: 1000, desc: 'Para reyes.', icon: '<i class="fas fa-crown" style="color: gold; filter: drop-shadow(0 0 5px gold);"></i>' },
     { id: 'pin_fantasma', nombre: 'Pin Fantasma', tipo: 'pin', precio: 600, desc: 'Misterioso.', icon: '<i class="fas fa-ghost" style="color: white; filter: drop-shadow(0 0 5px white);"></i>' }
 ];
@@ -104,26 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('user-greeting').innerText = currentUserName;
                     document.getElementById('mi-nick-bingo').innerText = currentUserName;
                     document.getElementById('mi-rango-bingo').innerText = (data.plan === 'kasekage') ? 'Mítico' : (data.plan === 'jonin' ? 'Épico' : 'Guerrero');
-                    
-                    // GAMIFICACIÓN IDENTIDAD NINJA (BINGO)
-                    const xpTotal = data.xp || 0;
-                    const nivelCalculado = Math.floor(xpTotal / 100) + 1;
-                    const xpEnNivel = xpTotal % 100;
-                    const partidasGanadas = data.partidasGanadas || 0;
-                    const partidasPerdidas = data.partidasPerdidas || 0;
-                    const partidasTotales = partidasGanadas + partidasPerdidas;
-                    const winrate = partidasTotales > 0 ? ((partidasGanadas / partidasTotales) * 100).toFixed(1) + '%' : '0%';
-                    const avatarUrl = data.fotoPerfil && data.fotoPerfil !== "" ? data.fotoPerfil : `https://ui-avatars.com/api/?name=${currentUserName}&background=random`;
-
-                    if(document.getElementById('bingo-avatar-img')) document.getElementById('bingo-avatar-img').src = avatarUrl;
-                    if(document.getElementById('bingo-level-badge')) document.getElementById('bingo-level-badge').innerText = `LVL ${nivelCalculado}`;
-                    if(document.getElementById('mi-xp-bingo')) document.getElementById('mi-xp-bingo').innerText = `${xpTotal} XP (${xpEnNivel}/100)`;
-                    if(document.getElementById('xp-bar-fill')) document.getElementById('xp-bar-fill').style.width = `${xpEnNivel}%`;
-                    if(document.getElementById('bingo-copas-count')) document.getElementById('bingo-copas-count').innerText = data.torneosGanados || 0;
-                    if(document.getElementById('bingo-record-vd')) document.getElementById('bingo-record-vd').innerText = `${partidasGanadas}V - ${partidasPerdidas}D`;
-                    if(document.getElementById('bingo-winrate-perc')) document.getElementById('bingo-winrate-perc').innerText = winrate;
-                    if(document.getElementById('mi-ryos-bingo')) document.getElementById('mi-ryos-bingo').innerText = misRyos;
-                    if(document.getElementById('tienda-mis-ryos')) document.getElementById('tienda-mis-ryos').innerHTML = `${misRyos} Diamantes`;
+                    document.getElementById('mi-xp-bingo').innerText = `${data.xp || 0} XP`;
+                    document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
+                    document.getElementById('tienda-mis-ryos').innerHTML = `${misRyos} Diamantes`;
                     
                     document.getElementById('btn-notif').style.display = 'inline-block';
                     renderizarTienda();
@@ -220,9 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nick: nuevoNick, 
                 xp: 0, 
                 ryos: 100, 
-                torneosGanados: 0,
-                partidasGanadas: 0,
-                partidasPerdidas: 0,
+                torneosGanados: 0, 
                 rango: "Guerrero", 
                 clan: "", 
                 comunidad: "", 
@@ -299,36 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarAdminForms();
     cargarTopComunidades();
     
-    // Iniciar Nexus Store con Acordeón
+    // Iniciar funciones Nexus
     escucharConfigNexus();
     cargarProductosNexus();
-    configurarAcordeonNexus();
 });
-
-// ==========================================
-// ACORDEÓN DE NEXUS STORE
-// ==========================================
-function configurarAcordeonNexus() {
-    const storeBtn = document.getElementById('nexus-store-btn');
-    const catalog = document.getElementById('nexus-catalog');
-    const arrow = document.getElementById('nexus-arrow-icon');
-    const btnText = document.getElementById('nexus-btn-text');
-
-    if (storeBtn && catalog) {
-        storeBtn.addEventListener('click', () => {
-            catalog.classList.toggle('open');
-            if (arrow) arrow.classList.toggle('nexus-arrow-rotate');
-            
-            if (btnText) {
-                if (catalog.classList.contains('open')) {
-                    btnText.innerText = 'Ocultar catálogo';
-                } else {
-                    btnText.innerText = 'Ver catálogo';
-                }
-            }
-        });
-    }
-}
 
 // ==========================================
 // SISTEMA NEXUS STORE (RECARGAS BANCARIAS)
@@ -350,11 +309,13 @@ function escucharConfigNexus() {
                 }
             }
             
+            // Actualizar panel admin
             if(document.getElementById('cfg-nexus-wa')) document.getElementById('cfg-nexus-wa').value = data.whatsapp || "";
             if(document.getElementById('cfg-nexus-bg')) document.getElementById('cfg-nexus-bg').value = data.bgImage || "";
             if(document.getElementById('cfg-nexus-cbu')) document.getElementById('cfg-nexus-cbu').value = data.cbu || "";
             if(document.getElementById('cfg-nexus-titular')) document.getElementById('cfg-nexus-titular').value = data.titular || "";
 
+            // Actualizar vista pública del modal
             if(document.getElementById('nexus-display-cbu')) document.getElementById('nexus-display-cbu').innerText = nexusCBU;
             if(document.getElementById('nexus-display-titular')) document.getElementById('nexus-display-titular').innerText = nexusTitular;
         }
@@ -363,6 +324,7 @@ function escucharConfigNexus() {
 
 window.copiarCBUNexus = function(btnElement) {
     navigator.clipboard.writeText(nexusCBU).then(() => {
+        const originalText = btnElement.innerText;
         btnElement.innerText = "¡COPIADO!";
         btnElement.style.background = "#00ffff";
         btnElement.style.color = "black";
@@ -396,20 +358,26 @@ function cargarProductosNexus() {
             const id = doc.id;
             
             let imgIcon = data.img && data.img !== "" 
-                ? `<img src="${data.img}" class="nexus-product-img" alt="${data.nombre}">` 
-                : `<i class="fas fa-gem nexus-product-img" style="font-size:3rem; color:#00ffff; display:flex; align-items:center; justify-content:center;"></i>`;
+                ? `<img src="${data.img}" style="width:50px; height:50px; object-fit:contain; margin-bottom:10px;">` 
+                : `<i class="fas fa-gem" style="font-size:2rem; color:#00ffff; margin-bottom:10px; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
+            
+            if (data.tipo === 'pase' && (!data.img || data.img === "")) {
+                imgIcon = `<i class="fas fa-ticket-alt" style="font-size:2rem; color:gold; margin-bottom:10px; filter: drop-shadow(0 0 10px gold);"></i>`;
+            }
 
+            // Renderizado Público (Añadido background transparente)
             listaPublica.innerHTML += `
-                <div class="nexus-product-card glow-hover">
+                <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; background: transparent; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         ${imgIcon}
-                        <h3 style="color: white; font-size:1.3rem; margin-bottom: 5px;">${data.nombre}</h3>
-                        <div class="price" style="color: gold; font-size: 1.5rem; text-shadow: 0 0 5px rgba(255,215,0,0.5);">${data.precio}</div>
+                        <h3 style="color: white; font-size:1.4rem;">${data.nombre}</h3>
+                        <div class="price" style="color: gold; font-size: 1.6rem; text-shadow: 0 0 5px rgba(255,215,0,0.5);">${data.precio}</div>
                     </div>
                     <button class="btn-primary" style="background: #00ffff; color: black; width: 100%; box-shadow: 0 0 10px #00ffff; margin-top: 15px;" onclick="abrirModalCompraNexus('${data.nombre}', '${data.precio}')">COMPRAR</button>
                 </div>
             `;
 
+            // Renderizado Admin
             if(listaAdmin) {
                 listaAdmin.innerHTML += `
                     <div style="background:rgba(0,0,0,0.5); padding:10px 15px; border:1px solid #333; border-radius:5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
@@ -448,6 +416,7 @@ window.enviarPedidoNexus = function() {
 
     const mensaje = `Hola Nexus Store ⚡\nQuiero adquirir: *${nombre}* (${precio}).\n\n🎮 Mis datos de Mobile Legends:\nID: *${pid}*\nServer: *${pzone}*\n\nAdjunto mi comprobante de pago a continuación.`;
     
+    // Limpiamos el número de cualquier caracter raro
     const numeroLimpio = nexusWhatsapp.replace(/\D/g, ''); 
     const urlWa = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
     
@@ -545,7 +514,7 @@ window.borrarTorneoDefinitivo = function(id, nombre) {
 };
 
 window.reiniciarTopBingo = async function() {
-    if(!confirm("🚨 ¡ADVERTENCIA MÁXIMA!\n¿Deseas reiniciar el ranking del Libro Bingo? Esto pondrá los XP de todos los jugadores en 0.")) return;
+    if(!confirm("🚨 ¡ADVERTENCIA MÁXIMA!\n¿Deseas reiniciar el ranking del Libro Bingo? Esto pondrá los XP de todos los jugadores en 0. Sus Diamantes, Inventarios y Clanes quedarán intactos.")) return;
     if(!confirm("¿Confirmas la acción para iniciar la Nueva Temporada competitiva?")) return;
     
     try {
@@ -721,7 +690,7 @@ function cargarSorteos() {
             }
 
             listaSorteos.innerHTML += `
-                <div class="card-t glow-hover" style="border-color: #ff00ff !important;">
+                <div class="card-t container-glass" style="border-color: #ff00ff !important; box-shadow: 0 0 15px rgba(255,0,255,0.2);">
                     <span style="color:#ff00ff; font-weight:bold; font-size: 0.8rem; background: rgba(255, 0, 255, 0.1); padding: 4px 10px; border-radius: 4px; border: 1px solid #ff00ff; display: inline-block; margin-bottom: 10px;">EVENTO ESPECIAL</span>
                     <h3 style="margin-bottom: 10px;">Premio: <span style="color:gold;">${data.premio}</span></h3>
                     <p style="font-size:0.9rem; margin-bottom:5px;"><i class="fas fa-gem"></i> Entrada: <strong style="color:var(--green);">${data.precio === 0 ? 'GRATIS' : data.precio + ' Diamantes'}</strong></p>
@@ -1024,7 +993,7 @@ function renderizarTienda() {
         }
 
         catalogoHTML.innerHTML += `
-            <div class="card-t glow-hover" style="text-align:center; padding:15px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="container-glass plan-card glow-hover" style="text-align:center; padding:15px; border: 1px solid #222; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     ${previewVisual}
                     <h4 style="color:white; margin-bottom:5px;">${item.nombre}</h4>
@@ -1103,7 +1072,7 @@ window.misionDiaria = function() {
 };
 
 // ==========================================
-// TORNEOS Y LIGAS (LÓGICA ROUND-ROBIN)
+// TORNEOS Y LIGAS
 // ==========================================
 window.filtrarTorneos = function(filtro, evento) {
     currentFilter = filtro;
@@ -1128,23 +1097,23 @@ function cargarTorneosDesdeNube() {
             const id = doc.id;
             
             if (data.tipo === 'liga') {
-                listaLigas.innerHTML += generarTarjetaLigaHTML(data, id);
-                renderizarTablaLigaPuntos(id, `tabla-liga-body-${id}`);
+                listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true);
             } else {
                 if (currentFilter === 'todos' || data.formato === currentFilter) {
-                    listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id);
+                    listaTorneos.innerHTML += generarTarjetaEventoHTML(data, id, false);
                 }
             }
         });
     });
 }
 
-function generarTarjetaEventoHTML(data, id) {
+function generarTarjetaEventoHTML(data, id, esLiga) {
     const esIndividual = (data.formato === '1v1');
     const inscritos = esIndividual ? (data.lista_inscriptos ? data.lista_inscriptos.length : 0) : (data.lista_equipos ? data.lista_equipos.length : 0);
     const cuposTotales = data.cuposTotales || 0;
     
     let yaInscrito = false;
+    
     if (esIndividual) {
         yaInscrito = data.lista_inscriptos && data.lista_inscriptos.includes(currentUserName);
     } else {
@@ -1171,12 +1140,14 @@ function generarTarjetaEventoHTML(data, id) {
         btnTexto = "YA ESTÁS INSCRIPTO";
     }
 
+    const bordeColor = esLiga ? 'gold' : 'var(--blue)';
+
     return `
-        <div class="card-t glow-hover" style="position:relative;">
+        <div class="card-t container-glass glow-hover" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
             ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                <span style="color:var(--blue); border: 1px solid var(--blue); padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
+                <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
                     ${data.formato.toUpperCase()}
                 </span>
                 <span class="${statusClass}" style="font-size:0.75rem; font-weight:bold;">${statusTexto}</span>
@@ -1184,7 +1155,7 @@ function generarTarjetaEventoHTML(data, id) {
             
             <h3 style="margin-bottom: 15px; font-size:1.3rem; line-height:1.2;">${data.nombre}</h3>
             
-            <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
                 <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${data.fecha || 'Por definir'}</p>
                 <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-users" style="color:var(--blue); width:20px;"></i> Cupos: <strong>${inscritos}</strong> / ${cuposTotales}</p>
                 <p style="font-size:0.85rem; color:#ccc; margin-bottom:0;"><i class="fas fa-trophy" style="color:gold; width:20px;"></i> Premio: <strong style="color:var(--green);">${data.premio || 'Gloria'}</strong></p>
@@ -1204,106 +1175,8 @@ function generarTarjetaEventoHTML(data, id) {
     `;
 }
 
-function generarTarjetaLigaHTML(data, id) {
-    const esIndividual = (data.formato === '1v1');
-    const inscritos = esIndividual ? (data.lista_inscriptos ? data.lista_inscriptos.length : 0) : (data.lista_equipos ? data.lista_equipos.length : 0);
-    
-    let yaInscrito = false;
-    if (esIndividual) {
-        yaInscrito = data.lista_inscriptos && data.lista_inscriptos.includes(currentUserName);
-    } else {
-        if (data.lista_equipos) {
-            data.lista_equipos.forEach(eq => {
-                if(eq.miembros && eq.miembros.includes(currentUserName)) yaInscrito = true;
-            });
-        }
-    }
-
-    return `
-        <div class="card-t glow-hover" style="border-color: gold !important; grid-column: 1 / -1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-                <span style="color:gold; border: 1px solid gold; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; font-weight:bold;">
-                    LIGA ROUND-ROBIN (${data.formato.toUpperCase()})
-                </span>
-                <span class="${data.estado === 'iniciado' ? 'status-progress' : 'status-open'}" style="font-size:0.8rem; font-weight:bold;">
-                    ${data.estado === 'iniciado' ? 'EN CURSO' : 'INSCRIPCIONES ABIERTAS'}
-                </span>
-            </div>
-            
-            <h2 style="color:white; margin-bottom:10px;">${data.nombre}</h2>
-            <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">Premio: <strong style="color:gold;">${data.premio}</strong> | Participantes: <strong>${inscritos} / ${data.cuposTotales}</strong></p>
-
-            <div class="league-table-container">
-                <table class="league-table">
-                    <thead>
-                        <tr>
-                            <th>POS</th>
-                            <th>PARTICIPANTE</th>
-                            <th>PJ</th>
-                            <th>PG</th>
-                            <th>PE</th>
-                            <th>PP</th>
-                            <th>DIF</th>
-                            <th>WR%</th>
-                            <th>PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-liga-body-${id}">
-                        <tr><td colspan="9" style="color:#888;">Cargando tabla de posiciones...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn-primary" style="background:gold; color:black; flex:1;" onclick="unirseTorneo('${id}', '${data.estado}')" ${data.estado !== 'abierto' || yaInscrito ? 'disabled' : ''}>
-                    ${yaInscrito ? 'INSCRIPTO EN LIGA' : 'INSCRIBIRSE A LIGA'}
-                </button>
-                <button class="btn-secondary" style="border-color:gold; color:gold; flex:1;" onclick="verLlaves('${id}', '${data.nombre}')">
-                    VER JORNADAS Y DUELOS
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function renderizarTablaLigaPuntos(ligaId, tablaId) {
-    const tbody = document.getElementById(tablaId);
-    if (!tbody) return;
-
-    db.collection('torneos').doc(ligaId).collection('tabla_posiciones').orderBy('pts', 'desc').orderBy('dif', 'desc').onSnapshot(snap => {
-        if (snap.empty) {
-            tbody.innerHTML = `<tr><td colspan="9" style="color:#aaa; padding:15px;">Liga en fase de preparación. ¡Inscríbete para aparecer!</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = "";
-        let pos = 1;
-        snap.forEach(doc => {
-            const p = doc.data();
-            const posClass = pos === 1 ? 'league-pos-1' : (pos === 2 ? 'league-pos-2' : (pos === 3 ? 'league-pos-3' : ''));
-            const pj = p.pj || (p.pg + p.pe + p.pp) || 0;
-            const wr = pj > 0 ? ((p.pg / pj) * 100).toFixed(0) + '%' : '0%';
-
-            tbody.innerHTML += `
-                <tr>
-                    <td class="${posClass}">${pos}°</td>
-                    <td style="font-weight:bold; text-align:left;">${p.nombre}</td>
-                    <td>${pj}</td>
-                    <td style="color:var(--green);">${p.pg || 0}</td>
-                    <td style="color:gold;">${p.pe || 0}</td>
-                    <td style="color:var(--red);">${p.pp || 0}</td>
-                    <td>${p.dif >= 0 ? '+' + p.dif : p.dif}</td>
-                    <td style="color:var(--blue);">${wr}</td>
-                    <td style="font-weight:900; color:gold; font-size:1.1rem;">${p.pts || 0}</td>
-                </tr>
-            `;
-            pos++;
-        });
-    });
-}
-
 // ==========================================
-// INSCRIPCIONES Y EQUIPOS
+// FUNCIONES DE INSCRIPCIÓN Y EQUIPOS
 // ==========================================
 window.unirseTorneo = function(torneoId, estado) {
     if (estado !== "abierto") return;
@@ -1317,7 +1190,7 @@ window.unirseTorneo = function(torneoId, estado) {
         
         if (data.formato === '1v1') {
             if ((data.lista_inscriptos?.length || 0) >= data.cuposTotales) {
-                alert("El evento ya está lleno.");
+                alert("El torneo ya está lleno.");
                 return;
             }
             doc.ref.update({
@@ -1397,7 +1270,7 @@ window.crearEquipoTorneo = function() {
             if (eq.miembros && eq.miembros.includes(currentUserName)) usuarioYaEnEquipo = true;
         });
 
-        if (usuarioYaEnEquipo) return alert("Ya perteneces a una escuadra en este evento.");
+        if (usuarioYaEnEquipo) return alert("Ya perteneces a una escuadra en este torneo.");
         if (equipos.length >= data.cuposTotales) return alert("Ya no hay cupos para nuevas escuadras.");
 
         equipos.push({
@@ -1471,14 +1344,14 @@ window.unirseEquipoTorneo = function(torneoId, nombreEq, equiposYaCargados = nul
 };
 
 // ==========================================
-// VISUALIZADOR DE DUELOS VS Y KNOCKOUT
+// VISUALIZADOR DE LLAVES Y SALAS
 // ==========================================
 window.verLlaves = function(torneoId, torneoNombre) {
-    document.getElementById('llaves-titulo').innerText = `Enfrentamientos: ${torneoNombre}`;
+    document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
     const contenedorText = document.getElementById('contenedor-llaves-texto');
     const contenedorCampeon = document.getElementById('contenedor-campeon');
     
-    contenedorText.innerHTML = "<p style='text-align:center; color:white;'>Cargando mapa de combate...</p>";
+    contenedorText.innerHTML = "<p style='text-align:center; color:white;'>Desenrollando pergaminos...</p>";
     contenedorCampeon.innerHTML = "";
     window.location.hash = "#modal-llaves";
 
@@ -1491,7 +1364,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 <div style="background: rgba(255,215,0,0.1); border: 2px solid gold; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
                     <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
                     <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
-                    <h1 style="color: white; margin: 10px 0; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px;">${torneoData.campeon}</h1>
+                    <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${torneoData.campeon}</h1>
                 </div>
             `;
         }
@@ -1500,19 +1373,12 @@ window.verLlaves = function(torneoId, torneoNombre) {
             contenedorText.innerHTML = "";
             
             if (snap.empty) {
-                contenedorText.innerHTML = "<p style='text-align:center; color: var(--red); font-weight:bold;'>Los enfrentamientos aún no han sido generados por el organizador.</p>";
+                contenedorText.innerHTML = "<p style='text-align:center; color: var(--red); font-weight:bold;'>Los cruces aún no han sido generados por el Kage.</p>";
                 return;
             }
 
-            let htmlBuffer = `
-                <div class="knockout-bracket-wrapper">
-                    <div class="bracket-header-center">
-                        <img src="logo-mblarg.png" class="mbl-logo-bracket" alt="MBL ARG" onerror="this.style.display='none'">
-                        <h2 style="color: white; margin-top: 5px; font-weight: 900; letter-spacing: 1px;">KNOCKOUT STAGE</h2>
-                    </div>
-            `;
-
             let currentRonda = 0;
+            let htmlBuffer = "";
 
             snap.forEach(doc => {
                 const partido = doc.data();
@@ -1522,13 +1388,18 @@ window.verLlaves = function(torneoId, torneoNombre) {
                     if (currentRonda !== 0) htmlBuffer += "</div>"; 
                     currentRonda = partido.ronda;
                     htmlBuffer += `
-                        <h4 style="color: var(--blue); margin: 20px 0 12px 0; border-bottom: 1px dashed var(--blue); padding-bottom: 5px;"><i class="fas fa-crossed-swords"></i> Ronda / Fecha ${currentRonda}</h4>
+                        <h4 style="color: var(--blue); margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Ronda ${currentRonda}</h4>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                     `;
                 }
 
-                const avatarP1 = `https://ui-avatars.com/api/?name=${partido.p1}&background=ff0037&color=fff`;
-                const avatarP2 = `https://ui-avatars.com/api/?name=${partido.p2}&background=00aaff&color=fff`;
+                let p1Style = partido.ganador === partido.p1 ? "color: var(--green); font-weight:bold;" : "color: white;";
+                let p2Style = partido.ganador === partido.p2 ? "color: var(--green); font-weight:bold;" : "color: white;";
+                
+                if(partido.ganador && partido.ganador !== partido.p1) p1Style = "color: #555; text-decoration: line-through;";
+                if(partido.ganador && partido.ganador !== partido.p2) p2Style = "color: #555; text-decoration: line-through;";
+
+                let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
 
                 let soyParticipante = false;
                 if (torneoData.formato === '1v1') {
@@ -1560,19 +1431,13 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 }
 
                 htmlBuffer += `
-                    <div style="margin-bottom: 10px;">
-                        <div class="vs-card-container">
-                            <div class="vs-side vs-red">
-                                <img src="${avatarP1}" class="vs-avatar" alt="P1">
-                                <span class="vs-player-name" style="${partido.ganador === partido.p1 ? 'color:gold;' : ''}">${partido.p1}</span>
-                            </div>
-                            <div class="vs-badge">${partido.ganador ? 'FIN' : 'VS'}</div>
-                            <div class="vs-side vs-blue">
-                                <span class="vs-player-name" style="${partido.ganador === partido.p2 ? 'color:gold;' : ''}">${partido.p2}</span>
-                                <img src="${avatarP2}" class="vs-avatar" alt="P2">
-                            </div>
+                    <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1; text-align: right; ${p1Style} font-size: 1.1rem;">${partido.p1}</div>
+                            <div style="padding: 0 15px; color: #666; font-size: 0.8rem; font-weight: bold;">VS</div>
+                            <div style="flex: 1; text-align: left; ${p2Style} font-size: 1.1rem;">${partido.p2}</div>
+                            <div style="flex: 1; text-align: right;">${estadoTexto}</div>
                         </div>
-                        ${partido.ganador ? `<div style="text-align:center; color:var(--green); font-size:0.85rem; font-weight:bold;"><i class="fas fa-check-circle"></i> Vencedor: ${partido.ganador}</div>` : ''}
                         ${salaHtml}
                         ${reportarHtml}
                     </div>
@@ -1580,7 +1445,6 @@ window.verLlaves = function(torneoId, torneoNombre) {
             });
             
             if (currentRonda !== 0) htmlBuffer += "</div>";
-            htmlBuffer += `</div>`;
             contenedorText.innerHTML = htmlBuffer;
         });
     });
@@ -1617,7 +1481,7 @@ function cargarVideosAbismo() {
             }
 
             listaAbismo.innerHTML += `
-                <div class="card-t glow-hover" style="padding: 10px;">
+                <div class="container-glass glow-hover" style="padding: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong style="color: white; cursor: pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${data.usuario}</strong>
                     </div>
@@ -1982,7 +1846,7 @@ window.limpiarTaberna = async function() {
 };
 
 // ==========================================
-// TOP RANKING BINGO CON METRICAS Y TOOLTIPS
+// PERFILES Y LIBRO BINGO
 // ==========================================
 function cargarTopIndividualBingo() {
     const lista = document.getElementById('ranking-dinamico');
@@ -1993,31 +1857,12 @@ function cargarTopIndividualBingo() {
         let posicion = 1;
         snap.forEach(doc => {
             const data = doc.data();
-            let rankClass = posicion === 1 ? 'rank-gold' : (posicion === 2 ? 'rank-silver' : (posicion === 3 ? 'rank-bronze' : ''));
             let colorPos = posicion === 1 ? 'gold' : (posicion === 2 ? 'silver' : (posicion === 3 ? '#cd7f32' : 'white'));
             
-            const pg = data.partidasGanadas || 0;
-            const pp = data.partidasPerdidas || 0;
-            const pj = pg + pp;
-            const wr = pj > 0 ? ((pg / pj) * 100).toFixed(1) + '%' : '0%';
-            const lvl = Math.floor((data.xp || 0) / 100) + 1;
-
             lista.innerHTML += `
-                <div class="ranking-row ${rankClass}" onclick="abrirPerfil('${data.nick}')">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-weight: 900; color: ${colorPos}; min-width:20px;">${posicion}.</span>
-                        <div>
-                            <strong style="color:white; font-size:0.95rem;">${data.nick}</strong>
-                            <span style="font-size:0.7rem; color:#aaa; margin-left:5px;">LVL ${lvl}</span>
-                        </div>
-                    </div>
-                    <span style="color: gold; font-weight: bold; font-size:0.95rem;">${data.xp || 0} XP</span>
-                    
-                    <div class="tooltip">
-                        🏆 Copas: ${data.torneosGanados || 0} | 📊 WR: ${wr}<br>
-                        ⚔️ Récord: ${pg}V / ${pp}D (${pj} PJ)<br>
-                        🛡️ Clan: ${data.clan || 'Sin Clan'}
-                    </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
+                    <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
+                    <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
                 </div>
             `;
             posicion++;
@@ -2399,7 +2244,7 @@ window.eliminarInscrito = function(torneoId, tipo, nombre) {
 };
 
 window.generarLlaves = async function(torneoId, torneoNombre) {
-    if(!confirm("¿Estás seguro de generar los enfrentamientos? Ya no se podrán inscribir más participantes.")) return;
+    if(!confirm("¿Estás seguro de generar los cruces? Ya no se podrán inscribir más ninjas ni equipos.")) return;
 
     const torneoRef = db.collection('torneos').doc(torneoId);
     const torneoDoc = await torneoRef.get();
@@ -2413,21 +2258,6 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
     }
 
     if (participantes.length < 2) return alert("Se necesitan al menos 2 participantes para generar combates.");
-
-    if (data.tipo === 'liga') {
-        const tablaRef = torneoRef.collection('tabla_posiciones');
-        for (let p of participantes) {
-            await tablaRef.doc(p).set({
-                nombre: p,
-                pj: 0,
-                pg: 0,
-                pe: 0,
-                pp: 0,
-                dif: 0,
-                pts: 0
-            });
-        }
-    }
 
     participantes = participantes.sort(() => Math.random() - 0.5);
     
@@ -2454,7 +2284,7 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
     batch.update(torneoRef, { estado: "iniciado", campeon: "" });
     await batch.commit();
 
-    alert("¡Los enfrentamientos han sido forjados! El evento ha comenzado.");
+    alert("¡Los cruces han sido forjados! El torneo ha comenzado.");
 };
 
 window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
@@ -2492,8 +2322,8 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
             } else {
                 todosTienenGanador = false;
                 accionHtml = `
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')">Gana ${partido.p1}</button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}', '${partido.p1}')">Gana ${partido.p2}</button>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}')">Gana ${partido.p1}</button>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}')">Gana ${partido.p2}</button>
                 `;
             }
 
@@ -2520,9 +2350,9 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
 
             contenedor.innerHTML += `
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
-                    <span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Fecha / Ronda ${partido.ronda}</span>
+                    <span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Ronda ${partido.ronda}</span>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:var(--blue);">VS</span> ${partido.p2}</span>
+                        <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
                         <div>${accionHtml}</div>
                     </div>
                     ${reporteHtml}
@@ -2549,7 +2379,7 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
                 btnSiguienteRonda.onclick = () => declararCampeon(torneoId, ganadoresParaSiguienteRonda[0]);
             } else if (partidosRondaActual > 1 && ganadoresParaSiguienteRonda.length === partidosRondaActual) {
                 btnSiguienteRonda.style.display = 'block';
-                btnSiguienteRonda.innerText = "GENERAR SIGUIENTE RONDA";
+                btnSiguienteRonda.innerText = "GENERAR SIGUIENTE RONDA (Sorteo)";
                 btnSiguienteRonda.style.background = 'var(--blue)';
                 btnSiguienteRonda.style.color = 'black';
                 btnSiguienteRonda.onclick = () => generarSiguienteRonda(torneoId, ganadoresParaSiguienteRonda, rondaMasAlta + 1);
@@ -2569,23 +2399,14 @@ window.guardarSala = function(torneoId, partidoId) {
         salaId: salaId,
         salaPass: salaPass
     }).then(() => {
-        alert("Datos de la sala actualizados.");
+        alert("Datos de la sala actualizados. Los jugadores ya pueden verlos en la llave.");
     });
 };
 
-window.setGanadorManual = function(torneoId, partidoId, ganadorName, perdedorName) {
+window.setGanadorManual = function(torneoId, partidoId, ganadorName) {
     if (confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) {
         db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
             ganador: ganadorName
-        }).then(() => {
-            db.collection('ninjas').where('nick', '==', ganadorName).get().then(snap => {
-                if (!snap.empty) snap.docs[0].ref.update({ partidasGanadas: firebase.firestore.FieldValue.increment(1) });
-            });
-            if (perdedorName) {
-                db.collection('ninjas').where('nick', '==', perdedorName).get().then(snap => {
-                    if (!snap.empty) snap.docs[0].ref.update({ partidasPerdidas: firebase.firestore.FieldValue.increment(1) });
-                });
-            }
         });
     }
 };
@@ -2622,19 +2443,20 @@ window.declararCampeon = async function(torneoId, campeonName) {
     });
 
     const torneoData = (await db.collection('torneos').doc(torneoId).get()).data();
-    const expGanada = torneoData.tipo === 'liga' ? 100 : 50;
-
+    
     if (torneoData.formato === '1v1') {
         const snap = await db.collection('ninjas').where('nick', '==', campeonName).get();
         if (!snap.empty) {
+            const expGanada = torneoData.tipo === 'liga' ? 100 : 50;
             snap.docs[0].ref.update({
                 torneosGanados: firebase.firestore.FieldValue.increment(1),
                 xp: firebase.firestore.FieldValue.increment(expGanada)
             });
         }
     } else {
-        const equipoSnap = (torneoData.lista_equipos || []).find(eq => eq.nombre === campeonName);
+        const equipoSnap = torneoData.lista_equipos.find(eq => eq.nombre === campeonName);
         if (equipoSnap && equipoSnap.miembros) {
+            const expGanada = torneoData.tipo === 'liga' ? 100 : 50;
             for(let miembro of equipoSnap.miembros) {
                 const ninjaQ = await db.collection('ninjas').where('nick', '==', miembro).get();
                 if(!ninjaQ.empty) {
