@@ -1,26 +1,20 @@
 {
-  "name": "MBL ARG - Mobile Legends Arena",
-  "short_name": "MBL ARG",
-  "description": "Plataforma de torneos relámpago, ligas mensuales y recargas oficiales de Mobile Legends en Argentina.",
-  "start_url": "/index.html",
+  "name": "MBL Arg Torneos",
+  "short_name": "MBL Arg",
+  "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0a0a0f",
-  "theme_color": "#00d2ff",
-  "categories": [
-    "games",
-    "sports",
-    "entertainment"
-  ],
+  "background_color": "#050508",
+  "theme_color": "#00ffcc",
+  "description": "Plataforma de torneos y comunidad de Mobile Legends.",
   "icons": [
     {
-      "src": "logo-mblarg.png",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "logo-mblarg.png",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
