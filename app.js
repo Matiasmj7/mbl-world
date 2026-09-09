@@ -1409,75 +1409,92 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 return;
             }
 
-            let currentRonda = 0;
-            let htmlBuffer = "";
-
+            // Agrupamos los partidos por ronda respetando el mismo orden
+            // que ya traía la consulta (orderBy 'ronda'), para armar
+            // columnas tipo bracket en vez de una lista vertical.
+            const rondasMap = new Map();
             snap.forEach(doc => {
                 const partido = doc.data();
                 const partidoId = doc.id;
-                
-                if (partido.ronda !== currentRonda) {
-                    if (currentRonda !== 0) htmlBuffer += "</div>"; 
-                    currentRonda = partido.ronda;
-                    htmlBuffer += `
-                        <h4 style="color: var(--blue); margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;">Ronda ${currentRonda}</h4>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                    `;
-                }
-
-                let p1Style = partido.ganador === partido.p1 ? "color: var(--green); font-weight:bold;" : "color: white;";
-                let p2Style = partido.ganador === partido.p2 ? "color: var(--green); font-weight:bold;" : "color: white;";
-                
-                if(partido.ganador && partido.ganador !== partido.p1) p1Style = "color: #555; text-decoration: line-through;";
-                if(partido.ganador && partido.ganador !== partido.p2) p2Style = "color: #555; text-decoration: line-through;";
-
-                let estadoTexto = partido.ganador ? `<span style="color:var(--green); font-size:0.8rem;"><i class="fas fa-check-circle"></i> Victoria: ${partido.ganador}</span>` : `<span style="color:var(--red); font-size:0.8rem;"><i class="fas fa-clock"></i> Combate Pendiente</span>`;
-
-                let soyParticipante = false;
-                if (torneoData.formato === '1v1') {
-                    if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
-                } else {
-                    const eq1 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p1);
-                    const eq2 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p2);
-                    if (eq1 && eq1.miembros && eq1.miembros.includes(currentUserName)) soyParticipante = true;
-                    if (eq2 && eq2.miembros && eq2.miembros.includes(currentUserName)) soyParticipante = true;
-                }
-
-                let salaHtml = "";
-                let reportarHtml = "";
-
-                if (soyParticipante && partido.p2 !== "BYE") {
-                    if (partido.salaId) {
-                        salaHtml = `
-                            <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.85rem;">
-                                <span style="color: white;">ID Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
-                                <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
-                            </div>
-                        `;
-                    }
-                    if (!partido.ganador) {
-                        reportarHtml = `
-                            <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.8rem; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
-                        `;
-                    }
-                }
-
-                htmlBuffer += `
-                    <div style="background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="flex: 1; text-align: right; ${p1Style} font-size: 1.1rem;">${partido.p1}</div>
-                            <div style="padding: 0 15px; color: #666; font-size: 0.8rem; font-weight: bold;">VS</div>
-                            <div style="flex: 1; text-align: left; ${p2Style} font-size: 1.1rem;">${partido.p2}</div>
-                            <div style="flex: 1; text-align: right;">${estadoTexto}</div>
-                        </div>
-                        ${salaHtml}
-                        ${reportarHtml}
-                    </div>
-                `;
+                if (!rondasMap.has(partido.ronda)) rondasMap.set(partido.ronda, []);
+                rondasMap.get(partido.ronda).push({ ...partido, id: partidoId });
             });
-            
-            if (currentRonda !== 0) htmlBuffer += "</div>";
-            contenedorText.innerHTML = htmlBuffer;
+
+            const rondasOrdenadas = Array.from(rondasMap.entries()).sort((a, b) => a[0] - b[0]);
+            const ultimaRondaIndex = rondasOrdenadas.length - 1;
+
+            let bracketHtml = "<div class='bracket-scroll'>";
+
+            rondasOrdenadas.forEach(([numeroRonda, partidos], indexRonda) => {
+                const esUltimaRonda = (indexRonda === ultimaRondaIndex);
+                const tituloRonda = (esUltimaRonda && partidos.length === 1) ? 'Final' : `Ronda ${numeroRonda}`;
+
+                bracketHtml += `
+                    <div class="bracket-round">
+                        <h4 class="bracket-round-title">${tituloRonda}</h4>
+                        <div class="bracket-round-matches">
+                `;
+
+                partidos.forEach(partido => {
+                    const partidoId = partido.id;
+
+                    let p1Clase = "bracket-player";
+                    let p2Clase = "bracket-player";
+                    if (partido.ganador === partido.p1) p1Clase += " ganador";
+                    if (partido.ganador === partido.p2) p2Clase += " ganador";
+                    if (partido.ganador && partido.ganador !== partido.p1) p1Clase += " perdedor";
+                    if (partido.ganador && partido.ganador !== partido.p2) p2Clase += " perdedor";
+
+                    let estadoTexto = partido.ganador
+                        ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${partido.ganador}</span>`
+                        : `<span style="color:var(--red); font-size:0.75rem;"><i class="fas fa-clock"></i> Pendiente</span>`;
+
+                    let soyParticipante = false;
+                    if (torneoData.formato === '1v1') {
+                        if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
+                    } else {
+                        const eq1 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p1);
+                        const eq2 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p2);
+                        if (eq1 && eq1.miembros && eq1.miembros.includes(currentUserName)) soyParticipante = true;
+                        if (eq2 && eq2.miembros && eq2.miembros.includes(currentUserName)) soyParticipante = true;
+                    }
+
+                    let salaHtml = "";
+                    let reportarHtml = "";
+
+                    if (soyParticipante && partido.p2 !== "BYE") {
+                        if (partido.salaId) {
+                            salaHtml = `
+                                <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.8rem;">
+                                    <span style="color: white;">Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
+                                    <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
+                                </div>
+                            `;
+                        }
+                        if (!partido.ganador) {
+                            reportarHtml = `
+                                <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.75rem; padding: 8px; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
+                            `;
+                        }
+                    }
+
+                    bracketHtml += `
+                        <div class="bracket-match ${esUltimaRonda ? 'bracket-match-last' : ''}">
+                            <div class="${p1Clase}">${partido.p1}</div>
+                            <div class="bracket-vs-divider"></div>
+                            <div class="${p2Clase}">${partido.p2}</div>
+                            <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
+                            ${salaHtml}
+                            ${reportarHtml}
+                        </div>
+                    `;
+                });
+
+                bracketHtml += `</div></div>`;
+            });
+
+            bracketHtml += "</div>";
+            contenedorText.innerHTML = bracketHtml;
         });
     });
 };
