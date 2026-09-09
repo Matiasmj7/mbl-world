@@ -360,7 +360,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .bracket-player {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: 6px 2px;
     font-size: 0.95rem;
@@ -395,6 +395,108 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
         right: -30px;
         width: 30px;
     }
+}
+
+/* ==========================================
+   NUEVO: NEXUS STORE EN ACORDEÓN
+   Cada categoría de producto (Diamantes, Pases)
+   es un <details> nativo del navegador: no hace
+   falta JavaScript extra, es accesible por
+   teclado y no puede "romperse".
+========================================= */
+#lista-productos-nexus.torneos-grid {
+    display: block; /* el grid real vive DENTRO de cada acordeón, no en el contenedor exterior */
+}
+
+.nexus-accordion {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(0,255,255,0.25);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+.nexus-accordion-summary {
+    cursor: pointer;
+    list-style: none;
+    color: #00ffff;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.nexus-accordion-summary::-webkit-details-marker {
+    display: none;
+}
+
+.nexus-accordion-summary::after {
+    content: '\f078';
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 1rem;
+    transition: transform 0.25s ease;
+}
+
+.nexus-accordion[open] .nexus-accordion-summary::after {
+    transform: rotate(180deg);
+}
+
+/* ==========================================
+   NUEVO: LOGO Y OVERLAY DE MARCA (imágenes propias)
+   Rutas relativas a la raíz del repo: subí los
+   archivos con EXACTAMENTE estos nombres.
+========================================= */
+
+/* Logo como marca de agua detrás de los cruces del torneo/liga */
+#contenedor-llaves-texto {
+    position: relative;
+}
+
+#contenedor-llaves-texto::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 280px;
+    height: 280px;
+    transform: translate(-50%, -50%);
+    background-image: url('/logo-mblarg.png.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#contenedor-llaves-texto > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Overlay decorativo sobre el video del stream en vivo */
+.video-container {
+    position: relative;
+}
+
+.video-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/overlay-card.png.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 5;
 }
 
 /* ==========================================
@@ -442,13 +544,26 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .hero-section {
     padding: 60px 0;
-    text-align: left;
+    text-align: center;
 }
 
 .title-main {
     font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: 1px;
+}
+
+.welcome-msg {
+    color: #ccc;
+    font-size: 1.1rem;
+    margin: 18px 0 28px 0;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
 }
 
 .section {
@@ -469,11 +584,41 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .container-glass {
+    position: relative;
     background: var(--dark-glass);
     border: 1px solid var(--border-glass);
     border-radius: 12px;
     padding: 25px;
     backdrop-filter: blur(8px);
+}
+
+/* NUEVO: acentos de esquina tipo "panel táctico". No dependen de ninguna
+   imagen — es CSS puro, así que nunca se puede romper un link ni pesar
+   de más. Le da ese toque de interfaz profesional sin sobrecargar. */
+.container-glass::before,
+.container-glass::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.container-glass::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--blue);
+    border-left: 2px solid var(--blue);
+    border-radius: 8px 0 0 0;
+}
+
+.container-glass::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid var(--blue);
+    border-right: 2px solid var(--blue);
+    border-radius: 0 0 8px 0;
 }
 
 /* ==========================================
