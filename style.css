@@ -289,6 +289,115 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ==========================================
+   NUEVO: BRACKET VISUAL DE TORNEOS
+   Columnas por ronda, con scroll horizontal.
+   Es una vista simplificada: no dibuja líneas
+   exactas emparejando cada cruce individual (eso
+   necesitaría calcular posiciones en JS, algo más
+   frágil de mantener) — en cambio, cada partido
+   tiene una línea corta que indica "esto avanza
+   a la siguiente ronda". Es el mismo criterio que
+   usan varias plataformas de torneos en su vista
+   compacta/mobile.
+========================================= */
+#modal-llaves .modal-box {
+    max-width: 95vw !important;
+    width: 950px;
+}
+
+.bracket-scroll {
+    display: flex;
+    gap: 45px;
+    overflow-x: auto;
+    padding: 10px 10px 20px 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    min-width: 230px;
+    flex-shrink: 0;
+}
+
+.bracket-round-title {
+    color: var(--blue);
+    text-align: center;
+    text-transform: uppercase;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+}
+
+.bracket-round-matches {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.bracket-match {
+    position: relative;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.bracket-match:not(.bracket-match-last)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -45px;
+    width: 45px;
+    height: 1px;
+    background: #333;
+}
+
+.bracket-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 2px;
+    font-size: 0.95rem;
+    color: white;
+}
+
+.bracket-player.ganador {
+    color: var(--green);
+    font-weight: bold;
+}
+
+.bracket-player.perdedor {
+    color: #555;
+    text-decoration: line-through;
+}
+
+.bracket-vs-divider {
+    border-top: 1px dashed #333;
+    margin: 2px 0;
+}
+
+@media (max-width: 768px) {
+    .bracket-round {
+        min-width: 200px;
+    }
+
+    .bracket-scroll {
+        gap: 30px;
+    }
+
+    .bracket-match:not(.bracket-match-last)::after {
+        right: -30px;
+        width: 30px;
+    }
+}
+
+/* ==========================================
    TICKER (ALERTA GLOBAL)
 ========================================= */
 .ticker-wrap {
