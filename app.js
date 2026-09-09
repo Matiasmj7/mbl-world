@@ -42,6 +42,135 @@ function mostrarSkeleton(elemento, tipo = 'card', cantidad = 3) {
 }
 
 // ==========================================
+// LIGAS: TABLA DE POSICIONES
+// A diferencia de un Torneo (eliminación directa
+// por llaves), una Liga es "todos contra todos":
+// se calculan puntos a partir de los resultados
+// ya cargados, sin importar el orden en que llegan.
+// Como en Mobile Legends un partido siempre tiene
+// un ganador (no hay empates), sumamos 3 puntos
+// por victoria y 0 por derrota — igual criterio
+// que usan la mayoría de ligas deportivas.
+// ==========================================
+function calcularTablaPosiciones(partidos) {
+    const stats = {};
+    const asegurar = (nombre) => {
+        if (!stats[nombre]) stats[nombre] = { nombre, jugados: 0, ganados: 0, perdidos: 0, puntos: 0 };
+        return stats[nombre];
+    };
+
+    partidos.forEach(partido => {
+        if (!partido.p1 || !partido.p2 || partido.p2 === "BYE") return;
+        asegurar(partido.p1);
+        asegurar(partido.p2);
+        if (partido.ganador) {
+            const perdedor = (partido.ganador === partido.p1) ? partido.p2 : partido.p1;
+            stats[partido.ganador].jugados++;
+            stats[partido.ganador].ganados++;
+            stats[partido.ganador].puntos += 3;
+            if (stats[perdedor]) {
+                stats[perdedor].jugados++;
+                stats[perdedor].perdidos++;
+            }
+        }
+    });
+
+    return Object.values(stats).sort((a, b) => {
+        if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+        if (b.ganados !== a.ganados) return b.ganados - a.ganados;
+        return a.nombre.localeCompare(b.nombre);
+    });
+}
+
+function generarTablaPosicionesHTML(tabla) {
+    if (tabla.length === 0) {
+        return "<p style='text-align:center; color:#ccc;'>Todavía no hay partidos cargados.</p>";
+    }
+
+    const filas = tabla.map((fila, index) => {
+        const esLider = index === 0;
+        return `
+            <tr style="${esLider ? 'background: rgba(255,215,0,0.08);' : ''}">
+                <td style="padding:8px; text-align:center; color:${esLider ? 'gold' : '#aaa'}; font-weight:bold;">${index + 1}</td>
+                <td style="padding:8px; color:white; font-weight:${esLider ? 'bold' : 'normal'};">${esLider ? '<i class="fas fa-crown" style="color:gold;"></i> ' : ''}${fila.nombre}</td>
+                <td style="padding:8px; text-align:center; color:#ccc;">${fila.jugados}</td>
+                <td style="padding:8px; text-align:center; color:var(--green);">${fila.ganados}</td>
+                <td style="padding:8px; text-align:center; color:var(--red);">${fila.perdidos}</td>
+                <td style="padding:8px; text-align:center; color:var(--blue); font-weight:bold;">${fila.puntos}</td>
+            </tr>
+        `;
+    }).join("");
+
+    return `
+        <div style="overflow-x:auto; margin-bottom: 25px;">
+            <table style="width:100%; border-collapse: collapse; min-width: 420px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--blue);">
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase;">#</th>
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase; text-align:left;">Jugador / Equipo</th>
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase;">PJ</th>
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase;">PG</th>
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase;">PP</th>
+                        <th style="padding:8px; font-size:0.75rem; color:#888; text-transform:uppercase;">PTS</th>
+                    </tr>
+                </thead>
+                <tbody>${filas}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Ficha de un partido para el panel de admin (Tribunal Kage). Se usa tanto
+// para Torneos (donde se agrupa por ronda) como para Ligas (lista plana),
+// para no repetir el mismo bloque de HTML dos veces.
+function generarFilaAdminPartidoHTML(torneoId, partido, partidoId, mostrarRonda) {
+    let accionHtml = "";
+    if (partido.ganador) {
+        accionHtml = `<span style="color:var(--green); font-weight:bold;"><i class="fas fa-check"></i> ${partido.ganador}</span>`;
+    } else {
+        accionHtml = `
+            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}')">Gana ${partido.p1}</button>
+            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}')">Gana ${partido.p2}</button>
+        `;
+    }
+
+    let reporteHtml = "";
+    if (partido.reporte) {
+        reporteHtml = `
+            <div style="background: rgba(255,215,0,0.1); padding: 10px; margin-top: 10px; border: 1px dashed gold; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color:gold; font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> <strong>${partido.reporte.reportadoPor}</strong> reportó victoria de: <strong>${partido.reporte.ganador}</strong></span>
+                <a href="${partido.reporte.capturaUrl}" target="_blank" class="btn-primary" style="padding: 5px 10px; font-size: 0.75rem; background: gold; color: black;"><i class="fas fa-image"></i> VER PRUEBA</a>
+            </div>
+        `;
+    }
+
+    let salaHtml = "";
+    if (!partido.ganador && partido.p2 !== "BYE") {
+        salaHtml = `
+            <div style="margin-top:10px; display:flex; gap:5px;">
+                <input type="text" id="sala-id-${partidoId}" placeholder="ID de Sala" value="${partido.salaId || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
+                <input type="text" id="sala-pass-${partidoId}" placeholder="Contraseña" value="${partido.salaPass || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
+                <button onclick="guardarSala('${torneoId}', '${partidoId}')" class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; border-color: var(--blue); color: var(--blue);">FIJAR SALA</button>
+            </div>
+        `;
+    }
+
+    const rondaLabel = mostrarRonda ? `<span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Ronda ${partido.ronda}</span>` : "";
+
+    return `
+        <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
+            ${rondaLabel}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
+                <div>${accionHtml}</div>
+            </div>
+            ${reporteHtml}
+            ${salaHtml}
+        </div>
+    `;
+}
+
+// ==========================================
 // CONFIGURACIÓN FIREBASE Y VARIABLES GLOBALES
 // ==========================================
 const firebaseConfig = {
@@ -374,13 +503,19 @@ function cargarProductosNexus() {
     mostrarSkeleton(listaPublica, 'card', 3);
 
     db.collection('nexus_productos').orderBy('timestamp', 'asc').onSnapshot(snap => {
-        listaPublica.innerHTML = "";
         if(listaAdmin) listaAdmin.innerHTML = "";
 
         if (snap.empty) {
-            listaPublica.innerHTML = "<p style='color:#ccc; grid-column: 1 / -1; text-align:center;'>La tienda está reabasteciéndose. Vuelve pronto.</p>";
+            listaPublica.innerHTML = "<p style='color:#ccc; text-align:center;'>La tienda está reabasteciéndose. Vuelve pronto.</p>";
             return;
         }
+
+        // Agrupamos por categoría para mostrarlas en acordeones y que la
+        // tienda no ocupe tanto espacio de una sola vez.
+        const categorias = {
+            diamantes: { titulo: '<i class="fas fa-gem"></i> Paquetes de Diamantes', html: '' },
+            pase: { titulo: '<i class="fas fa-ticket-alt"></i> Pases Semanales / VIP', html: '' }
+        };
 
         snap.forEach(doc => {
             const data = doc.data();
@@ -395,7 +530,7 @@ function cargarProductosNexus() {
             }
 
             // Renderizado Público (Añadido background transparente)
-            listaPublica.innerHTML += `
+            const tarjetaHtml = `
                 <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; background: transparent; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         ${imgIcon}
@@ -406,7 +541,10 @@ function cargarProductosNexus() {
                 </div>
             `;
 
-            // Renderizado Admin
+            const categoria = categorias[data.tipo] ? data.tipo : 'diamantes';
+            categorias[categoria].html += tarjetaHtml;
+
+            // Renderizado Admin (sigue siendo una lista plana, no necesita acordeón)
             if(listaAdmin) {
                 listaAdmin.innerHTML += `
                     <div style="background:rgba(0,0,0,0.5); padding:10px 15px; border:1px solid #333; border-radius:5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
@@ -419,6 +557,21 @@ function cargarProductosNexus() {
                 `;
             }
         });
+
+        let htmlFinal = "";
+        let esPrimeraConProductos = true;
+        Object.values(categorias).forEach(cat => {
+            if (cat.html === '') return; // no mostramos categorías vacías
+            htmlFinal += `
+                <details class="nexus-accordion" ${esPrimeraConProductos ? 'open' : ''}>
+                    <summary class="nexus-accordion-summary">${cat.titulo}</summary>
+                    <div class="torneos-grid" style="margin-top: 20px;">${cat.html}</div>
+                </details>
+            `;
+            esPrimeraConProductos = false;
+        });
+
+        listaPublica.innerHTML = htmlFinal || "<p style='color:#ccc; text-align:center;'>La tienda está reabasteciéndose. Vuelve pronto.</p>";
     });
 }
 
@@ -1387,7 +1540,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
     contenedorCampeon.innerHTML = "";
     window.location.hash = "#modal-llaves";
 
-    db.collection('torneos').doc(torneoId).get().then(docTorneo => {
+    db.collection('torneos').doc(torneoId).get().then(async docTorneo => {
         if (!docTorneo.exists) return;
         const torneoData = docTorneo.data();
 
@@ -1401,6 +1554,77 @@ window.verLlaves = function(torneoId, torneoNombre) {
             `;
         }
 
+        // Para formato 1v1 traemos las fotos de perfil una sola vez, para
+        // mostrarlas junto al nombre en cada cruce. En formato por equipos
+        // no aplica (un equipo no tiene una única foto de jugador).
+        let fotosPorNick = {};
+        if (torneoData.formato === '1v1') {
+            const ninjasSnap = await db.collection('ninjas').get();
+            ninjasSnap.forEach(doc => {
+                const n = doc.data();
+                if (!n.nick) return;
+                fotosPorNick[n.nick] = (n.fotoPerfil && n.fotoPerfil !== "") ? n.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(n.nick)}&background=random`;
+            });
+        }
+
+        // Arma la ficha de un partido (usada tanto por el bracket de Torneo
+        // como por el fixture de Liga, para no repetir la lógica dos veces).
+        const construirFichaPartido = (partido, partidoId, sinConector) => {
+            let p1Clase = "bracket-player";
+            let p2Clase = "bracket-player";
+            if (partido.ganador === partido.p1) p1Clase += " ganador";
+            if (partido.ganador === partido.p2) p2Clase += " ganador";
+            if (partido.ganador && partido.ganador !== partido.p1) p1Clase += " perdedor";
+            if (partido.ganador && partido.ganador !== partido.p2) p2Clase += " perdedor";
+
+            let estadoTexto = partido.ganador
+                ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${partido.ganador}</span>`
+                : `<span style="color:var(--red); font-size:0.75rem;"><i class="fas fa-clock"></i> Pendiente</span>`;
+
+            let soyParticipante = false;
+            if (torneoData.formato === '1v1') {
+                if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
+            } else {
+                const eq1 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p1);
+                const eq2 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p2);
+                if (eq1 && eq1.miembros && eq1.miembros.includes(currentUserName)) soyParticipante = true;
+                if (eq2 && eq2.miembros && eq2.miembros.includes(currentUserName)) soyParticipante = true;
+            }
+
+            let salaHtml = "";
+            let reportarHtml = "";
+
+            if (soyParticipante && partido.p2 !== "BYE") {
+                if (partido.salaId) {
+                    salaHtml = `
+                        <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.8rem;">
+                            <span style="color: white;">Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
+                            <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
+                        </div>
+                    `;
+                }
+                if (!partido.ganador) {
+                    reportarHtml = `
+                        <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.75rem; padding: 8px; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
+                    `;
+                }
+            }
+
+            const fotoP1 = fotosPorNick[partido.p1] ? `<img src="${fotosPorNick[partido.p1]}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;">` : "";
+            const fotoP2 = fotosPorNick[partido.p2] ? `<img src="${fotosPorNick[partido.p2]}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;">` : "";
+
+            return `
+                <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''}">
+                    <div class="${p1Clase}">${fotoP1}${partido.p1}</div>
+                    <div class="bracket-vs-divider"></div>
+                    <div class="${p2Clase}">${fotoP2}${partido.p2}</div>
+                    <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
+                    ${salaHtml}
+                    ${reportarHtml}
+                </div>
+            `;
+        };
+
         db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'asc').onSnapshot(snap => {
             contenedorText.innerHTML = "";
             
@@ -1409,9 +1633,23 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 return;
             }
 
-            // Agrupamos los partidos por ronda respetando el mismo orden
-            // que ya traía la consulta (orderBy 'ronda'), para armar
-            // columnas tipo bracket en vez de una lista vertical.
+            if (torneoData.tipo === 'liga') {
+                // --- LIGA: tabla de posiciones + fixture de partidos ---
+                const partidosLiga = [];
+                snap.forEach(doc => partidosLiga.push({ id: doc.id, ...doc.data() }));
+
+                let html = generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
+                html += "<h4 style='color: var(--blue); margin: 10px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de Partidos</h4>";
+                html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
+                partidosLiga.forEach(partido => {
+                    html += construirFichaPartido(partido, partido.id, true);
+                });
+                html += "</div>";
+                contenedorText.innerHTML = html;
+                return;
+            }
+
+            // --- TORNEO: bracket por columnas, igual que hasta ahora ---
             const rondasMap = new Map();
             snap.forEach(doc => {
                 const partido = doc.data();
@@ -1436,58 +1674,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 `;
 
                 partidos.forEach(partido => {
-                    const partidoId = partido.id;
-
-                    let p1Clase = "bracket-player";
-                    let p2Clase = "bracket-player";
-                    if (partido.ganador === partido.p1) p1Clase += " ganador";
-                    if (partido.ganador === partido.p2) p2Clase += " ganador";
-                    if (partido.ganador && partido.ganador !== partido.p1) p1Clase += " perdedor";
-                    if (partido.ganador && partido.ganador !== partido.p2) p2Clase += " perdedor";
-
-                    let estadoTexto = partido.ganador
-                        ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${partido.ganador}</span>`
-                        : `<span style="color:var(--red); font-size:0.75rem;"><i class="fas fa-clock"></i> Pendiente</span>`;
-
-                    let soyParticipante = false;
-                    if (torneoData.formato === '1v1') {
-                        if (currentUserName === partido.p1 || currentUserName === partido.p2) soyParticipante = true;
-                    } else {
-                        const eq1 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p1);
-                        const eq2 = (torneoData.lista_equipos || []).find(e => e.nombre === partido.p2);
-                        if (eq1 && eq1.miembros && eq1.miembros.includes(currentUserName)) soyParticipante = true;
-                        if (eq2 && eq2.miembros && eq2.miembros.includes(currentUserName)) soyParticipante = true;
-                    }
-
-                    let salaHtml = "";
-                    let reportarHtml = "";
-
-                    if (soyParticipante && partido.p2 !== "BYE") {
-                        if (partido.salaId) {
-                            salaHtml = `
-                                <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.8rem;">
-                                    <span style="color: white;">Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
-                                    <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
-                                </div>
-                            `;
-                        }
-                        if (!partido.ganador) {
-                            reportarHtml = `
-                                <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.75rem; padding: 8px; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
-                            `;
-                        }
-                    }
-
-                    bracketHtml += `
-                        <div class="bracket-match ${esUltimaRonda ? 'bracket-match-last' : ''}">
-                            <div class="${p1Clase}">${partido.p1}</div>
-                            <div class="bracket-vs-divider"></div>
-                            <div class="${p2Clase}">${partido.p2}</div>
-                            <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
-                            ${salaHtml}
-                            ${reportarHtml}
-                        </div>
-                    `;
+                    bracketHtml += construirFichaPartido(partido, partido.id, esUltimaRonda);
                 });
 
                 bracketHtml += `</div></div>`;
@@ -1911,10 +2098,20 @@ function cargarTopIndividualBingo() {
         snap.forEach(doc => {
             const data = doc.data();
             let colorPos = posicion === 1 ? 'gold' : (posicion === 2 ? 'silver' : (posicion === 3 ? '#cd7f32' : 'white'));
+
+            const pj = data.partidasJugadas || 0;
+            const pg = data.partidasGanadas || 0;
+            const pp = pj - pg;
+            const winrate = pj > 0 ? Math.round((pg / pj) * 100) : 0;
             
             lista.innerHTML += `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
-                    <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
+                    <div>
+                        <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
+                        <div style="font-size: 0.72rem; color: #999; margin-top: 3px;">
+                            ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR
+                        </div>
+                    </div>
                     <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
                 </div>
             `;
@@ -2312,14 +2509,26 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
 
     if (participantes.length < 2) return alert("Se necesitan al menos 2 participantes para generar combates.");
 
-    participantes = participantes.sort(() => Math.random() - 0.5);
-    
     const partidos = [];
-    for (let i = 0; i < participantes.length; i += 2) {
-        if (participantes[i+1]) {
-            partidos.push({ p1: participantes[i], p2: participantes[i+1], ganador: "", ronda: 1 });
-        } else {
-            partidos.push({ p1: participantes[i], p2: "BYE", ganador: participantes[i], ronda: 1 });
+
+    if (data.tipo === 'liga') {
+        // LIGA: todos contra todos, un único partido por cada par posible.
+        // No hay "rondas" de eliminación — todos los cruces se cargan de una,
+        // y la clasificación se calcula sola con la tabla de posiciones.
+        for (let i = 0; i < participantes.length; i++) {
+            for (let j = i + 1; j < participantes.length; j++) {
+                partidos.push({ p1: participantes[i], p2: participantes[j], ganador: "", ronda: 1 });
+            }
+        }
+    } else {
+        // TORNEO: eliminación directa con sorteo aleatorio (igual que siempre)
+        const sorteados = participantes.sort(() => Math.random() - 0.5);
+        for (let i = 0; i < sorteados.length; i += 2) {
+            if (sorteados[i+1]) {
+                partidos.push({ p1: sorteados[i], p2: sorteados[i+1], ganador: "", ronda: 1 });
+            } else {
+                partidos.push({ p1: sorteados[i], p2: "BYE", ganador: sorteados[i], ronda: 1 });
+            }
         }
     }
 
@@ -2340,7 +2549,7 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
     alert("¡Los cruces han sido forjados! El torneo ha comenzado.");
 };
 
-window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
+window.abrirAdminPartidos = async function(torneoId, torneoNombre, creador, formato) {
     document.getElementById('admin-partidos-titulo').innerText = `Tribunal Kage: ${torneoNombre}`;
     window.location.hash = "#modal-admin-partidos";
     
@@ -2354,10 +2563,50 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
         inputEquipoManual.style.display = 'block';
     }
 
+    // Necesitamos saber si es Liga o Torneo para decidir cómo mostrar los partidos.
+    const torneoSnap = await db.collection('torneos').doc(torneoId).get();
+    const esLiga = (torneoSnap.data() || {}).tipo === 'liga';
+
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
         const contenedor = document.getElementById('contenedor-admin-partidos');
+        const btnSiguienteRonda = document.getElementById('btn-siguiente-ronda');
         contenedor.innerHTML = "";
-        
+
+        if (snap.empty) {
+            btnSiguienteRonda.style.display = 'none';
+            return;
+        }
+
+        if (esLiga) {
+            // --- MODO LIGA: tabla de posiciones + lista plana de partidos ---
+            const partidosLiga = [];
+            snap.forEach(doc => partidosLiga.push({ id: doc.id, ...doc.data() }));
+
+            contenedor.innerHTML += generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
+
+            partidosLiga.forEach(partido => {
+                contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partido, partido.id, false);
+            });
+
+            // En Liga no hay "siguiente ronda": el Kage corona manualmente
+            // al líder de la tabla una vez que están todos los resultados.
+            const tabla = calcularTablaPosiciones(partidosLiga);
+            const lider = tabla[0];
+            const faltanResultados = partidosLiga.some(p => !p.ganador);
+
+            if (lider && !faltanResultados) {
+                btnSiguienteRonda.style.display = 'block';
+                btnSiguienteRonda.innerText = `CORONAR A ${lider.nombre} COMO CAMPEÓN (1° en la tabla)`;
+                btnSiguienteRonda.style.background = 'gold';
+                btnSiguienteRonda.style.color = 'black';
+                btnSiguienteRonda.onclick = () => declararCampeon(torneoId, lider.nombre);
+            } else {
+                btnSiguienteRonda.style.display = 'none';
+            }
+            return;
+        }
+
+        // --- MODO TORNEO: eliminación directa, igual que siempre ---
         let todosTienenGanador = true;
         let partidosRondaActual = 0;
         let ganadoresParaSiguienteRonda = [];
@@ -2366,52 +2615,11 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
         snap.forEach(doc => {
             const partido = doc.data();
             const partidoId = doc.id;
-            
+
             if (partido.ronda > rondaMasAlta) rondaMasAlta = partido.ronda;
+            if (!partido.ganador) todosTienenGanador = false;
 
-            let accionHtml = "";
-            if (partido.ganador) {
-                accionHtml = `<span style="color:var(--green); font-weight:bold;"><i class="fas fa-check"></i> ${partido.ganador}</span>`;
-            } else {
-                todosTienenGanador = false;
-                accionHtml = `
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}')">Gana ${partido.p1}</button>
-                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}')">Gana ${partido.p2}</button>
-                `;
-            }
-
-            let reporteHtml = "";
-            if (partido.reporte) {
-                reporteHtml = `
-                    <div style="background: rgba(255,215,0,0.1); padding: 10px; margin-top: 10px; border: 1px dashed gold; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color:gold; font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> <strong>${partido.reporte.reportadoPor}</strong> reportó victoria de: <strong>${partido.reporte.ganador}</strong></span>
-                        <a href="${partido.reporte.capturaUrl}" target="_blank" class="btn-primary" style="padding: 5px 10px; font-size: 0.75rem; background: gold; color: black;"><i class="fas fa-image"></i> VER PRUEBA</a>
-                    </div>
-                `;
-            }
-
-            let salaHtml = "";
-            if (!partido.ganador && partido.p2 !== "BYE") {
-                salaHtml = `
-                    <div style="margin-top:10px; display:flex; gap:5px;">
-                        <input type="text" id="sala-id-${partidoId}" placeholder="ID de Sala" value="${partido.salaId || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
-                        <input type="text" id="sala-pass-${partidoId}" placeholder="Contraseña" value="${partido.salaPass || ''}" style="flex:1; padding:6px; background:#000; color:white; border:1px solid #333; font-size: 0.8rem;">
-                        <button onclick="guardarSala('${torneoId}', '${partidoId}')" class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; border-color: var(--blue); color: var(--blue);">FIJAR SALA</button>
-                    </div>
-                `;
-            }
-
-            contenedor.innerHTML += `
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
-                    <span style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">Ronda ${partido.ronda}</span>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
-                        <div>${accionHtml}</div>
-                    </div>
-                    ${reporteHtml}
-                    ${salaHtml}
-                </div>
-            `;
+            contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partido, partidoId, true);
         });
 
         snap.forEach(doc => {
@@ -2420,8 +2628,6 @@ window.abrirAdminPartidos = function(torneoId, torneoNombre, creador, formato) {
                 if(doc.data().ganador) ganadoresParaSiguienteRonda.push(doc.data().ganador);
             }
         });
-
-        const btnSiguienteRonda = document.getElementById('btn-siguiente-ronda');
         
         if (todosTienenGanador && snap.size > 0) {
             if (partidosRondaActual === 1 && ganadoresParaSiguienteRonda.length === 1) {
@@ -2456,11 +2662,42 @@ window.guardarSala = function(torneoId, partidoId) {
     });
 };
 
-window.setGanadorManual = function(torneoId, partidoId, ganadorName) {
-    if (confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) {
-        db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId).update({
-            ganador: ganadorName
-        });
+window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
+    if (!confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) return;
+
+    const partidoRef = db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId);
+    const partidoSnap = await partidoRef.get();
+    const partido = partidoSnap.data();
+    if (!partido) return;
+
+    await partidoRef.update({ ganador: ganadorName });
+
+    // Registramos partidas jugadas/ganadas para que se reflejen en el
+    // ranking (Top Ninjas). No aplica a los "BYE" porque nunca se jugaron.
+    if (partido.p2 !== "BYE") {
+        const perdedorName = (ganadorName === partido.p1) ? partido.p2 : partido.p1;
+        const torneoSnap = await db.collection('torneos').doc(torneoId).get();
+        const torneoData = torneoSnap.data() || {};
+
+        const actualizarStats = async (nombre, gano) => {
+            let nicks = [nombre];
+            if (torneoData.formato !== '1v1') {
+                const equipo = (torneoData.lista_equipos || []).find(eq => eq.nombre === nombre);
+                nicks = (equipo && equipo.miembros) ? equipo.miembros : [];
+            }
+            for (const nick of nicks) {
+                const ninjaSnap = await db.collection('ninjas').where('nick', '==', nick).get();
+                if (!ninjaSnap.empty) {
+                    ninjaSnap.docs[0].ref.update({
+                        partidasJugadas: firebase.firestore.FieldValue.increment(1),
+                        partidasGanadas: firebase.firestore.FieldValue.increment(gano ? 1 : 0)
+                    });
+                }
+            }
+        };
+
+        await actualizarStats(ganadorName, true);
+        await actualizarStats(perdedorName, false);
     }
 };
 
