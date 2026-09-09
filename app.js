@@ -14,6 +14,34 @@ if ('serviceWorker' in navigator) {
 }
 
 // ==========================================
+// SKELETON LOADERS (estado de carga visual)
+// Pinta bloques animados mientras Firestore trae
+// los datos reales. En cuanto llega la data, cada
+// función de carga sobrescribe este contenido con
+// el innerHTML de siempre — no reemplaza lógica,
+// solo lo que se ve un instante antes de tener data.
+// ==========================================
+function mostrarSkeleton(elemento, tipo = 'card', cantidad = 3) {
+    if (!elemento) return;
+    let piezas = '';
+    for (let i = 0; i < cantidad; i++) {
+        if (tipo === 'linea') {
+            piezas += `
+                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; display:flex; justify-content:space-between; gap:15px;">
+                    <div class="skeleton skeleton-line" style="width: 55%; margin-bottom:0;"></div>
+                    <div class="skeleton skeleton-line" style="width: 20%; margin-bottom:0;"></div>
+                </div>
+            `;
+        } else if (tipo === 'podio') {
+            piezas += `<div class="skeleton skeleton-card" style="height: 200px; width: 150px; border-radius: 10px 10px 0 0;"></div>`;
+        } else {
+            piezas += `<div class="skeleton skeleton-card"></div>`;
+        }
+    }
+    elemento.innerHTML = piezas;
+}
+
+// ==========================================
 // CONFIGURACIÓN FIREBASE Y VARIABLES GLOBALES
 // ==========================================
 const firebaseConfig = {
@@ -343,6 +371,7 @@ function cargarProductosNexus() {
     const listaPublica = document.getElementById('lista-productos-nexus');
     const listaAdmin = document.getElementById('admin-lista-nexus');
     if(!listaPublica) return;
+    mostrarSkeleton(listaPublica, 'card', 3);
 
     db.collection('nexus_productos').orderBy('timestamp', 'asc').onSnapshot(snap => {
         listaPublica.innerHTML = "";
@@ -855,6 +884,7 @@ window.abandonarComunidad = function() {
 function cargarTopComunidades() {
     const lista = document.getElementById('lista-top-comunidades');
     if(!lista) return;
+    mostrarSkeleton(lista, 'linea', 5);
 
     db.collection('comunidades').onSnapshot(snap => {
         let comunidades = [];
@@ -1087,6 +1117,8 @@ function cargarTorneosDesdeNube() {
     const listaLigas = document.getElementById('lista-ligas');
     
     if(!listaTorneos || !listaLigas) return;
+    mostrarSkeleton(listaTorneos, 'card', 3);
+    mostrarSkeleton(listaLigas, 'card', 2);
     
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         listaTorneos.innerHTML = '';
@@ -1456,6 +1488,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
 function cargarVideosAbismo() {
     const listaAbismo = document.getElementById('lista-abismo');
     if(!listaAbismo) return;
+    mostrarSkeleton(listaAbismo, 'card', 3);
 
     db.collection('abismo_videos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         listaAbismo.innerHTML = '';
@@ -1600,6 +1633,7 @@ if (formAbismo) {
 function cargarHallOfFame() {
     const podio = document.getElementById('podio-leyendas');
     if(!podio) return;
+    mostrarSkeleton(podio, 'podio', 3);
 
     db.collection('ninjas').where('torneosGanados', '>', 0).orderBy('torneosGanados', 'desc').limit(3).onSnapshot(snap => {
         if(snap.empty) {
@@ -1719,6 +1753,7 @@ window.abandonarClan = function() {
 function cargarTopClanes() {
     const listaClanes = document.getElementById('lista-top-clanes');
     if(!listaClanes) return;
+    mostrarSkeleton(listaClanes, 'linea', 5);
     db.collection('clanes').orderBy('xp', 'desc').limit(5).onSnapshot(snap => {
         listaClanes.innerHTML = "";
         snap.forEach((doc, index) => {
@@ -1851,6 +1886,7 @@ window.limpiarTaberna = async function() {
 function cargarTopIndividualBingo() {
     const lista = document.getElementById('ranking-dinamico');
     if(!lista) return;
+    mostrarSkeleton(lista, 'linea', 6);
 
     db.collection('ninjas').orderBy('xp', 'desc').limit(10).onSnapshot(snap => {
         lista.innerHTML = "";
