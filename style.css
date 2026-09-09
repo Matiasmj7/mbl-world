@@ -1,7 +1,7 @@
 /* ==========================================
    VARIABLES Y BASE
 ========================================= */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap');
 
 :root {
     --blue: #00d2ff;
@@ -11,6 +11,13 @@
     --bg-dark: #050508;
     --dark-glass: rgba(10, 10, 15, 0.85);
     --border-glass: rgba(0, 210, 255, 0.3);
+
+    /* NUEVO: tipografía de impacto para títulos, sistema de sombras y grises con mejor contraste */
+    --font-heading: 'Rajdhani', 'Montserrat', sans-serif;
+    --muted: #b3b3bd;
+    --muted-soft: #8a8a99;
+    --shadow-glow-soft: 0 0 12px rgba(0, 210, 255, 0.35);
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 html {
@@ -45,23 +52,32 @@ body {
     transform: translateY(0);
 }
 
+/* Glow más contenido: antes escalaba y brillaba fuerte en TODO. Ahora es un
+   realce sutil, para que el brillo grande quede reservado a lo importante. */
 .glow-hover {
-    transition: all 0.3s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .glow-hover:hover {
-    box-shadow: 0 0 20px var(--blue);
-    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--shadow-glow-soft);
+    transform: translateY(-2px);
     border-color: var(--blue) !important;
 }
 
-@keyframes pulse-cyan { 0% { text-shadow: 0 0 5px #00ffff; } 50% { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; } 100% { text-shadow: 0 0 5px #00ffff; } }
-@keyframes pulse-red { 0% { color: white; } 50% { color: var(--red); text-shadow: 0 0 10px var(--red); } 100% { color: white; } }
-@keyframes pulse-gold { 0% { color: gold; } 50% { color: #fff; text-shadow: 0 0 10px gold; } 100% { color: gold; } }
+/* Pulsos más sutiles: la idea es "esto está vivo", no "esto grita" */
+@keyframes pulse-cyan { 0% { text-shadow: 0 0 4px #00ffff; } 50% { text-shadow: 0 0 12px #00ffff; } 100% { text-shadow: 0 0 4px #00ffff; } }
+@keyframes pulse-red { 0% { color: white; } 50% { color: var(--red); text-shadow: 0 0 8px var(--red); } 100% { color: white; } }
+@keyframes pulse-gold { 0% { color: gold; } 50% { color: #fff; text-shadow: 0 0 8px gold; } 100% { color: gold; } }
 
-.pulse-cyan { animation: pulse-cyan 2s infinite; }
-.pulse-red { animation: pulse-red 2s infinite; }
-.pulse-gold { animation: pulse-gold 2s infinite; }
+.pulse-cyan { animation: pulse-cyan 2.5s infinite; }
+.pulse-red { animation: pulse-red 2.5s infinite; }
+.pulse-gold { animation: pulse-gold 2.5s infinite; }
+
+/* Foco visible para navegación con teclado (accesibilidad, no rompe nada visual con mouse) */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+}
 
 /* ==========================================
    FONDOS DE VIDEO E IMAGEN
@@ -105,8 +121,9 @@ body {
 }
 
 .nav-logo {
-    font-size: 1.8rem;
-    font-weight: 900;
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-shadow: 0 0 10px var(--blue);
@@ -128,6 +145,7 @@ body {
     font-weight: 700;
     font-size: 0.9rem;
     text-transform: uppercase;
+    white-space: nowrap;
     transition: color 0.3s, text-shadow 0.3s;
 }
 
@@ -251,15 +269,23 @@ body {
     text-align: left;
 }
 
+.title-main {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
 .section {
     padding: 60px 0;
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .section-head {
+    font-family: var(--font-heading);
     font-size: 2.2rem;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 30px;
     border-left: 5px solid var(--blue);
     padding-left: 15px;
@@ -454,8 +480,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .price {
-    font-size: 2rem;
-    font-weight: 900;
+    font-family: var(--font-heading);
+    font-size: 2.1rem;
+    font-weight: 700;
     color: var(--blue);
     margin: 15px 0;
 }
@@ -671,6 +698,89 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ==========================================
+   NUEVO: DIFERENCIACIÓN VISUAL POR SECCIÓN
+   (usa los IDs que YA existen en tu HTML, no
+   requiere tocar index.html ni app.js)
+========================================= */
+#lista-torneos .container-glass {
+    border-left: 4px solid var(--blue);
+}
+
+#lista-ligas .container-glass {
+    border-left: 4px solid gold;
+}
+
+#lista-productos-nexus .container-glass,
+#catalogo-tienda .container-glass {
+    border-left: 4px solid #00ffff;
+}
+
+#podio-leyendas .container-glass {
+    border-left: none; /* el podio ya tiene su propia identidad de color por rango */
+}
+
+/* ==========================================
+   NUEVO: SKELETON LOADERS
+   Clases listas para usar el día que actualicemos
+   app.js para reemplazar los textos "Cargando..."
+   por bloques animados. No se activan solas.
+========================================= */
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.05) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 6px;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.skeleton-line {
+    height: 14px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.skeleton-line.short {
+    width: 40%;
+}
+
+.skeleton-card {
+    height: 180px;
+    width: 100%;
+    border-radius: 12px;
+}
+
+.skeleton-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+/* ==========================================
+   NUEVO: SCROLLBAR PERSONALIZADA
+   (Chrome/Edge/Safari; navegadores que no lo
+   soporten simplemente usan la scrollbar normal)
+========================================= */
+.chat-frame,
+#ranking-dinamico,
+.modal-box {
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue) rgba(0,0,0,0.4);
+}
+
+.modal-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+    background: var(--blue);
+    border-radius: 10px;
+}
+
+/* ==========================================
    RESPONSIVE (MÓVILES)
 ========================================= */
 @media (max-width: 900px) {
@@ -689,9 +799,26 @@ input:focus, select:focus, textarea:focus {
         gap: 15px;
     }
     
+    /* NUEVO: en vez de que el menú se parta en 3-4 líneas apretadas,
+       se convierte en una tira horizontal deslizable, como hacen la
+       mayoría de apps de torneos en mobile. No se pierde ningún link,
+       solo cambia cómo se acomodan. */
     .menu {
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+    }
+
+    .menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .menu li {
+        flex-shrink: 0;
     }
 
     .form-row {
