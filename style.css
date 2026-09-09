@@ -222,6 +222,73 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ==========================================
+   NUEVO: MENÚ AGRUPADO (Competir / Comunidad / Tienda)
+   Solo actúa como dropdown en escritorio. En mobile
+   estos grupos se "desarman" (ver media query abajo)
+   y vuelven a verse como una lista plana, igual que antes.
+========================================= */
+.nav-group {
+    position: relative;
+}
+
+.nav-group-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.nav-group-label i {
+    font-size: 0.7rem;
+    transition: transform 0.25s ease;
+}
+
+.nav-group-label:hover {
+    color: var(--blue);
+    text-shadow: 0 0 8px var(--blue);
+}
+
+.nav-group:hover .nav-group-label i {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 30px;
+    left: -15px;
+    min-width: 190px;
+    background: var(--dark-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 8px 0;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-lift);
+    z-index: 1001;
+    list-style: none;
+}
+
+.nav-group:hover .nav-dropdown {
+    display: flex;
+}
+
+.nav-dropdown li a {
+    display: block;
+    padding: 10px 18px;
+}
+
+.nav-dropdown li a:hover {
+    background: rgba(0, 210, 255, 0.08);
+}
+
+/* ==========================================
    TICKER (ALERTA GLOBAL)
 ========================================= */
 .ticker-wrap {
@@ -819,6 +886,18 @@ input:focus, select:focus, textarea:focus {
 
     .menu li {
         flex-shrink: 0;
+    }
+
+    /* En mobile no hay hover, así que el dropdown no tendría cómo abrirse.
+       En vez de eso, "desarmamos" el grupo: sus hijos pasan a ser parte
+       directa de la tira horizontal, igual que en la versión anterior. */
+    .nav-group,
+    .nav-dropdown {
+        display: contents;
+    }
+
+    .nav-group-label {
+        display: none;
     }
 
     .form-row {
