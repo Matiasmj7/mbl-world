@@ -121,12 +121,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-family: var(--font-heading);
     font-size: 1.9rem;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
     text-shadow: 0 0 10px var(--blue);
+}
+
+.nav-logo-img {
+    height: 38px;
+    width: 38px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(0,210,255,0.5));
 }
 
 .nav-logo .accent {
