@@ -277,6 +277,46 @@ async function actualizarEloJugador(nick, eloRival, gane) {
     });
 }
 
+// Actualiza el ELO de un clan directamente (el id del doc en Firestore
+// ES el nombre del clan, así que no hace falta query, a diferencia del
+// ELO individual que busca por campo 'nick').
+async function actualizarEloClan(nombreClan, eloRival, gane) {
+    const ref = db.collection('clanes').doc(nombreClan);
+    await db.runTransaction(async (t) => {
+        const doc = await t.get(ref);
+        if (!doc.exists) return;
+        const eloActual = doc.data().elo || ELO_INICIAL;
+        const nuevoElo = calcularNuevoElo(eloActual, eloRival, gane);
+        t.update(ref, { elo: nuevoElo });
+    });
+}
+
+async function obtenerEloClan(nombreClan) {
+    const doc = await db.collection('clanes').doc(nombreClan).get();
+    return doc.exists ? (doc.data().elo || ELO_INICIAL) : null;
+}
+
+// Si el "equipo" que jugó un partido de torneo coincide en nombre con un
+// clan persistente registrado en la aldea, movemos el ELO de ese clan
+// también (1 vs 1 entre clanes, sin promediar). Si el equipo no coincide
+// con ningún clan (fue armado solo para ese torneo), simplemente no pasa
+// nada — no hay clan al que actualizarle nada.
+async function actualizarEloClanesSiCorresponde(nombreEquipoGanador, nombreEquipoPerdedor) {
+    const eloClanGanador = await obtenerEloClan(nombreEquipoGanador);
+    const eloClanPerdedor = await obtenerEloClan(nombreEquipoPerdedor);
+
+    if (eloClanGanador !== null && eloClanPerdedor !== null) {
+        // Ambos equipos son clanes registrados: se miden entre sí.
+        await actualizarEloClan(nombreEquipoGanador, eloClanPerdedor, true);
+        await actualizarEloClan(nombreEquipoPerdedor, eloClanGanador, false);
+    } else if (eloClanGanador !== null) {
+        // Solo el ganador es un clan: se mide contra un rival "genérico" (1200).
+        await actualizarEloClan(nombreEquipoGanador, ELO_INICIAL, true);
+    } else if (eloClanPerdedor !== null) {
+        await actualizarEloClan(nombreEquipoPerdedor, ELO_INICIAL, false);
+    }
+}
+
 // ==========================================
 // MERCADO (CATÁLOGO)
 // ==========================================
@@ -2103,6 +2143,7 @@ window.abrirModalClan = function() {
             if(doc.exists) {
                 const data = doc.data();
                 document.getElementById('clan-xp-display').innerText = data.xp || 0;
+                document.getElementById('clan-elo-display').innerText = data.elo || ELO_INICIAL;
                 const lista = document.getElementById('lista-miembros-clan');
                 lista.innerHTML = "";
                 data.miembros.forEach(m => {
@@ -2128,6 +2169,7 @@ window.crearClan = function() {
                 nombre: nombreClan,
                 miembros: [currentUserName],
                 xp: 0,
+                elo: ELO_INICIAL,
                 lider: currentUserName
             }).then(() => {
                 db.collection('ninjas').doc(currentUserId).update({ clan: nombreClan });
@@ -2182,7 +2224,7 @@ function cargarTopClanes() {
 
             listaClanes.innerHTML += `
                 <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.5); margin-bottom: 5px; border-radius: 5px; border-left: 3px solid ${colorRank};">
-                    <span style="font-weight: bold; color: ${colorRank};">${index + 1}. ${data.nombre}</span>
+                    <span style="font-weight: bold; color: ${colorRank};">${index + 1}. ${data.nombre} <span style="color:#ff4d4d; font-size:0.75rem; font-weight:normal;">(${data.elo || ELO_INICIAL} ELO)</span></span>
                     <span style="color: gold; font-weight: bold;">${data.xp} XP</span>
                 </div>
             `;
@@ -2960,6 +3002,13 @@ window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
 
         for (const nick of nicksGanador) await actualizarEloJugador(nick, eloPromPerdedor, true);
         for (const nick of nicksPerdedor) await actualizarEloJugador(nick, eloPromGanador, false);
+
+        // 3) ELO de clanes: si el equipo ganador y/o perdedor coincide en
+        //    nombre con un clan persistente, ese clan también mueve su ELO.
+        //    Solo aplica a formatos de equipo, un 1v1 no tiene clanes en juego.
+        if (torneoData.formato !== '1v1') {
+            await actualizarEloClanesSiCorresponde(ganadorName, perdedorName);
+        }
     }
 };
 
