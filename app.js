@@ -170,6 +170,18 @@ function generarFilaAdminPartidoHTML(torneoId, partido, partidoId, mostrarRonda)
     `;
 }
 
+// Suma 1 a "torneosJugados" (participación, no victorias) cada vez que un
+// ninja se inscribe a un torneo o liga, sin importar cómo se haya inscrito.
+async function sumarTorneoJugado(nick) {
+    if (!nick) return;
+    const ninjaSnap = await db.collection('ninjas').where('nick', '==', nick).get();
+    if (!ninjaSnap.empty) {
+        ninjaSnap.docs[0].ref.update({
+            torneosJugados: firebase.firestore.FieldValue.increment(1)
+        });
+    }
+}
+
 // ==========================================
 // CONFIGURACIÓN FIREBASE Y VARIABLES GLOBALES
 // ==========================================
@@ -1380,7 +1392,10 @@ window.unirseTorneo = function(torneoId, estado) {
             }
             doc.ref.update({
                 lista_inscriptos: firebase.firestore.FieldValue.arrayUnion(currentUserName)
-            }).then(() => alert("¡Te has inscrito con éxito!"));
+            }).then(() => {
+                alert("¡Te has inscrito con éxito!");
+                sumarTorneoJugado(currentUserName);
+            });
         } else {
             abrirModalEquipos(torneoId, data.formato);
         }
@@ -1513,6 +1528,7 @@ window.unirseEquipoTorneo = function(torneoId, nombreEq, equiposYaCargados = nul
         if (actualizado) {
             db.collection('torneos').doc(torneoId).update({ lista_equipos: equipos }).then(() => {
                 alert(`¡Te has unido exitosamente a la escuadra ${nombreEq}!`);
+                sumarTorneoJugado(currentUserName);
             });
         } else {
             alert("No se pudo unir. Puede que la escuadra ya esté llena.");
@@ -2103,13 +2119,14 @@ function cargarTopIndividualBingo() {
             const pg = data.partidasGanadas || 0;
             const pp = pj - pg;
             const winrate = pj > 0 ? Math.round((pg / pj) * 100) : 0;
+            const torneosJugados = data.torneosJugados || 0;
             
             lista.innerHTML += `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
                     <div>
                         <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
                         <div style="font-size: 0.72rem; color: #999; margin-top: 3px;">
-                            ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR
+                            ${torneosJugados} Torneos · ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR
                         </div>
                     </div>
                     <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
@@ -2272,6 +2289,7 @@ window.inscribirJugadorManual = function() {
             }
             doc.ref.update({ lista_equipos: equipos });
         }
+        sumarTorneoJugado(nick);
         alert("El jugador ha sido inscrito manualmente.");
         document.getElementById('input-inscribir-manual').value = "";
         if(document.getElementById('input-equipo-manual')) {
