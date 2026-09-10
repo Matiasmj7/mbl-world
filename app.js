@@ -1280,18 +1280,22 @@ window.filtrarTorneos = function(filtro, evento) {
 function cargarTorneosDesdeNube() {
     const listaTorneos = document.getElementById('lista-torneos');
     const listaLigas = document.getElementById('lista-ligas');
+    const listaAgenda = document.getElementById('lista-agenda-proximos');
     
     if(!listaTorneos || !listaLigas) return;
     mostrarSkeleton(listaTorneos, 'card', 3);
     mostrarSkeleton(listaLigas, 'card', 2);
+    if (listaAgenda) mostrarSkeleton(listaAgenda, 'card', 3);
     
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         listaTorneos.innerHTML = '';
         listaLigas.innerHTML = '';
+        const eventos = [];
         
         snap.forEach(doc => {
             const data = doc.data();
             const id = doc.id;
+            eventos.push({ id, ...data });
             
             if (data.tipo === 'liga') {
                 listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true);
@@ -1301,7 +1305,50 @@ function cargarTorneosDesdeNube() {
                 }
             }
         });
+
+        renderizarAgendaProximos(eventos);
     });
+}
+
+function obtenerFechaEvento(evento) {
+    if (!evento.fechaISO) return null;
+    const fecha = new Date(evento.fechaISO);
+    return Number.isNaN(fecha.getTime()) ? null : fecha;
+}
+
+function formatearFechaEvento(evento) {
+    const fecha = obtenerFechaEvento(evento);
+    if (!fecha) return evento.fecha || 'Por definir';
+    return new Intl.DateTimeFormat('es-AR', {
+        weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+    }).format(fecha);
+}
+
+function renderizarAgendaProximos(eventos) {
+    const listaAgenda = document.getElementById('lista-agenda-proximos');
+    if (!listaAgenda) return;
+
+    const ahora = new Date();
+    const limite = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const proximos = eventos
+        .map(evento => ({ evento, fecha: obtenerFechaEvento(evento) }))
+        .filter(({ evento, fecha }) => fecha && fecha >= ahora && fecha <= limite && evento.estado !== 'finalizado')
+        .sort((a, b) => a.fecha - b.fecha);
+
+    if (proximos.length === 0) {
+        listaAgenda.innerHTML = "<p style='color:#888; text-align:center; grid-column:1 / -1;'>No hay eventos fechados para los próximos 7 días.</p>";
+        return;
+    }
+
+    listaAgenda.innerHTML = proximos.map(({ evento, fecha }) => `
+        <article class="agenda-evento container-glass">
+            <div class="agenda-fecha"><span style="font-size:1.25rem; display:block;">${fecha.getDate()}</span><span style="font-size:0.72rem; text-transform:uppercase;">${fecha.toLocaleDateString('es-AR', { month: 'short' })}</span></div>
+            <div>
+                <strong style="color:white; display:block; margin-bottom:4px;">${evento.nombre}</strong>
+                <span style="color:#aaa; font-size:0.82rem;"><i class="fas fa-clock"></i> ${fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} · ${evento.formato.toUpperCase()}</span>
+            </div>
+        </article>
+    `).join('');
 }
 
 function generarTarjetaEventoHTML(data, id, esLiga) {
@@ -1310,13 +1357,19 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     const cuposTotales = data.cuposTotales || 0;
     
     let yaInscrito = false;
+    let participanteCheckIn = null;
     
     if (esIndividual) {
         yaInscrito = data.lista_inscriptos && data.lista_inscriptos.includes(currentUserName);
+        if (yaInscrito) participanteCheckIn = currentUserName;
     } else {
         if (data.lista_equipos) {
             data.lista_equipos.forEach(eq => {
-                if(eq.miembros && eq.miembros.includes(currentUserName)) yaInscrito = true;
+                if(eq.miembros && eq.miembros.includes(currentUserName)) {
+                    yaInscrito = true;
+                    const capitan = eq.capitan || eq.miembros[0];
+                    if (capitan === currentUserName) participanteCheckIn = eq.nombre;
+                }
             });
         }
     }
@@ -1338,6 +1391,26 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     }
 
     const bordeColor = esLiga ? 'gold' : 'var(--blue)';
+    const requiereCheckIn = data.requiereCheckIn === true;
+    const checkIns = data.checkIns || [];
+    const yaHizoCheckIn = participanteCheckIn && checkIns.includes(participanteCheckIn);
+    let checkInHtml = '';
+
+    if (requiereCheckIn) {
+        if (data.estado !== 'abierto') {
+            checkInHtml = `<p style="font-size:0.75rem; color:#888; margin:0 0 12px;"><i class="fas fa-clipboard-check"></i> Check-in cerrado: ${checkIns.length} confirmado(s).</p>`;
+        } else if (!data.checkInAbierto) {
+            checkInHtml = `<p style="font-size:0.75rem; color:#888; margin:0 0 12px;"><i class="fas fa-clipboard-check"></i> Check-in pendiente de apertura por el organizador.</p>`;
+        } else if (yaHizoCheckIn) {
+            checkInHtml = `<p style="font-size:0.78rem; color:var(--green); font-weight:bold; margin:0 0 12px;"><i class="fas fa-check-circle"></i> Check-in confirmado.</p>`;
+        } else if (participanteCheckIn) {
+            checkInHtml = `<button class="btn-secondary" style="width:100%; margin:0 0 12px; padding:8px; border-color:var(--green); color:var(--green);" onclick="confirmarCheckIn('${id}')"><i class="fas fa-clipboard-check"></i> CONFIRMAR CHECK-IN</button>`;
+        } else if (yaInscrito) {
+            checkInHtml = `<p style="font-size:0.75rem; color:#aaa; margin:0 0 12px;"><i class="fas fa-user-shield"></i> El capitán debe confirmar el check-in del equipo.</p>`;
+        } else {
+            checkInHtml = `<p style="font-size:0.75rem; color:#aaa; margin:0 0 12px;"><i class="fas fa-clipboard-check"></i> Se requiere check-in para jugar.</p>`;
+        }
+    }
 
     return `
         <div class="card-t container-glass glow-hover" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
@@ -1353,10 +1426,11 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
             <h3 style="margin-bottom: 15px; font-size:1.3rem; line-height:1.2;">${data.nombre}</h3>
             
             <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${data.fecha || 'Por definir'}</p>
+                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${formatearFechaEvento(data)}</p>
                 <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-users" style="color:var(--blue); width:20px;"></i> Cupos: <strong>${inscritos}</strong> / ${cuposTotales}</p>
                 <p style="font-size:0.85rem; color:#ccc; margin-bottom:0;"><i class="fas fa-trophy" style="color:gold; width:20px;"></i> Premio: <strong style="color:var(--green);">${data.premio || 'Gloria'}</strong></p>
             </div>
+            ${checkInHtml}
             
             <div style="display: flex; gap: 8px; margin-top: auto;">
                 <button class="btn-primary" style="flex: 2; background: ${yaInscrito ? 'var(--green)' : 'var(--blue)'}; color: black; font-size:0.8rem; padding:10px 5px;" 
@@ -1371,6 +1445,31 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
         </div>
     `;
 }
+
+window.confirmarCheckIn = async function(torneoId) {
+    if (currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
+
+    const torneoRef = db.collection('torneos').doc(torneoId);
+    const torneoSnap = await torneoRef.get();
+    if (!torneoSnap.exists) return;
+    const torneo = torneoSnap.data();
+    if (torneo.estado !== 'abierto' || !torneo.requiereCheckIn || !torneo.checkInAbierto) {
+        return alert("El check-in no está abierto para este evento.");
+    }
+
+    let participante = null;
+    if (torneo.formato === '1v1') {
+        if ((torneo.lista_inscriptos || []).includes(currentUserName)) participante = currentUserName;
+    } else {
+        const equipo = (torneo.lista_equipos || []).find(eq => eq.miembros && eq.miembros.includes(currentUserName));
+        const capitan = equipo && (equipo.capitan || equipo.miembros[0]);
+        if (equipo && capitan === currentUserName) participante = equipo.nombre;
+    }
+
+    if (!participante) return alert("Debes estar inscripto; en equipos, el check-in lo confirma el capitán.");
+    await torneoRef.update({ checkIns: firebase.firestore.FieldValue.arrayUnion(participante) });
+    alert("¡Check-in confirmado! Ya quedaste listo para los cruces.");
+};
 
 // ==========================================
 // FUNCIONES DE INSCRIPCIÓN Y EQUIPOS
@@ -1476,6 +1575,7 @@ window.crearEquipoTorneo = function() {
         equipos.push({
             nombre: nombreEquipo,
             pass: passEquipo,
+            capitan: currentUserName,
             miembros: [currentUserName]
         });
 
@@ -2307,6 +2407,7 @@ function configurarAdminForms() {
             db.collection('torneos').add({
                 nombre: document.getElementById('t-nombre').value,
                 fecha: document.getElementById('t-fecha').value,
+                fechaISO: document.getElementById('t-fecha').value || null,
                 cuposTotales: parseInt(document.getElementById('t-cupos').value),
                 premio: document.getElementById('t-premio').value,
                 formato: document.getElementById('t-formato').value,
@@ -2315,6 +2416,9 @@ function configurarAdminForms() {
                 creador: currentUserName,
                 lista_inscriptos: [],
                 lista_equipos: [],
+                requiereCheckIn: document.getElementById('t-requiere-checkin').checked,
+                checkInAbierto: false,
+                checkIns: [],
                 estado: "abierto",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
@@ -2427,9 +2531,15 @@ function cargarTorneosParaAdminLlaves() {
             let accionHtml = "";
 
             if (data.estado === 'abierto') {
+                const requiereCheckIn = data.requiereCheckIn === true;
+                const checkInActivo = data.checkInAbierto === true;
+                const checkInBoton = requiereCheckIn
+                    ? `<button class="btn-secondary" style="border-color: var(--green); color: var(--green); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="alternarCheckIn('${doc.id}', ${checkInActivo})"><i class="fas fa-clipboard-check"></i> ${checkInActivo ? 'CERRAR' : 'ABRIR'} CHECK-IN</button>`
+                    : '';
                 accionHtml = `
                     <button class="btn-secondary" style="border-color: var(--purple); color: var(--purple); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirGestionInscritos('${doc.id}', '${data.formato}', '${data.nombre}')"><i class="fas fa-users-cog"></i> GESTIONAR INSCRITOS</button>
                     <button class="btn-secondary" style="border-color: var(--blue); color: var(--blue); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')"><i class="fas fa-user-plus"></i> AÑADIR</button>
+                    ${checkInBoton}
                     <button class="btn-primary" style="background:var(--blue); color:black; padding: 5px 10px; font-size: 0.8rem;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES</button>
                 `;
             } else if (data.estado === 'iniciado') {
@@ -2493,6 +2603,12 @@ window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
     });
 };
 
+window.alternarCheckIn = async function(torneoId, estaAbierto) {
+    const accion = estaAbierto ? 'cerrar' : 'abrir';
+    if (!confirm(`¿Deseas ${accion} el check-in de este evento?`)) return;
+    await db.collection('torneos').doc(torneoId).update({ checkInAbierto: !estaAbierto });
+};
+
 window.eliminarInscrito = function(torneoId, tipo, nombre) {
     if(!confirm(`⚠️ ¿Estás completamente seguro de eliminar a ${nombre} del torneo?`)) return;
 
@@ -2523,6 +2639,14 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
         participantes = data.lista_inscriptos || [];
     } else {
         participantes = (data.lista_equipos || []).map(eq => eq.nombre);
+    }
+
+    if (data.requiereCheckIn === true) {
+        const confirmados = data.checkIns || [];
+        participantes = participantes.filter(participante => confirmados.includes(participante));
+        if (participantes.length < 2) {
+            return alert(`Solo hay ${participantes.length} participante(s) con check-in confirmado. Abre el check-in o espera más confirmaciones antes de generar los cruces.`);
+        }
     }
 
     if (participantes.length < 2) return alert("Se necesitan al menos 2 participantes para generar combates.");
@@ -2561,7 +2685,7 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
         batch.set(nuevoDoc, partido);
     });
 
-    batch.update(torneoRef, { estado: "iniciado", campeon: "" });
+    batch.update(torneoRef, { estado: "iniciado", campeon: "", checkInAbierto: false });
     await batch.commit();
 
     alert("¡Los cruces han sido forjados! El torneo ha comenzado.");
@@ -2950,3 +3074,4 @@ window.abrirNotificaciones = function(e) {
 // ==========================================
 window.cerrarModalPerfil = function(e) { if(e) e.preventDefault(); history.back(); };
 window.cerrarSesion = function() { auth.signOut().then(() => window.location.reload()); };
+
