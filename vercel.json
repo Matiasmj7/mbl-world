@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/torneo/:id",
+      "destination": "/api/torneo?id=:id"
+    }
+  ]
+}
