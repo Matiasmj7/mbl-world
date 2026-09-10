@@ -219,6 +219,65 @@ let nexusCBU = "0000003100021643816388";
 let nexusTitular = "Bruno Jaramillo";
 
 // ==========================================
+// MOTOR ELO / MMR (individual)
+// ==========================================
+// Fórmula Elo estándar (la misma que usa ajedrez/LoL/CS a alto nivel):
+// - Cada jugador arranca en ELO_INICIAL.
+// - Antes del partido se calcula el "esperado" de cada lado según la
+//   diferencia de ELO. Si le ganás a alguien con más ELO que vos, tu
+//   "esperado" era bajo -> ganás más puntos. Si le ganás a alguien con
+//   menos ELO, tu esperado ya era alto -> ganás pocos puntos.
+// - ELO_K controla cuánto se mueve el número por partido (32 es un
+//   estándar razonable; más alto = más volátil, más bajo = más estable).
+const ELO_INICIAL = 1200;
+const ELO_K = 32;
+
+function calcularNuevoElo(miElo, eloRival, gane) {
+    const esperado = 1 / (1 + Math.pow(10, (eloRival - miElo) / 400));
+    const resultado = gane ? 1 : 0;
+    return Math.round(miElo + ELO_K * (resultado - esperado));
+}
+
+// Para partidos de equipo (2v2/3v3/5v5) no hay todavía un ELO de equipo
+// separado (eso es la Fase 2 - ELO de equipos/clanes). Mientras tanto,
+// cada jugador individual se enfrenta "contra el promedio de ELO del
+// equipo rival", así el mecanismo de "ganarle a más fuertes da más
+// puntos" también aplica en formatos por equipo.
+async function obtenerEloPromedioEquipo(nicks) {
+    let total = 0, count = 0;
+    for (const nick of nicks) {
+        const snap = await db.collection('ninjas').where('nick', '==', nick).get();
+        if (!snap.empty) {
+            total += snap.docs[0].data().elo || ELO_INICIAL;
+            count++;
+        }
+    }
+    return count > 0 ? total / count : ELO_INICIAL;
+}
+
+// Usa una transacción para evitar condiciones de carrera si dos partidos
+// del mismo jugador se cierran casi al mismo tiempo.
+async function actualizarEloJugador(nick, eloRival, gane) {
+    const snap = await db.collection('ninjas').where('nick', '==', nick).get();
+    if (snap.empty) return;
+    const ref = snap.docs[0].ref;
+
+    await db.runTransaction(async (t) => {
+        const doc = await t.get(ref);
+        if (!doc.exists) return;
+        const eloActual = doc.data().elo || ELO_INICIAL;
+        const nuevoElo = calcularNuevoElo(eloActual, eloRival, gane);
+        const historial = doc.data().eloHistorial || [];
+        historial.push({ fecha: Date.now(), elo: nuevoElo, delta: nuevoElo - eloActual });
+
+        t.update(ref, {
+            elo: nuevoElo,
+            eloHistorial: historial.slice(-20) // guardamos solo los últimos 20 movimientos
+        });
+    });
+}
+
+// ==========================================
 // MERCADO (CATÁLOGO)
 // ==========================================
 const CATALOGO_TIENDA = [
@@ -375,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
             db.collection('ninjas').doc(currentUserId).set({
                 nick: nuevoNick, 
                 xp: 0, 
+                elo: ELO_INICIAL,
                 ryos: 100, 
                 torneosGanados: 0, 
                 rango: "Guerrero", 
@@ -2226,7 +2286,7 @@ function cargarTopIndividualBingo() {
                     <div>
                         <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
                         <div style="font-size: 0.72rem; color: #999; margin-top: 3px;">
-                            ${torneosJugados} Torneos · ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR
+                            ${torneosJugados} Torneos · ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR · <span style="color:#ff4d4d;">${data.elo || ELO_INICIAL} ELO</span>
                         </div>
                     </div>
                     <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
@@ -2260,6 +2320,7 @@ window.abrirPerfil = async function(nickBuscado) {
             document.getElementById('perfil-nick').innerText = data.nick;
             document.getElementById('perfil-rango').innerText = rangoTexto;
             document.getElementById('perfil-xp').innerText = `${data.xp || 0} XP`;
+            document.getElementById('perfil-elo').innerText = data.elo || ELO_INICIAL;
             document.getElementById('perfil-campeonatos').innerText = data.torneosGanados || 0;
             
             document.getElementById('perfil-bio').innerText = data.bio && data.bio.trim() !== "" ? `"${data.bio}"` : '"Un guerrero rodeado de misterio..."';
@@ -2812,21 +2873,35 @@ window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
     const partido = partidoSnap.data();
     if (!partido) return;
 
+    // Guard: si este partido ya tenía un ganador cargado, no volvemos a
+    // sumar partidas ni a mover el ELO. Sin esto, corregir un resultado
+    // dos veces duplicaba las estadísticas y el ELO de todos los
+    // involucrados cada vez que un admin tocaba el botón de nuevo.
+    if (partido.ganador && partido.ganador !== "") {
+        alert("Este combate ya tenía un ganador cargado. Si fue un error, contactá a un admin para corregirlo manualmente en Firestore (no se puede recalcular el ELO automáticamente).");
+        return;
+    }
+
     await partidoRef.update({ ganador: ganadorName });
 
-    // Registramos partidas jugadas/ganadas para que se reflejen en el
-    // ranking (Top Ninjas). No aplica a los "BYE" porque nunca se jugaron.
+    // Registramos partidas jugadas/ganadas y ELO. No aplica a los "BYE"
+    // porque nunca se jugaron.
     if (partido.p2 !== "BYE") {
         const perdedorName = (ganadorName === partido.p1) ? partido.p2 : partido.p1;
         const torneoSnap = await db.collection('torneos').doc(torneoId).get();
         const torneoData = torneoSnap.data() || {};
 
-        const actualizarStats = async (nombre, gano) => {
-            let nicks = [nombre];
-            if (torneoData.formato !== '1v1') {
-                const equipo = (torneoData.lista_equipos || []).find(eq => eq.nombre === nombre);
-                nicks = (equipo && equipo.miembros) ? equipo.miembros : [];
-            }
+        const obtenerNicks = (nombre) => {
+            if (torneoData.formato === '1v1') return [nombre];
+            const equipo = (torneoData.lista_equipos || []).find(eq => eq.nombre === nombre);
+            return (equipo && equipo.miembros) ? equipo.miembros : [];
+        };
+
+        const nicksGanador = obtenerNicks(ganadorName);
+        const nicksPerdedor = obtenerNicks(perdedorName);
+
+        // 1) Contadores de partidas jugadas/ganadas (como antes).
+        const actualizarStats = async (nicks, gano) => {
             for (const nick of nicks) {
                 const ninjaSnap = await db.collection('ninjas').where('nick', '==', nick).get();
                 if (!ninjaSnap.empty) {
@@ -2837,9 +2912,17 @@ window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
                 }
             }
         };
+        await actualizarStats(nicksGanador, true);
+        await actualizarStats(nicksPerdedor, false);
 
-        await actualizarStats(ganadorName, true);
-        await actualizarStats(perdedorName, false);
+        // 2) ELO: cada lado se mide contra el ELO promedio del equipo
+        //    rival, así ganarle a un rival con más ELO que el tuyo
+        //    te da más puntos que ganarle a uno más débil.
+        const eloPromGanador = await obtenerEloPromedioEquipo(nicksGanador);
+        const eloPromPerdedor = await obtenerEloPromedioEquipo(nicksPerdedor);
+
+        for (const nick of nicksGanador) await actualizarEloJugador(nick, eloPromPerdedor, true);
+        for (const nick of nicksPerdedor) await actualizarEloJugador(nick, eloPromGanador, false);
     }
 };
 
@@ -3074,4 +3157,3 @@ window.abrirNotificaciones = function(e) {
 // ==========================================
 window.cerrarModalPerfil = function(e) { if(e) e.preventDefault(); history.back(); };
 window.cerrarSesion = function() { auth.signOut().then(() => window.location.reload()); };
-
