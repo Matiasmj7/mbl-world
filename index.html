@@ -24,6 +24,7 @@
                 <li id="menu-inicio"><a href="#inicio">Inicio</a></li>
                 <li id="menu-stream"><a href="#stream" class="pulse-red">En Vivo</a></li>
                 <li id="menu-torneos"><a href="#torneos">Torneos</a></li>
+                <li id="menu-agenda"><a href="#agenda">Agenda</a></li>
 
                 <li class="nav-group">
                     <a href="#ligas" class="nav-group-label">Competir <i class="fas fa-chevron-down"></i></a>
@@ -198,6 +199,12 @@
             <div id="lista-torneos" class="torneos-grid"></div>
         </section>
 
+        <section id="agenda" class="section fade-in">
+            <h2 class="section-head"><i class="fas fa-calendar-week"></i> Próximos 7 días</h2>
+            <p style="text-align:center; color:#888; margin-bottom:20px;">Eventos con fecha y hora confirmadas, ordenados cronológicamente.</p>
+            <div id="lista-agenda-proximos" class="agenda-grid"></div>
+        </section>
+
         <section id="registro-bingo" class="section fade-in">
             <h2 class="section-head" id="head-bingo">Libro Bingo</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
@@ -346,7 +353,7 @@
                     <form id="form-torneo" class="admin-form">
                         <div class="form-row">
                             <input type="text" id="t-nombre" placeholder="Nombre del Torneo" required>
-                            <input type="text" id="t-fecha" placeholder="Fecha/Hora (Ej: Hoy 20:00hs)">
+                            <input type="datetime-local" id="t-fecha" aria-label="Fecha y hora del torneo">
                         </div>
                         <div class="form-row">
                             <input type="number" id="t-cupos" placeholder="Cupos Totales" required>
@@ -367,6 +374,10 @@
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
                             <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> 
                             <label style="color:white;">Evento Privado (Solo invitados)</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                            <input type="checkbox" id="t-requiere-checkin" checked style="width:20px; height:20px;">
+                            <label style="color:white;">Requiere check-in antes de generar cruces</label>
                         </div>
                         <button type="submit" class="btn-save">PUBLICAR EVENTO</button>
                     </form>
@@ -815,3 +826,4 @@
     <script src="app.js?v=6.00"></script>
 </body>
 </html>
+
