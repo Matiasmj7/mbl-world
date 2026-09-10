@@ -1707,6 +1707,34 @@ window.unirseEquipoTorneo = function(torneoId, nombreEq, equiposYaCargados = nul
 // ==========================================
 // VISUALIZADOR DE LLAVES Y SALAS
 // ==========================================
+// ==========================================
+// COMPARTIR RESULTADOS (WhatsApp)
+// ==========================================
+// Arma el texto tipo "⚔️ Matias7 venció a XPlayer en la Final del
+// Torneo MBL Arg Semana 12". Si el ganador de este partido es el
+// campeón del torneo (y no es liga, que no tiene "final" única), lo
+// etiqueta como Final; si no, usa el número de ronda.
+function generarTextoCompartir(ganador, perdedor, partido, torneoNombre, torneoData) {
+    const tipoTexto = torneoData.tipo === 'liga' ? 'la Liga' : 'el Torneo';
+    let etapa = `la Ronda ${partido.ronda} de ${tipoTexto} ${torneoNombre}`;
+    if (torneoData.campeon && ganador === torneoData.campeon && torneoData.tipo !== 'liga') {
+        etapa = `la Final de ${tipoTexto} ${torneoNombre}`;
+    }
+    return `⚔️ ${ganador} venció a ${perdedor} en ${etapa}`;
+}
+
+function generarTextoCompartirCampeon(campeonNombre, torneoNombre, torneoData) {
+    const tipoTexto = torneoData.tipo === 'liga' ? 'la Liga' : 'el Torneo';
+    return `🏆 ¡${campeonNombre} es el Campeón Definitivo de ${tipoTexto} ${torneoNombre}!`;
+}
+
+// wa.me sin número de destino abre el selector de contacto/grupo de
+// WhatsApp con el texto ya cargado, listo para reenviar a cualquier lado.
+function botonCompartirWhatsapp(texto, extraStyle = '') {
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    return `<a href="${url}" target="_blank" class="btn-secondary" style="width:100%; margin-top:8px; font-size:0.75rem; padding:6px; border-color:#25D366; color:#25D366; text-decoration:none; display:block; text-align:center; ${extraStyle}"><i class="fab fa-whatsapp"></i> COMPARTIR RESULTADO</a>`;
+}
+
 window.verLlaves = function(torneoId, torneoNombre) {
     document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
     const contenedorText = document.getElementById('contenedor-llaves-texto');
@@ -1726,6 +1754,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                     <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
                     <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
                     <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${torneoData.campeon}</h1>
+                    ${botonCompartirWhatsapp(generarTextoCompartirCampeon(torneoData.campeon, torneoNombre, torneoData), 'max-width:280px; margin-left:auto; margin-right:auto;')}
                 </div>
             `;
         }
@@ -1756,6 +1785,13 @@ window.verLlaves = function(torneoId, torneoNombre) {
             let estadoTexto = partido.ganador
                 ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${partido.ganador}</span>`
                 : `<span style="color:var(--red); font-size:0.75rem;"><i class="fas fa-clock"></i> Pendiente</span>`;
+
+            let compartirHtml = "";
+            if (partido.ganador && partido.p2 !== "BYE") {
+                const perdedorPartido = (partido.ganador === partido.p1) ? partido.p2 : partido.p1;
+                const textoCompartir = generarTextoCompartir(partido.ganador, perdedorPartido, partido, torneoNombre, torneoData);
+                compartirHtml = botonCompartirWhatsapp(textoCompartir);
+            }
 
             let soyParticipante = false;
             if (torneoData.formato === '1v1') {
@@ -1797,6 +1833,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                     <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
                     ${salaHtml}
                     ${reportarHtml}
+                    ${compartirHtml}
                 </div>
             `;
         };
