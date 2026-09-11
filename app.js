@@ -3608,6 +3608,7 @@ window.solicitarPermisoNotificaciones = async function() {
 // ==========================================
 let listaHeroesGlobal = [];
 let filtroRolActual = 'Todos';
+let filtroTierActual = 'Todos';
 
 function cargarBaseDatosHeroes() {
     const contenedor = document.getElementById('contenedor-heroes-grid');
@@ -3632,9 +3633,14 @@ function renderizarHeroesGrid() {
     const textoBuscar = (document.getElementById('input-buscar-heroe')?.value || '').toLowerCase().trim();
 
     const filtrados = listaHeroesGlobal.filter(h => {
-        const coincideRol = (filtroRolActual === 'Todos' || h.rol === filtroRolActual);
-        const coincideTexto = (h.nombre.toLowerCase().includes(textoBuscar) || h.rol.toLowerCase().includes(textoBuscar));
-        return coincideRol && coincideTexto;
+        const nombreHeroe = (h.name || h.nombre || '').toLowerCase();
+        const rolHeroe = h.role || h.rol || '';
+        const tierHeroe = h.tier || 'B';
+
+        const coincideRol = (filtroRolActual === 'Todos' || rolHeroe.includes(filtroRolActual));
+        const coincideTier = (filtroTierActual === 'Todos' || tierHeroe === filtroTierActual);
+        const coincideTexto = (nombreHeroe.includes(textoBuscar) || rolHeroe.toLowerCase().includes(textoBuscar));
+        return coincideRol && coincideTier && coincideTexto;
     });
 
     if (filtrados.length === 0) {
@@ -3642,23 +3648,48 @@ function renderizarHeroesGrid() {
         return;
     }
 
-    contenedor.innerHTML = filtrados.map(h => `
-        <div class="container-glass glow-hover neon-card neon-purple" style="text-align: center; cursor: pointer; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
-            <div class="neon-card-inner" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:space-between;">
-                <div>
-                    <img src="${h.avatar}" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00f2fe; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px rgba(0,242,254,0.3);">
-                    <h3 class="hero-name-glow" style="margin-bottom: 4px;">${h.nombre}</h3>
-                    <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${h.rol}</span>
+    const tierColors = {
+        'S': '#ff0055',
+        'A': 'gold',
+        'B': '#00d2ff',
+        'C': '#39ff14',
+        'D': '#aaa'
+    };
+
+    contenedor.innerHTML = filtrados.map(h => {
+        const nombre = h.name || h.nombre;
+        const rol = h.role || h.rol;
+        const tier = h.tier || 'B';
+        const colorTier = tierColors[tier] || '#00f2fe';
+        const avatarSrc = h.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
+
+        return `
+            <div class="container-glass glow-hover neon-card neon-purple" style="text-align: center; cursor: pointer; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
+                <div class="neon-card-inner" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:space-between; position:relative;">
+                    <div style="position:absolute; top:8px; right:8px; background: rgba(0,0,0,0.8); border: 1px solid ${colorTier}; color: ${colorTier}; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">Tier ${tier}</div>
+                    <div>
+                        <img src="${avatarSrc}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random'" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid ${colorTier}; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px ${colorTier};">
+                        <h3 class="hero-name-glow" style="margin-bottom: 4px;">${nombre}</h3>
+                        <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${rol}</span>
+                    </div>
+                    <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
                 </div>
-                <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 window.filtrarHeroesRol = function(rol, e) {
     filtroRolActual = rol;
-    const botones = document.querySelectorAll('#heroes-db .btn-filter');
+    const botones = document.querySelectorAll('.btn-rol-filter');
+    botones.forEach(b => b.classList.remove('active'));
+    if (e && e.target) e.target.classList.add('active');
+    renderizarHeroesGrid();
+};
+
+window.filtrarHeroesTier = function(tier, e) {
+    filtroTierActual = tier;
+    const botones = document.querySelectorAll('.btn-tier-filter');
     botones.forEach(b => b.classList.remove('active'));
     if (e && e.target) e.target.classList.add('active');
     renderizarHeroesGrid();
@@ -3672,23 +3703,33 @@ window.abrirModalHeroe = function(heroeId) {
     const heroe = listaHeroesGlobal.find(h => h.id === heroeId);
     if (!heroe) return;
 
-    document.getElementById('heroe-modal-avatar').src = heroe.avatar;
-    document.getElementById('heroe-modal-nombre').innerText = heroe.nombre;
-    document.getElementById('heroe-modal-rol').innerText = heroe.rol;
-    document.getElementById('heroe-modal-desc').innerText = heroe.descripcion || 'Sin descripción disponible.';
+    const nombre = heroe.name || heroe.nombre;
+    const rol = heroe.role || heroe.rol;
+    const avatar = heroe.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
 
+    const avatarEl = document.getElementById('heroe-modal-avatar');
+    if (avatarEl) {
+        avatarEl.src = avatar;
+        avatarEl.onerror = () => { avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`; };
+    }
+
+    document.getElementById('heroe-modal-nombre').innerText = nombre;
+    document.getElementById('heroe-modal-rol').innerText = `${rol} (Tier ${heroe.tier || 'B'})`;
+    document.getElementById('heroe-modal-desc').innerText = heroe.descripcion || `Héroe de rol ${rol} clasificado en Tier ${heroe.tier || 'B'} en la meta competitiva actual de Mobile Legends.`;
+
+    const listaCounters = heroe.counters && heroe.counters.length > 0 ? heroe.counters : (heroe.counteredBy || []);
     const contCounters = document.getElementById('heroe-modal-counters');
     if (contCounters) {
-        contCounters.innerHTML = (heroe.counters || []).map(c => `
-            <span style="background: rgba(255, 0, 85, 0.2); border: 1px solid #ff0055; color: #ff0055; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-shield-xmark"></i> ${c}</span>
-        `).join('') || '<span style="color:#888;">N/A</span>';
+        contCounters.innerHTML = (listaCounters.length > 0)
+            ? listaCounters.map(c => `<span style="background: rgba(255, 0, 85, 0.2); border: 1px solid #ff0055; color: #ff0055; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-shield-xmark"></i> ${c}</span>`).join('')
+            : '<span style="color:#888; font-size: 0.8rem; font-style: italic;">Sin información de counters específicos registrados.</span>';
     }
 
     const contSinergias = document.getElementById('heroe-modal-sinergias');
     if (contSinergias) {
-        contSinergias.innerHTML = (heroe.sinergias || []).map(s => `
-            <span style="background: rgba(57, 255, 20, 0.2); border: 1px solid #39ff14; color: #39ff14; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-user-plus"></i> ${s}</span>
-        `).join('') || '<span style="color:#888;">N/A</span>';
+        contSinergias.innerHTML = (heroe.synergies && heroe.synergies.length > 0)
+            ? heroe.synergies.map(s => `<span style="background: rgba(57, 255, 20, 0.2); border: 1px solid #39ff14; color: #39ff14; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-user-plus"></i> ${s}</span>`).join('')
+            : '<span style="color:#888; font-size: 0.8rem; font-style: italic;">Sin información de sinergias específicas registradas.</span>';
     }
 
     document.getElementById('modal-detalle-heroe').style.display = 'flex';
