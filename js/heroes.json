@@ -1,0 +1,92 @@
+[
+  {
+    "id": "chou",
+    "nombre": "Chou",
+    "rol": "Combatiente",
+    "avatar": "https://ui-avatars.com/api/?name=Chou&background=ff0055&color=fff",
+    "descripcion": "Maestro de artes marciales con alto control de masas y movilidad excepcional.",
+    "counters": ["Franco", "Minsitthar", "Phoveus", "Khufra"],
+    "sinergias": ["Angela", "Johnson", "Saber", "Gusion"]
+  },
+  {
+    "id": "ling",
+    "nombre": "Ling",
+    "rol": "Asesino",
+    "avatar": "https://ui-avatars.com/api/?name=Ling&background=00d2ff&color=000",
+    "descripcion": "Asesino altamente móvil capaz de caminar sobre los muros y eliminar objetivos frágiles.",
+    "counters": ["Minsitthar", "Khufra", "Saber", "Eudora"],
+    "sinergias": ["Angela", "Estes", "Diggie", "Tigreal"]
+  },
+  {
+    "id": "fanny",
+    "nombre": "Fanny",
+    "rol": "Asesino",
+    "avatar": "https://ui-avatars.com/api/?name=Fanny&background=00d2ff&color=000",
+    "descripcion": "Extremadamente ágil con sus cables de acero, inflige daño masivo en rafaga.",
+    "counters": ["Minsitthar", "Khufra", "Saber", "Franco", "Eudora"],
+    "sinergias": ["Angela", "Estes", "Tigreal"]
+  },
+  {
+    "id": "faramis",
+    "nombre": "Faramis",
+    "rol": "Mago",
+    "avatar": "https://ui-avatars.com/api/?name=Faramis&background=8a2be2&color=fff",
+    "descripcion": "Mago Nigromante capaz de revivir temporalmente a sus aliados en batallas de equipo.",
+    "counters": ["Valentina", "Akai", "Chou"],
+    "sinergias": ["Gloo", "Leomord", "Atlas", "Tigreal"]
+  },
+  {
+    "id": "beatrix",
+    "nombre": "Beatrix",
+    "rol": "Tirador",
+    "avatar": "https://ui-avatars.com/api/?name=Beatrix&background=39ff14&color=000",
+    "descripcion": "Tiradora versátil con 4 armas distintas para adaparse a cualquier distancia.",
+    "counters": ["Natalia", "Chou", "Hayabusa", "Saber"],
+    "sinergias": ["Tigreal", "Atlas", "Belerick", "Lolita"]
+  },
+  {
+    "id": "tigreal",
+    "nombre": "Tigreal",
+    "rol": "Tanque",
+    "avatar": "https://ui-avatars.com/api/?name=Tigreal&background=ffcc00&color=000",
+    "descripcion": "Tanque principal con gran capacidad de iniciación y agrupar enemigos con su ultimate.",
+    "counters": ["Diggie", "Valir", "Akai", "Wanwan"],
+    "sinergias": ["Beatrix", "Guinevere", "Odette", "Pharsa"]
+  },
+  {
+    "id": "angela",
+    "nombre": "Angela",
+    "rol": "Apoyo",
+    "avatar": "https://ui-avatars.com/api/?name=Angela&background=ff00ff&color=fff",
+    "descripcion": "Soporte capaz de poseer a un aliado otorgándole un enorme escudo y curación.",
+    "counters": ["Saber", "Natalia", "Helcurt"],
+    "sinergias": ["Chou", "Ling", "Fanny", "Leomord", "Martis"]
+  },
+  {
+    "id": "hayabusa",
+    "nombre": "Hayabusa",
+    "rol": "Asesino",
+    "avatar": "https://ui-avatars.com/api/?name=Hayabusa&background=00d2ff&color=000",
+    "descripcion": "Ninja de las sombras especializado en duelos 1v1 y empuje de líneas.",
+    "counters": ["Saber", "Khufra", "Minsitthar", "Eudora"],
+    "sinergias": ["Angela", "Tigreal", "Atlas"]
+  },
+  {
+    "id": "wanwan",
+    "nombre": "Wanwan",
+    "rol": "Tirador",
+    "avatar": "https://ui-avatars.com/api/?name=Wanwan&background=39ff14&color=000",
+    "descripcion": "Tiradora ágil que salta con cada ataque básico e invulnerable al activar su ultimate.",
+    "counters": ["Phoveus", "Khufra", "Minsitthar", "Franco"],
+    "sinergias": ["Tigreal", "Atlas", "Angela"]
+  },
+  {
+    "id": "gloo",
+    "nombre": "Gloo",
+    "rol": "Tanque",
+    "avatar": "https://ui-avatars.com/api/?name=Gloo&background=ffcc00&color=000",
+    "descripcion": "Tanque pegajoso que se adhiere a los enemigos para redirigir el daño recibido.",
+    "counters": ["Vexana", "Faramis", "Valir"],
+    "sinergias": ["Angela", "Faramis", "Chang'e"]
+  }
+]
