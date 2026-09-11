@@ -957,15 +957,11 @@ function escucharPersonalizacion() {
     db.collection('configuracion').doc('personalizacion').onSnapshot(doc => {
         if(doc.exists) {
             const data = doc.data();
-            const bgVideo = document.getElementById('main-bg-video');
             const bgImage = document.getElementById('main-bg-image');
 
-            if (data.bgTipo === 'imagen') {
-                if(bgVideo) bgVideo.style.display = 'none';
-                if(bgImage) { bgImage.style.display = 'block'; bgImage.src = data.bgUrl || ''; }
-            } else {
-                if(bgImage) bgImage.style.display = 'none';
-                if(bgVideo) { bgVideo.style.display = 'block'; bgVideo.src = data.bgUrl || 'https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4'; }
+            if (bgImage) {
+                bgImage.style.display = 'block';
+                bgImage.src = data.bgUrl || '/bingo_bg.jpg';
             }
 
             if (data.colorAcento) {

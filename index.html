@@ -30,10 +30,7 @@
 </head>
 <body>
 
-    <video autoplay loop muted playsinline class="bg-video" id="main-bg-video">
-        <source src="https://raw.githubusercontent.com/Matiasmj7/mbl-world/main/bingo_bg_video.mp4" type="video/mp4">
-    </video>
-    <img src="" class="bg-video" id="main-bg-image" style="display: none; object-fit: cover;">
+    <img src="/bingo_bg.jpg" class="bg-video" id="main-bg-image" style="display: block; object-fit: cover;">
     <div class="bg-overlay"></div>
 
     <header class="main-nav">
@@ -556,7 +553,6 @@
                     <form id="form-config-personalizacion" class="admin-form">
                         <div class="form-row">
                             <select id="cfg-bg-tipo">
-                                <option value="video">Fondo de Video (.mp4)</option>
                                 <option value="imagen">Fondo de Imagen (.jpg, .png)</option>
                             </select>
                             <input type="url" id="cfg-bg-url" placeholder="URL directa del archivo" required>
