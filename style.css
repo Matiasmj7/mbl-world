@@ -12,6 +12,19 @@
     --dark-glass: rgba(10, 10, 15, 0.85);
     --border-glass: rgba(0, 210, 255, 0.3);
 
+    /* MBL ESPORTS PALETTE */
+    --bg-dark-card: #0b0e14;
+    --neon-cyan: #00d2ff;
+    --neon-cyan-glow: rgba(0, 210, 255, 0.6);
+    --neon-red: #ff0044;
+    --neon-red-glow: rgba(255, 0, 68, 0.6);
+    --neon-gold: #ffd700;
+    --neon-gold-glow: rgba(255, 215, 0, 0.6);
+    --neon-green: #00ff66;
+    --neon-green-glow: rgba(0, 255, 102, 0.6);
+    --neon-purple: #9d00ff;
+    --neon-purple-glow: rgba(157, 0, 255, 0.6);
+
     /* NUEVO: tipografía de impacto para títulos, sistema de sombras y grises con mejor contraste */
     --font-heading: 'Rajdhani', 'Montserrat', sans-serif;
     --muted: #b3b3bd;
@@ -1392,5 +1405,147 @@ input:focus, select:focus, textarea:focus {
   border-radius: 8px;
   box-shadow: 0 0 20px #00d2ff, 0 0 10px #ff0044;
   text-shadow: 0 0 8px #fff;
+}
+
+/* 1. MARCOS NEÓN GIRATORIOS */
+.neon-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 2px;
+  background: var(--bg-dark-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.neon-card:hover {
+  transform: translateY(-2px);
+}
+
+.neon-card::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  animation: rotate-neon 4s linear infinite;
+  z-index: 1;
+}
+
+.neon-card-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-dark-card);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+}
+
+@keyframes rotate-neon {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* VARIANTES DE COLOR */
+.neon-card.neon-cyan::before,
+.neon-card:not([class*="neon-"])::before {
+  background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-cyan) 270deg, #ffffff 330deg, var(--neon-cyan) 360deg);
+}
+.neon-card.neon-cyan { box-shadow: 0 0 15px var(--neon-cyan-glow); }
+
+.neon-card.neon-gold::before {
+  background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-gold) 270deg, #fff7c2 330deg, var(--neon-gold) 360deg);
+}
+.neon-card.neon-gold { box-shadow: 0 0 18px var(--neon-gold-glow); }
+
+.neon-card.neon-red::before {
+  background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-red) 270deg, #ffb3c6 330deg, var(--neon-red) 360deg);
+}
+.neon-card.neon-red { box-shadow: 0 0 15px var(--neon-red-glow); }
+
+.neon-card.neon-green::before {
+  background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-green) 270deg, #ccffdd 330deg, var(--neon-green) 360deg);
+}
+.neon-card.neon-green { box-shadow: 0 0 15px var(--neon-green-glow); }
+
+.neon-card.neon-purple::before {
+  background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-purple) 270deg, #f3ccff 330deg, var(--neon-purple) 360deg);
+}
+.neon-card.neon-purple { box-shadow: 0 0 15px var(--neon-purple-glow); }
+
+/* EXCLUSIÓN PANEL DE CREADOR */
+.creator-panel .neon-card::before,
+.creator-panel.neon-card::before,
+#admin .neon-card::before,
+#admin.neon-card::before {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 2. TÍTULOS ESPORTS */
+.mbl-section-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+  padding: 8px 24px;
+  background: linear-gradient(180deg, #151b26 0%, #080a0e 100%);
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  transform: skewX(-10deg);
+  box-shadow: -4px 0 15px var(--neon-red-glow), 4px 0 15px var(--neon-cyan-glow), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.9);
+  margin: 15px 0;
+}
+
+.mbl-section-title span {
+  transform: skewX(10deg);
+}
+
+.mbl-heading-hero {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 2.8rem;
+  text-transform: uppercase;
+  font-style: italic;
+  color: #ffffff;
+  text-align: center;
+  background: linear-gradient(180deg, #ffffff 30%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px var(--neon-cyan)) drop-shadow(0 0 25px rgba(0, 210, 255, 0.4));
+  letter-spacing: 3px;
+}
+
+/* 3. RESPLANDORES DE TEXTO */
+.player-name-glow {
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan-glow);
+}
+
+.player-name-glow.winner {
+  color: #00ff66;
+  text-shadow: 0 0 6px #00ff66, 0 0 12px var(--neon-green-glow);
+}
+
+.player-name-glow.mvp {
+  color: #ffe600;
+  text-shadow: 0 0 6px #ffe600, 0 0 14px var(--neon-gold-glow);
+}
+
+.hero-name-glow {
+  font-family: 'Impact', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 8px var(--neon-purple), 0 0 15px var(--neon-purple-glow);
 }
 
