@@ -606,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     escucharConfigNexus();
     cargarProductosNexus();
     escucharReferenciasNexus();
+    cargarBaseDatosHeroes();
 
     const formRef = document.getElementById('form-crear-referencia');
     if (formRef) {
@@ -3600,6 +3601,95 @@ window.solicitarPermisoNotificaciones = async function() {
     } catch (err) {
         console.log("Error al solicitar permiso de notificaciones:", err);
     }
+};
+
+// ==========================================
+// BASE DE DATOS DE HÉROES
+// ==========================================
+let listaHeroesGlobal = [];
+let filtroRolActual = 'Todos';
+
+function cargarBaseDatosHeroes() {
+    const contenedor = document.getElementById('contenedor-heroes-grid');
+    if (!contenedor) return;
+
+    fetch('js/heroes.json')
+        .then(res => res.json())
+        .then(data => {
+            listaHeroesGlobal = data;
+            renderizarHeroesGrid();
+        })
+        .catch(err => {
+            console.error("Error al cargar base de héroes:", err);
+            contenedor.innerHTML = "<p style='color:#ccc; text-align:center; grid-column:1/-1;'>No se pudo cargar la base de datos de héroes.</p>";
+        });
+}
+
+function renderizarHeroesGrid() {
+    const contenedor = document.getElementById('contenedor-heroes-grid');
+    if (!contenedor) return;
+
+    const textoBuscar = (document.getElementById('input-buscar-heroe')?.value || '').toLowerCase().trim();
+
+    const filtrados = listaHeroesGlobal.filter(h => {
+        const coincideRol = (filtroRolActual === 'Todos' || h.rol === filtroRolActual);
+        const coincideTexto = (h.nombre.toLowerCase().includes(textoBuscar) || h.rol.toLowerCase().includes(textoBuscar));
+        return coincideRol && coincideTexto;
+    });
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p style='color:#888; text-align:center; grid-column:1/-1;'>No se encontraron héroes para este criterio.</p>";
+        return;
+    }
+
+    contenedor.innerHTML = filtrados.map(h => `
+        <div class="container-glass glow-hover" style="text-align: center; cursor: pointer; padding: 15px; border: 1px solid #00f2fe; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
+            <div>
+                <img src="${h.avatar}" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00f2fe; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px rgba(0,242,254,0.3);">
+                <h3 style="color: white; font-size: 1.2rem; font-family: var(--font-heading); margin-bottom: 4px;">${h.nombre}</h3>
+                <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${h.rol}</span>
+            </div>
+            <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
+        </div>
+    `).join('');
+}
+
+window.filtrarHeroesRol = function(rol, e) {
+    filtroRolActual = rol;
+    const botones = document.querySelectorAll('#heroes-db .btn-filter');
+    botones.forEach(b => b.classList.remove('active'));
+    if (e && e.target) e.target.classList.add('active');
+    renderizarHeroesGrid();
+};
+
+window.filtrarHeroesVisual = function() {
+    renderizarHeroesGrid();
+};
+
+window.abrirModalHeroe = function(heroeId) {
+    const heroe = listaHeroesGlobal.find(h => h.id === heroeId);
+    if (!heroe) return;
+
+    document.getElementById('heroe-modal-avatar').src = heroe.avatar;
+    document.getElementById('heroe-modal-nombre').innerText = heroe.nombre;
+    document.getElementById('heroe-modal-rol').innerText = heroe.rol;
+    document.getElementById('heroe-modal-desc').innerText = heroe.descripcion || 'Sin descripción disponible.';
+
+    const contCounters = document.getElementById('heroe-modal-counters');
+    if (contCounters) {
+        contCounters.innerHTML = (heroe.counters || []).map(c => `
+            <span style="background: rgba(255, 0, 85, 0.2); border: 1px solid #ff0055; color: #ff0055; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-shield-xmark"></i> ${c}</span>
+        `).join('') || '<span style="color:#888;">N/A</span>';
+    }
+
+    const contSinergias = document.getElementById('heroe-modal-sinergias');
+    if (contSinergias) {
+        contSinergias.innerHTML = (heroe.sinergias || []).map(s => `
+            <span style="background: rgba(57, 255, 20, 0.2); border: 1px solid #39ff14; color: #39ff14; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-user-plus"></i> ${s}</span>
+        `).join('') || '<span style="color:#888;">N/A</span>';
+    }
+
+    document.getElementById('modal-detalle-heroe').style.display = 'flex';
 };
 
 // ==========================================

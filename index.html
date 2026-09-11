@@ -62,6 +62,7 @@
                         <li id="menu-comunidades"><a href="#comunidades" style="color: var(--purple);">Alianzas</a></li>
                         <li id="menu-sorteos"><a href="#sorteos" style="color: #ff00ff;">Sorteos</a></li>
                         <li id="menu-abismo"><a href="#abismo">Abismo</a></li>
+                        <li id="menu-heroes"><a href="#heroes-db" style="color: #00f2fe;"><i class="fas fa-shield-halved"></i> Base de Héroes</a></li>
                     </ul>
                 </li>
 
@@ -323,6 +324,29 @@
                 </form>
             </div>
             <div id="lista-abismo" class="torneos-grid"></div>
+        </section>
+
+        <!-- SECCIÓN BASE DE DATOS DE HÉROES -->
+        <section id="heroes-db" class="section fade-in" style="border: 1px solid #00f2fe; border-radius: 12px; padding: 30px 20px; background: rgba(11, 14, 20, 0.85); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);">
+            <h2 class="section-head" id="head-heroes" style="color: #00f2fe; border-left-color: #00f2fe; text-align: center;">
+                <i class="fas fa-shield-halved"></i> Base de Datos de Héroes
+            </h2>
+            <p style="text-align: center; color: #aaa; margin-bottom: 25px;">Consulta estrategias, counters e interacciones de la meta de Mobile Legends.</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
+                <input type="text" id="input-buscar-heroe" placeholder="Buscar héroe..." style="padding: 10px 15px; border-radius: 6px; width: 100%; max-width: 320px;" oninput="filtrarHeroesVisual()">
+                <button class="btn-filter active" onclick="filtrarHeroesRol('Todos', event)">Todos</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Asesino', event)">Asesino</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Combatiente', event)">Combatiente</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Tirador', event)">Tirador</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Mago', event)">Mago</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Tanque', event)">Tanque</button>
+                <button class="btn-filter" onclick="filtrarHeroesRol('Apoyo', event)">Apoyo</button>
+            </div>
+
+            <div id="contenedor-heroes-grid" class="torneos-grid">
+                <!-- Se inyectarán los héroes desde heroes.json vía app.js -->
+            </div>
         </section>
 
         <section id="gremio" class="section fade-in">
@@ -903,6 +927,32 @@
         </div>
     </div>
 
+    <!-- MODAL DETALLE DE HÉROE -->
+    <div id="modal-detalle-heroe" class="modal">
+        <div class="modal-box" style="border-color: #00f2fe; max-width: 520px; box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);">
+            <a href="#" class="btn-close" onclick="document.getElementById('modal-detalle-heroe').style.display='none';">&times;</a>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                <img id="heroe-modal-avatar" src="" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00f2fe; object-fit: cover; box-shadow: 0 0 10px #00f2fe;">
+                <div>
+                    <h2 id="heroe-modal-nombre" style="color: white; font-family: var(--font-heading); margin-bottom: 2px; font-size: 1.8rem;"></h2>
+                    <span id="heroe-modal-rol" style="background: #00f2fe; color: black; padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;"></span>
+                </div>
+            </div>
+
+            <p id="heroe-modal-desc" style="color: #ccc; font-size: 0.88rem; margin-bottom: 20px; font-style: italic; line-height: 1.4;"></p>
+
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #ff0055; margin-bottom: 10px; font-size: 1rem;"><i class="fas fa-shield-cat"></i> Counters (Débil contra)</h4>
+                <div id="heroe-modal-counters" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+
+            <div>
+                <h4 style="color: #39ff14; margin-bottom: 10px; font-size: 1rem;"><i class="fas fa-handshake"></i> Sinergias (Fuerte con)</h4>
+                <div id="heroe-modal-sinergias" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER INFORMATIVO Y DE ALIANZAS -->
     <footer style="background: rgba(5,5,8,0.98); border-top: 1px solid var(--blue); padding: 40px 20px 20px 20px; margin-top: 60px;">
         <div class="content-wrapper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; padding: 0;">
@@ -928,8 +978,9 @@
                 </div>
             </div>
         </div>
-        <div style="text-align: center; color: #666; font-size: 0.75rem; border-top: 1px solid #222; margin-top: 30px; padding-top: 15px;">
-            © 2025 MBL Arg - Todos los derechos reservados.
+        <div style="text-align: center; color: #777; font-size: 0.75rem; border-top: 1px solid #222; margin-top: 30px; padding-top: 15px; line-height: 1.5;">
+            <p style="margin-bottom: 6px;">© 2025 MBL Arg - Todos los derechos reservados.</p>
+            <p style="color: #666; font-style: italic;">Disclaimer: MBL Arg is an independent fan platform created under Moonton's Fan Content policy. Mobile Legends: Bang Bang and all related assets, logos, and heroes are trademarks or registered trademarks of Moonton Games.</p>
         </div>
     </footer>
 
