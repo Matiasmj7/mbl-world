@@ -755,13 +755,19 @@ function cargarProductosNexus() {
 
             // Renderizado Admin (sigue siendo una lista plana, no necesita acordeón)
             if(listaAdmin) {
+                const imgEsc = (data.img || '').replace(/'/g, "\\'");
+                const nomEsc = (data.nombre || '').replace(/'/g, "\\'");
+                const precEsc = (data.precio || '').replace(/'/g, "\\'");
                 listaAdmin.innerHTML += `
                     <div style="background:rgba(0,0,0,0.5); padding:10px 15px; border:1px solid #333; border-radius:5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                         <div>
                             <strong style="color:#00ffff; font-size: 1.1rem;">${data.nombre}</strong><br>
                             <span style="color:gold;">${data.precio}</span> | <span style="color:#888; font-size:0.8rem;">${data.tipo.toUpperCase()}</span>
                         </div>
-                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="borrarProductoNexus('${id}', '${data.nombre}')"><i class="fas fa-trash"></i> BORRAR</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-secondary" style="border-color:#00ffff; color:#00ffff; padding:5px 10px; font-size:0.75rem;" onclick="abrirModalEditarProductoNexus('${id}', '${nomEsc}', '${precEsc}', '${data.tipo}', '${imgEsc}')"><i class="fas fa-edit"></i> EDITAR</button>
+                            <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="borrarProductoNexus('${id}', '${nomEsc}')"><i class="fas fa-trash"></i> BORRAR</button>
+                        </div>
                     </div>
                 `;
             }
@@ -811,6 +817,15 @@ window.enviarPedidoNexus = function() {
 
     window.open(urlWa, '_blank');
     document.getElementById('modal-compra-nexus').style.display = 'none';
+};
+
+window.abrirModalEditarProductoNexus = function(id, nombre, precio, tipo, img) {
+    document.getElementById('n-edit-prod-id').value = id;
+    document.getElementById('n-edit-prod-nombre').value = nombre || "";
+    document.getElementById('n-edit-prod-precio').value = precio || "";
+    document.getElementById('n-edit-prod-tipo').value = tipo || "diamantes";
+    document.getElementById('n-edit-prod-img').value = img || "";
+    document.getElementById('modal-editar-producto-nexus').style.display = 'flex';
 };
 
 window.borrarProductoNexus = function(id, nombre) {
@@ -2740,6 +2755,32 @@ function configurarAdminForms() {
             }).then(() => {
                 document.getElementById('form-torneo').reset();
                 alert("¡Evento publicado en el tablón!");
+            });
+        });
+    }
+
+    const formEditProdNexus = document.getElementById('form-editar-producto-nexus');
+    if (formEditProdNexus) {
+        formEditProdNexus.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('n-edit-prod-id').value;
+            const nombre = document.getElementById('n-edit-prod-nombre').value.trim();
+            const precio = document.getElementById('n-edit-prod-precio').value.trim();
+            const tipo = document.getElementById('n-edit-prod-tipo').value;
+            const img = document.getElementById('n-edit-prod-img').value.trim();
+
+            if (!id || !nombre || !precio) return alert("Por favor completa los campos requeridos.");
+
+            db.collection('nexus_productos').doc(id).update({
+                nombre: nombre,
+                precio: precio,
+                tipo: tipo,
+                img: img
+            }).then(() => {
+                document.getElementById('modal-editar-producto-nexus').style.display = 'none';
+                alert("¡Producto de Nexus Store actualizado con éxito!");
+            }).catch(err => {
+                alert("Error al actualizar el producto: " + err.message);
             });
         });
     }
