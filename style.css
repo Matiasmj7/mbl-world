@@ -48,7 +48,7 @@ html {
 body {
     background-color: var(--bg-dark);
     color: white;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
 }
 
 /* ==========================================
@@ -1254,7 +1254,18 @@ input:focus, select:focus, textarea:focus {
     }
 
     input, select, textarea {
-        font-size: 16px; /* Evita que iOS / Chrome mobile haga auto-zoom al enfocar */
+        font-size: 16px !important; /* Evita el auto-zoom forzado de navegadores móviles */
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .modal-box, .container-glass, form {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     /* NUEVO: en vez de que el menú se parta en 3-4 líneas apretadas,
@@ -1302,6 +1313,30 @@ input:focus, select:focus, textarea:focus {
 
     .title-main {
         font-size: 2.5rem;
+    }
+
+    /* RESPONSIVE VERSUS (MOBIL VERTICAL) */
+    .vs-match-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .team-red {
+        width: 100%;
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        justify-content: center;
+    }
+
+    .team-blue {
+        width: 100%;
+        margin-left: 0;
+        clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+        justify-content: center;
+    }
+
+    .vs-badge {
+        position: relative;
+        margin: -12px 0;
     }
 }
 
