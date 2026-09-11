@@ -326,27 +326,38 @@
             <div id="lista-abismo" class="torneos-grid"></div>
         </section>
 
-        <!-- SECCIÓN BASE DE DATOS DE HÉROES -->
-        <section id="heroes-db" class="section fade-in" style="border: 1px solid #00f2fe; border-radius: 12px; padding: 30px 20px; background: rgba(11, 14, 20, 0.85); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);">
-            <h2 class="section-head" id="head-heroes" style="color: #00f2fe; border-left-color: #00f2fe; text-align: center;">
-                <i class="fas fa-shield-halved"></i> Base de Datos de Héroes
-            </h2>
-            <p style="text-align: center; color: #aaa; margin-bottom: 25px;">Consulta estrategias, counters e interacciones de la meta de Mobile Legends.</p>
+        <!-- SECCIÓN BASE DE DATOS DE HÉROES (COLAPSABLE) -->
+        <section id="heroes-db" class="section fade-in" style="padding: 20px 0;">
+            <details class="nexus-accordion" style="border-color: #00f2fe; background: rgba(11, 14, 20, 0.85); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);">
+                <summary class="nexus-accordion-summary" style="color: #00f2fe; font-size: 1.8rem; text-align: center; padding: 10px;">
+                    <span><i class="fas fa-shield-halved"></i> BASE DE DATOS DE HÉROES</span>
+                </summary>
+                <p style="text-align: center; color: #aaa; margin: 15px 0 25px 0;">Consulta estrategias, tiers, counters e interacciones de la meta de Mobile Legends.</p>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
-                <input type="text" id="input-buscar-heroe" placeholder="Buscar héroe..." style="padding: 10px 15px; border-radius: 6px; width: 100%; max-width: 320px;" oninput="filtrarHeroesVisual()">
-                <button class="btn-filter active" onclick="filtrarHeroesRol('Todos', event)">Todos</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Asesino', event)">Asesino</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Combatiente', event)">Combatiente</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Tirador', event)">Tirador</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Mago', event)">Mago</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Tanque', event)">Tanque</button>
-                <button class="btn-filter" onclick="filtrarHeroesRol('Apoyo', event)">Apoyo</button>
-            </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
+                    <input type="text" id="input-buscar-heroe" placeholder="Buscar héroe..." style="padding: 10px 15px; border-radius: 6px; width: 100%; max-width: 320px;" oninput="filtrarHeroesVisual()">
+                    <button class="btn-filter active btn-rol-filter" onclick="filtrarHeroesRol('Todos', event)">Todos los Roles</button>
+                    <button class="btn-filter btn-rol-filter" onclick="filtrarHeroesRol('Asesino', event)">Asesino</button>
+                    <button class="btn-filter btn-rol-filter" onclick="filtrarHeroesRol('Combatiente', event)">Combatiente</button>
+                    <button class="btn-filter btn-rol-filter" onclick="filtrarHeroesRol('Tirador', event)">Tirador</button>
+                    <button class="btn-filter btn-rol-filter" onclick="filtrarHeroesRol('Mago', event)">Mago</button>
+                    <button class="btn-filter btn-rol-filter" onclick="filtrarHeroesRol('Tanque / Apoyo', event)">Tanque / Apoyo</button>
+                </div>
 
-            <div id="contenedor-heroes-grid" class="torneos-grid">
-                <!-- Se inyectarán los héroes desde heroes.json vía app.js -->
-            </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 25px; justify-content: center; flex-wrap: wrap; align-items: center;">
+                    <span style="color: gold; font-weight: bold; font-size: 0.85rem; margin-right: 5px;"><i class="fas fa-layer-group"></i> Nivel / Tier:</span>
+                    <button class="btn-filter active btn-tier-filter" onclick="filtrarHeroesTier('Todos', event)">Todos</button>
+                    <button class="btn-filter btn-tier-filter" style="border-color: #ff0055; color: #ff0055;" onclick="filtrarHeroesTier('S', event)">Tier S</button>
+                    <button class="btn-filter btn-tier-filter" style="border-color: gold; color: gold;" onclick="filtrarHeroesTier('A', event)">Tier A</button>
+                    <button class="btn-filter btn-tier-filter" style="border-color: #00d2ff; color: #00d2ff;" onclick="filtrarHeroesTier('B', event)">Tier B</button>
+                    <button class="btn-filter btn-tier-filter" style="border-color: #39ff14; color: #39ff14;" onclick="filtrarHeroesTier('C', event)">Tier C</button>
+                    <button class="btn-filter btn-tier-filter" style="border-color: #aaa; color: #aaa;" onclick="filtrarHeroesTier('D', event)">Tier D</button>
+                </div>
+
+                <div id="contenedor-heroes-grid" class="torneos-grid">
+                    <!-- Se inyectarán los héroes desde heroes.json vía app.js -->
+                </div>
+            </details>
         </section>
 
         <section id="gremio" class="section fade-in">
