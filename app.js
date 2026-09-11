@@ -1536,7 +1536,7 @@ function cargarTorneosDesdeNube() {
             const id = doc.id;
             eventos.push({ id, ...data });
 
-            if (data.tipo === 'liga') {
+            if (data.tipo === 'liga' || data.tipo === 'liga_grupos') {
                 listaLigas.innerHTML += generarTarjetaEventoHTML(data, id, true);
             } else {
                 if (currentFilter === 'todos' || data.formato === currentFilter) {
@@ -2053,18 +2053,47 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 return;
             }
 
-            if (torneoData.tipo === 'liga') {
-                // --- LIGA: tabla de posiciones + fixture de partidos ---
+            if (torneoData.tipo === 'liga' || torneoData.tipo === 'liga_grupos') {
                 const partidosLiga = [];
                 snap.forEach(doc => partidosLiga.push({ id: doc.id, ...doc.data() }));
 
-                let html = generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
-                html += "<h4 style='color: var(--blue); margin: 10px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de Partidos</h4>";
-                html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
-                partidosLiga.forEach(partido => {
-                    html += construirFichaPartido(partido, partido.id, true);
-                });
-                html += "</div>";
+                let html = "";
+
+                if (torneoData.tipo === 'liga_grupos') {
+                    const partidosA = partidosLiga.filter(p => p.grupo === 'A');
+                    const partidosB = partidosLiga.filter(p => p.grupo === 'B');
+                    const partidoFinal = partidosLiga.find(p => p.isFinal);
+
+                    const tablaA = calcularTablaPosiciones(partidosA);
+                    const tablaB = calcularTablaPosiciones(partidosB);
+
+                    html += "<h4 style='color: gold; margin-bottom: 10px;'><i class='fas fa-trophy'></i> GRUPO A</h4>";
+                    html += generarTablaPosicionesHTML(tablaA);
+
+                    html += "<h4 style='color: #00ffff; margin: 20px 0 10px 0;'><i class='fas fa-trophy'></i> GRUPO B</h4>";
+                    html += generarTablaPosicionesHTML(tablaB);
+
+                    if (partidoFinal) {
+                        html += "<h4 style='color: #ff00ff; margin: 25px 0 15px 0; border-top: 1px solid #333; padding-top: 15px;'><i class='fas fa-crown'></i> GRAN FINAL</h4>";
+                        html += construirFichaPartido(partidoFinal, partidoFinal.id, true);
+                    }
+
+                    html += "<h4 style='color: var(--blue); margin: 25px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de la Fase de Grupos</h4>";
+                    html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
+                    partidosLiga.filter(p => !p.isFinal).forEach(partido => {
+                        html += construirFichaPartido(partido, partido.id, true);
+                    });
+                    html += "</div>";
+                } else {
+                    html += generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
+                    html += "<h4 style='color: var(--blue); margin: 10px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de Partidos</h4>";
+                    html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
+                    partidosLiga.forEach(partido => {
+                        html += construirFichaPartido(partido, partido.id, true);
+                    });
+                    html += "</div>";
+                }
+
                 contenedorText.innerHTML = html;
                 return;
             }
@@ -3010,7 +3039,30 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
 
     const partidos = [];
 
-    if (data.tipo === 'liga') {
+    if (data.tipo === 'liga_grupos') {
+        // LIGA POR GRUPOS: Dividir participantes en Grupo A y Grupo B
+        const sorteados = participantes.sort(() => Math.random() - 0.5);
+        const mitad = Math.ceil(sorteados.length / 2);
+        const grupoA = sorteados.slice(0, mitad);
+        const grupoB = sorteados.slice(mitad);
+
+        // Partidos Grupo A
+        for (let i = 0; i < grupoA.length; i++) {
+            for (let j = i + 1; j < grupoA.length; j++) {
+                partidos.push({ p1: grupoA[i], p2: grupoA[j], ganador: "", ronda: 1, grupo: 'A' });
+            }
+        }
+
+        // Partidos Grupo B
+        for (let i = 0; i < grupoB.length; i++) {
+            for (let j = i + 1; j < grupoB.length; j++) {
+                partidos.push({ p1: grupoB[i], p2: grupoB[j], ganador: "", ronda: 1, grupo: 'B' });
+            }
+        }
+
+        // Partido de la Gran Final (Líder Grupo A vs Líder Grupo B)
+        partidos.push({ p1: "Líder Grupo A", p2: "Líder Grupo B", ganador: "", ronda: 2, isFinal: true });
+    } else if (data.tipo === 'liga') {
         // LIGA: todos contra todos, un único partido por cada par posible.
         // No hay "rondas" de eliminación — todos los cruces se cargan de una,
         // y la clasificación se calcula sola con la tabla de posiciones.
@@ -3064,7 +3116,8 @@ window.abrirAdminPartidos = async function(torneoId, torneoNombre, creador, form
 
     // Necesitamos saber si es Liga o Torneo para decidir cómo mostrar los partidos.
     const torneoSnap = await db.collection('torneos').doc(torneoId).get();
-    const esLiga = (torneoSnap.data() || {}).tipo === 'liga';
+    const tipoEvento = (torneoSnap.data() || {}).tipo;
+    const esLiga = tipoEvento === 'liga' || tipoEvento === 'liga_grupos';
 
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
         const contenedor = document.getElementById('contenedor-admin-partidos');
@@ -3077,30 +3130,76 @@ window.abrirAdminPartidos = async function(torneoId, torneoNombre, creador, form
         }
 
         if (esLiga) {
-            // --- MODO LIGA: tabla de posiciones + lista plana de partidos ---
             const partidosLiga = [];
             snap.forEach(doc => partidosLiga.push({ id: doc.id, ...doc.data() }));
 
-            contenedor.innerHTML += generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
+            if (tipoEvento === 'liga_grupos') {
+                const partidosA = partidosLiga.filter(p => p.grupo === 'A');
+                const partidosB = partidosLiga.filter(p => p.grupo === 'B');
+                const partidoFinal = partidosLiga.find(p => p.isFinal);
 
-            partidosLiga.forEach(partido => {
-                contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partido, partido.id, false);
-            });
+                const tablaA = calcularTablaPosiciones(partidosA);
+                const tablaB = calcularTablaPosiciones(partidosB);
 
-            // En Liga no hay "siguiente ronda": el Kage corona manualmente
-            // al líder de la tabla una vez que están todos los resultados.
-            const tabla = calcularTablaPosiciones(partidosLiga);
-            const lider = tabla[0];
-            const faltanResultados = partidosLiga.some(p => !p.ganador);
+                const liderA = tablaA[0]?.nombre;
+                const liderB = tablaB[0]?.nombre;
 
-            if (lider && !faltanResultados) {
-                btnSiguienteRonda.style.display = 'block';
-                btnSiguienteRonda.innerText = `CORONAR A ${lider.nombre} COMO CAMPEÓN (1° en la tabla)`;
-                btnSiguienteRonda.style.background = 'gold';
-                btnSiguienteRonda.style.color = 'black';
-                btnSiguienteRonda.onclick = () => declararCampeon(torneoId, lider.nombre);
+                const faltanA = partidosA.some(p => !p.ganador);
+                const faltanB = partidosB.some(p => !p.ganador);
+
+                // Si se jugaron todos los partidos de los grupos, actualizar finalistas
+                if (partidoFinal && liderA && liderB && !faltanA && !faltanB && (partidoFinal.p1 !== liderA || partidoFinal.p2 !== liderB)) {
+                    db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoFinal.id).update({
+                        p1: liderA,
+                        p2: liderB
+                    });
+                }
+
+                contenedor.innerHTML += "<h4 style='color: gold; margin-bottom: 10px;'><i class='fas fa-trophy'></i> GRUPO A</h4>";
+                contenedor.innerHTML += generarTablaPosicionesHTML(tablaA);
+
+                contenedor.innerHTML += "<h4 style='color: #00ffff; margin: 20px 0 10px 0;'><i class='fas fa-trophy'></i> GRUPO B</h4>";
+                contenedor.innerHTML += generarTablaPosicionesHTML(tablaB);
+
+                if (partidoFinal) {
+                    contenedor.innerHTML += "<h4 style='color: #ff00ff; margin: 25px 0 15px 0; border-top: 1px solid #333; padding-top: 15px;'><i class='fas fa-crown'></i> GRAN FINAL</h4>";
+                    contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partidoFinal, partidoFinal.id, false);
+                }
+
+                contenedor.innerHTML += "<h4 style='color: var(--blue); margin: 25px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de la Fase de Grupos</h4>";
+                partidosLiga.filter(p => !p.isFinal).forEach(partido => {
+                    contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partido, partido.id, false);
+                });
+
+                if (partidoFinal && partidoFinal.ganador) {
+                    btnSiguienteRonda.style.display = 'block';
+                    btnSiguienteRonda.innerText = `CORONAR A ${partidoFinal.ganador} COMO CAMPEÓN DE LA LIGA`;
+                    btnSiguienteRonda.style.background = 'gold';
+                    btnSiguienteRonda.style.color = 'black';
+                    btnSiguienteRonda.onclick = () => declararCampeon(torneoId, partidoFinal.ganador);
+                } else {
+                    btnSiguienteRonda.style.display = 'none';
+                }
             } else {
-                btnSiguienteRonda.style.display = 'none';
+                contenedor.innerHTML += generarTablaPosicionesHTML(calcularTablaPosiciones(partidosLiga));
+
+                partidosLiga.forEach(partido => {
+                    contenedor.innerHTML += generarFilaAdminPartidoHTML(torneoId, partido, partido.id, false);
+                });
+
+                const tabla = calcularTablaPosiciones(partidosLiga);
+                const lider = tabla[0];
+                const faltanResultados = partidosLiga.some(p => !p.ganador);
+
+                if (lider && !faltanResultados) {
+                    btnSiguienteRonda.style.display = 'block';
+                    btnSiguienteRonda.innerText = `CORONAR A ${lider.nombre} COMO CAMPEÓN (1° en la tabla)`;
+                    btnSiguienteRonda.style.background = 'gold';
+                    btnSiguienteRonda.style.color = 'black';
+                    btnSiguienteRonda.onclick = () => declararCampeon(torneoId, lider.nombre);
+                } else {
+                    btnSiguienteRonda.style.display = 'none';
+                }
             }
             return;
         }
