@@ -1213,16 +1213,9 @@ input:focus, select:focus, textarea:focus {
         transform: translateZ(0);
     }
 
-    /* DESACTIVAR ROTACIÓN PESADA EN DÍAMANTES / TIENDA MÓVIL (ALIGERAR GPU) */
-    #nexus-store .neon-card::before,
-    #nexus-store .neon-card::after {
-        display: none !important;
-        animation: none !important;
-    }
-
-    #nexus-store .neon-card {
-        border: 2px solid #00f2fe !important;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.6) !important;
+    /* DESACTIVAR ROTACIÓN DE .neon-card EN MOBILE (MANTENER GRADIENTE ESTÁTICO) */
+    .neon-card::before {
+        animation: none;
     }
 
     .torneos-grid, .agenda-grid {
