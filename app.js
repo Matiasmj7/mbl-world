@@ -1073,6 +1073,7 @@ function cargarSorteos() {
         }
 
         const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+        const esOrganizador = esAdmin || miPlan === 'jonin' || miPlan === 'kasekage';
 
         snap.forEach(doc => {
             const data = doc.data();
@@ -1095,10 +1096,10 @@ function cargarSorteos() {
             }
 
             let adminHTML = "";
-            if (esAdmin) {
+            if (esOrganizador) {
                 if (data.estado === 'abierto') {
                     adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
-                } else {
+                } else if (esAdmin || data.creador === currentUserName) {
                     adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:var(--red); color:white; border:none;" onclick="borrarSorteo('${id}', '${data.premio}')"><i class="fas fa-trash"></i> BORRAR SORTEO</button>`;
                 }
             }
@@ -2033,14 +2034,18 @@ window.verLlaves = function(torneoId, torneoNombre) {
             const fotoP2 = fotosPorNick[partido.p2] ? `<img src="${fotosPorNick[partido.p2]}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;">` : "";
 
             return `
-                <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''}">
-                    <div class="${p1Clase}">${fotoP1}${partido.p1}</div>
-                    <div class="bracket-vs-divider"></div>
-                    <div class="${p2Clase}">${fotoP2}${partido.p2}</div>
-                    <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
-                    ${salaHtml}
-                    ${reportarHtml}
-                    ${compartirHtml}
+                <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''} neon-card">
+                    <div class="neon-card-content">
+                        <div class="vs-match-container">
+                            <div class="team-red ${p1Clase}">${fotoP1}${partido.p1}</div>
+                            <div class="vs-badge">VS</div>
+                            <div class="team-blue ${p2Clase}">${fotoP2}${partido.p2}</div>
+                        </div>
+                        <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
+                        ${salaHtml}
+                        ${reportarHtml}
+                        ${compartirHtml}
+                    </div>
                 </div>
             `;
         };
@@ -3501,6 +3506,7 @@ if (formSorteoAdmin) {
             estado: 'abierto',
             participantes: [],
             ganadores: [],
+            creador: currentUserName,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
             alert("¡Sorteo Mágico lanzado a la comunidad!");

@@ -427,6 +427,18 @@
                         <button type="submit" class="btn-save">PUBLICAR EVENTO</button>
                     </form>
 
+                    <h3 style="margin: 35px 0 15px 0; color:#ff00ff; border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-gift"></i> Lanzar Sorteo Mágico</h3>
+                    <form id="form-crear-sorteo" class="admin-form" style="border-color:#ff00ff;">
+                        <div class="form-row">
+                            <input type="text" id="s-premio" placeholder="¿Qué se sortea?" required>
+                            <input type="number" id="s-precio" placeholder="Costo de Entrada (0 para Gratis)" required>
+                        </div>
+                        <div class="form-row">
+                            <input type="number" id="s-ganadores" placeholder="Cantidad de Ganadores" required>
+                            <button type="submit" class="btn-primary" style="background: #ff00ff; color: white;">LANZAR SORTEO</button>
+                        </div>
+                    </form>
+
                     <h3 style="margin: 35px 0 15px 0; color: var(--red); border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-trash-alt"></i> Purgar Catálogo de Eventos</h3>
                     <p style="color: #888; font-size: 0.85rem; margin-bottom: 15px;">Elimina torneos finalizados o mal creados. Esta acción no se puede deshacer.</p>
                     <div id="admin-lista-borrar-torneos" style="display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed var(--red);"></div>
@@ -457,18 +469,6 @@
                         </div>
                         <input type="url" id="discord-url-admin" placeholder="URL de WidgetBot Discord" style="width:100%; margin-bottom:10px;">
                         <button type="submit" class="btn-primary" style="background: var(--red); color: white;">ACTUALIZAR SEÑAL GLOBAL</button>
-                    </form>
-
-                    <h3 style="margin: 30px 0 15px 0; color:#ff00ff;">Generar Sorteo Mágico</h3>
-                    <form id="form-crear-sorteo" class="admin-form">
-                        <div class="form-row">
-                            <input type="text" id="s-premio" placeholder="¿Qué se sortea?" required>
-                            <input type="number" id="s-precio" placeholder="Costo de Entrada (0 para Gratis)" required>
-                        </div>
-                        <div class="form-row">
-                            <input type="number" id="s-ganadores" placeholder="Cantidad de Ganadores" required>
-                            <button type="submit" class="btn-primary" style="background: #ff00ff; color: white;">LANZAR SORTEO</button>
-                        </div>
                     </form>
 
                     <h3 style="margin: 35px 0 15px 0; color: gold; border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-history"></i> Reinicio de Temporada (Libro Bingo)</h3>
