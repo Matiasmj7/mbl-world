@@ -646,7 +646,7 @@ function escucharReferenciasNexus() {
             cont.innerHTML += `
                 <div style="background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 5px; border-left: 3px solid #00ffff; font-size: 0.85rem;">
                     <div style="display:flex; justify-content:space-between; margin-bottom: 3px;">
-                        <strong style="color:white;">${data.usuario}</strong>
+                        <strong class="player-name-glow">${data.usuario}</strong>
                         <span>${estrellas}</span>
                     </div>
                     <p style="color:#ccc; margin:0;">"${data.comentario}"</p>
@@ -1616,21 +1616,22 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     }
 
     let btnTexto = esIndividual ? "UNIRSE AL COMBATE" : "VER ESCUADRAS";
-    let statusClass = "status-open";
+    let statusClass = "status-badge-glow abierto";
     let statusTexto = "ABIERTO";
 
     if (data.estado === 'iniciado') {
         btnTexto = "EVENTO EN CURSO";
-        statusClass = "status-progress";
+        statusClass = "status-badge-glow en-curso";
         statusTexto = "EN CURSO";
     } else if (data.estado === 'finalizado') {
         btnTexto = "EVENTO CERRADO";
-        statusClass = "status-closed";
+        statusClass = "status-badge-glow finalizado";
         statusTexto = "FINALIZADO";
     } else if (yaInscrito) {
         btnTexto = "YA ESTÁS INSCRIPTO";
     }
 
+    let neonVariant = esLiga ? "neon-gold" : (data.estado === 'finalizado' ? "neon-red" : "neon-cyan");
     const bordeColor = esLiga ? 'gold' : 'var(--blue)';
     const requiereCheckIn = data.requiereCheckIn === true;
     const checkIns = data.checkIns || [];
@@ -1661,34 +1662,36 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     }
 
     return `
-        <div class="card-t container-glass glow-hover" style="${esLiga ? 'border-color: gold !important;' : ''} position:relative; overflow:hidden;">
-            ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
+        <div class="card-t container-glass glow-hover neon-card ${neonVariant}" style="position:relative; overflow:hidden; padding: 2px;">
+            <div class="neon-card-inner" style="display:flex; flex-direction:column; height:100%;">
+                ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
-                    ${data.formato.toUpperCase()}
-                </span>
-                <span class="${statusClass}" style="font-size:0.75rem; font-weight:bold;">${statusTexto}</span>
-            </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                    <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
+                        ${data.formato.toUpperCase()}
+                    </span>
+                    <span class="${statusClass}">${statusTexto}</span>
+                </div>
 
-            <h3 style="margin-bottom: 15px; font-size:1.3rem; line-height:1.2;">${data.nombre}</h3>
+                <h3 style="margin-bottom: 15px; font-size:1.3rem; line-height:1.2;">${data.nombre}</h3>
 
-            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${formatearFechaEvento(data)}</p>
-                <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-users" style="color:var(--blue); width:20px;"></i> Cupos: <strong>${inscritos}</strong> / ${cuposTotales}</p>
-                <p style="font-size:0.85rem; color:#ccc; margin-bottom:0;"><i class="fas fa-trophy" style="color:gold; width:20px;"></i> Premio: <strong style="color:var(--green);">${data.premio || 'Gloria'}</strong></p>
-            </div>
-            ${checkInHtml}
+                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                    <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-calendar-alt" style="color:var(--blue); width:20px;"></i> ${formatearFechaEvento(data)}</p>
+                    <p style="font-size:0.85rem; color:#ccc; margin-bottom:5px;"><i class="fas fa-users" style="color:var(--blue); width:20px;"></i> Cupos: <strong class="stat-highlight cyan">${inscritos}</strong> / ${cuposTotales}</p>
+                    <p style="font-size:0.85rem; color:#ccc; margin-bottom:0;"><i class="fas fa-trophy" style="color:gold; width:20px;"></i> Premio: <strong class="stat-highlight green">${data.premio || 'Gloria'}</strong></p>
+                </div>
+                ${checkInHtml}
 
-            <div style="display: flex; gap: 8px; margin-top: auto;">
-                <button class="btn-primary" style="flex: 2; background: ${yaInscrito ? 'var(--green)' : 'var(--blue)'}; color: black; font-size:0.8rem; padding:10px 5px;"
-                        onclick="unirseTorneo('${id}', '${data.estado}')"
-                        ${data.estado !== 'abierto' || yaInscrito ? 'disabled' : ''}>
-                    ${btnTexto}
-                </button>
-                <button class="btn-secondary" style="flex: 1.2; font-size:0.8rem; padding:10px 5px;" onclick="verLlaves('${id}', '${data.nombre}')">
-                    ${esLiga ? '<i class="fas fa-list-ol"></i> RANKING LIGA' : 'CRUCES'}
-                </button>
+                <div style="display: flex; gap: 8px; margin-top: auto;">
+                    <button class="btn-primary" style="flex: 2; background: ${yaInscrito ? 'var(--green)' : 'var(--blue)'}; color: black; font-size:0.8rem; padding:10px 5px;"
+                            onclick="unirseTorneo('${id}', '${data.estado}')"
+                            ${data.estado !== 'abierto' || yaInscrito ? 'disabled' : ''}>
+                        ${btnTexto}
+                    </button>
+                    <button class="btn-secondary" style="flex: 1.2; font-size:0.8rem; padding:10px 5px;" onclick="verLlaves('${id}', '${data.nombre}')">
+                        ${esLiga ? '<i class="fas fa-list-ol"></i> RANKING LIGA' : 'CRUCES'}
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -2562,15 +2565,19 @@ function cargarTopIndividualBingo() {
             const winrate = pj > 0 ? Math.round((pg / pj) * 100) : 0;
             const torneosJugados = data.torneosJugados || 0;
 
+            let rankClass = "player-name-glow";
+            if (posicion === 1) rankClass = "rank-top-1";
+            else if (posicion === 2 || posicion === 3) rankClass = "rank-top-2";
+
             lista.innerHTML += `
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
+                <div class="ranking-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
                     <div>
-                        <span style="font-weight: bold; color: ${colorPos};">${posicion}. ${data.nick}</span>
+                        <span class="${rankClass}">${posicion}. ${data.nick}</span>
                         <div style="font-size: 0.72rem; color: #999; margin-top: 3px;">
-                            ${torneosJugados} Torneos · ${pj} PJ · <span style="color: var(--green);">${pg} PG</span> · <span style="color: var(--red);">${pp} PP</span> · ${winrate}% WR · <span style="color:#ff4d4d;">${data.elo || ELO_INICIAL} ELO</span>
+                            ${torneosJugados} Torneos · ${pj} PJ · <span class="stat-highlight green">${pg} PG</span> · <span class="stat-highlight red">${pp} PP</span> · <span class="stat-highlight cyan">${winrate}% WR</span> · <span class="stat-highlight red">${data.elo || ELO_INICIAL} ELO</span>
                         </div>
                     </div>
-                    <span style="color: gold; font-weight: bold;">${data.xp || 0} XP</span>
+                    <span class="stat-highlight gold">${data.xp || 0} XP</span>
                 </div>
             `;
             posicion++;
