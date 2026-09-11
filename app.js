@@ -1684,8 +1684,8 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
                         ${data.estado !== 'abierto' || yaInscrito ? 'disabled' : ''}>
                     ${btnTexto}
                 </button>
-                <button class="btn-secondary" style="flex: 1; font-size:0.8rem; padding:10px 5px;" onclick="verLlaves('${id}', '${data.nombre}')">
-                    CRUCES
+                <button class="btn-secondary" style="flex: 1.2; font-size:0.8rem; padding:10px 5px;" onclick="verLlaves('${id}', '${data.nombre}')">
+                    ${esLiga ? '<i class="fas fa-list-ol"></i> RANKING LIGA' : 'CRUCES'}
                 </button>
             </div>
         </div>
