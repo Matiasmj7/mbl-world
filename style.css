@@ -1167,9 +1167,81 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+
+    .content-wrapper {
+        padding: 12px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     .main-nav {
+        padding: 12px 15px;
         flex-direction: column;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        width: 100%;
+    }
+
+    .nav-logo {
+        font-size: 1.5rem;
+    }
+
+    .nav-logo-img {
+        height: 30px;
+        width: 30px;
+    }
+
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-box {
+        padding: 20px 15px;
+        max-height: 92vh;
+        width: 96%;
+    }
+
+    .torneos-grid, .agenda-grid {
+        grid-template-columns: 1fr;
         gap: 15px;
+    }
+
+    .podium-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .podium-spot {
+        width: 100%;
+        max-width: 280px;
+        height: auto !important;
+        border-radius: 10px;
+        border-bottom: 1px solid #333;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-actions .btn-primary,
+    .hero-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .section-head {
+        font-size: 1.6rem;
+    }
+
+    input, select, textarea {
+        font-size: 16px; /* Evita que iOS / Chrome mobile haga auto-zoom al enfocar */
     }
     
     /* NUEVO: en vez de que el menú se parta en 3-4 líneas apretadas,
