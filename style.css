@@ -1218,6 +1218,29 @@ input:focus, select:focus, textarea:focus {
         animation: none;
     }
 
+    /* REDUCIR BACKDROP-FILTER EN MOBILE (REEMPLAZAR BLUR Y COMPENSAR OPACIDAD +0.05) */
+    .main-nav {
+        background: rgba(5, 5, 8, 1);
+        backdrop-filter: none;
+    }
+
+    .user-popover,
+    .nav-dropdown,
+    .container-glass {
+        background: rgba(10, 10, 15, 0.9);
+        backdrop-filter: none;
+    }
+
+    .card-t {
+        background: rgba(5, 5, 8, 0.9);
+        backdrop-filter: none;
+    }
+
+    .modal {
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: none;
+    }
+
     .torneos-grid, .agenda-grid {
         grid-template-columns: 1fr;
         gap: 15px;
