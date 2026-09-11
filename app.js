@@ -1984,10 +1984,10 @@ window.verLlaves = function(torneoId, torneoNombre) {
         // Arma la ficha de un partido (usada tanto por el bracket de Torneo
         // como por el fixture de Liga, para no repetir la lógica dos veces).
         const construirFichaPartido = (partido, partidoId, sinConector) => {
-            let p1Clase = "bracket-player";
-            let p2Clase = "bracket-player";
-            if (partido.ganador === partido.p1) p1Clase += " ganador";
-            if (partido.ganador === partido.p2) p2Clase += " ganador";
+            let p1Clase = "bracket-player player-name-glow";
+            let p2Clase = "bracket-player player-name-glow";
+            if (partido.ganador === partido.p1) p1Clase += " winner";
+            if (partido.ganador === partido.p2) p2Clase += " winner";
             if (partido.ganador && partido.ganador !== partido.p1) p1Clase += " perdedor";
             if (partido.ganador && partido.ganador !== partido.p2) p2Clase += " perdedor";
 
@@ -3643,13 +3643,15 @@ function renderizarHeroesGrid() {
     }
 
     contenedor.innerHTML = filtrados.map(h => `
-        <div class="container-glass glow-hover" style="text-align: center; cursor: pointer; padding: 15px; border: 1px solid #00f2fe; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
-            <div>
-                <img src="${h.avatar}" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00f2fe; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px rgba(0,242,254,0.3);">
-                <h3 style="color: white; font-size: 1.2rem; font-family: var(--font-heading); margin-bottom: 4px;">${h.nombre}</h3>
-                <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${h.rol}</span>
+        <div class="container-glass glow-hover neon-card neon-purple" style="text-align: center; cursor: pointer; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
+            <div class="neon-card-inner" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:space-between;">
+                <div>
+                    <img src="${h.avatar}" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00f2fe; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px rgba(0,242,254,0.3);">
+                    <h3 class="hero-name-glow" style="margin-bottom: 4px;">${h.nombre}</h3>
+                    <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${h.rol}</span>
+                </div>
+                <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
             </div>
-            <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
         </div>
     `).join('');
 }
