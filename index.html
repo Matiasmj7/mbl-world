@@ -26,7 +26,7 @@
     <meta name="twitter:image" content="https://TU-DOMINIO-AQUI.com/logo-mblarg.png.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=6.00"> 
+    <link rel="stylesheet" href="style.css?v=6.00">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
         </nav>
         <div class="auth-zone">
             <a href="#modal-notificaciones" id="btn-notif" style="display:none; color: gold; margin-right: 15px; text-decoration: none; position: relative;" onclick="abrirNotificaciones(event)">
-                <i class="fas fa-bell"></i> 
+                <i class="fas fa-bell"></i>
                 <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-10px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%;">0</span>
             </a>
             <a href="#modal-login" class="btn-auth" id="user-display">Ingresar</a>
@@ -110,14 +110,31 @@
         <section id="nexus-store" class="section fade-in" style="position: relative; overflow: hidden; border-radius: 15px; padding: 40px 20px; border: 1px solid #00ffff; box-shadow: 0 0 20px rgba(0,255,255,0.2);">
             <img id="nexus-bg-image" src="" style="display:none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.3;">
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(5,5,8,0.4) 0%, rgba(5,5,8,0.95) 100%); z-index: -1;"></div>
-            
+
             <h2 class="section-head" id="head-nexus" style="color: #00ffff; border: none; text-align: center; font-size: 2.8rem; text-shadow: 0 0 15px #00ffff; margin-bottom: 10px;">
                 <i class="fas fa-bolt"></i> NEXUS STORE
             </h2>
             <p style="text-align: center; color: #ccc; margin-bottom: 30px; font-size: 1.1rem; font-weight: bold;">Tienda oficial aliada. Recargas 100% seguras y entrega inmediata.</p>
-            
+
             <div id="lista-productos-nexus" class="torneos-grid">
                 <!-- Los productos se inyectarán aquí vía JavaScript -->
+            </div>
+
+            <!-- REFERENCIAS Y RESEÑAS DE LA TIENDA -->
+            <div style="margin-top: 35px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; border: 1px dashed #00ffff;">
+                <h3 style="color: #00ffff; margin-bottom: 10px; font-size: 1.2rem;"><i class="fas fa-star" style="color: gold;"></i> Referencias y Calificaciones</h3>
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Opiniones reales de jugadores que recargaron en Nexus Store.</p>
+                <div id="lista-referencias-nexus" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+
+                <form id="form-crear-referencia" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="ref-puntos" style="padding: 8px; background: #000; border: 1px solid #333; color: gold; font-weight: bold;">
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                        <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                        <option value="3">⭐⭐⭐ (3/5)</option>
+                    </select>
+                    <input type="text" id="ref-comentario" placeholder="Escribe tu opinión sobre el servicio..." required style="flex: 1; padding: 8px;">
+                    <button type="submit" class="btn-primary" style="background: #00ffff; color: black; font-size: 0.85rem; padding: 8px 15px;">PUBLICAR RESEÑA</button>
+                </form>
             </div>
         </section>
 
@@ -161,7 +178,7 @@
         <section id="planes" class="section fade-in">
             <h2 class="section-head" id="head-planes" style="color: var(--green); border-left-color: var(--green);">Pases de Batalla</h2>
             <div class="torneos-grid">
-                
+
                 <div class="container-glass plan-card glow-hover" style="border-top: 4px solid #cd7f32;">
                     <h3>Genin</h3>
                     <div class="price">Gratis</div>
@@ -228,12 +245,20 @@
             <h2 class="section-head" id="head-bingo">Libro Bingo</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 <div class="container-glass glow-hover" style="text-align: center;">
-                    <h3>Tu Identidad Ninja</h3>
-                    <div style="margin: 20px 0; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; border: 1px solid var(--blue);">
-                        <h4 id="mi-nick-bingo" style="color:var(--blue); font-size:1.5rem;">Inicia sesión</h4>
-                        <p id="mi-rango-bingo" style="color:#aaa; font-style:italic;">Guerrero</p>
-                        <h1 style="color: gold; margin: 15px 0;" id="mi-xp-bingo">0 XP</h1>
-                        <h3 style="color: var(--green);" id="mi-ryos-bingo"><i class="fas fa-gem"></i> 0 Diamantes</h3>
+                    <h3><i class="fas fa-id-card" style="color:var(--blue);"></i> Tu Identidad Ninja</h3>
+                    <div style="margin: 20px 0; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px; border: 1px solid var(--blue); position:relative;">
+                        <img id="mi-avatar-bingo" src="https://ui-avatars.com/api/?name=Ninja&background=random" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blue); margin-bottom: 10px; box-shadow: 0 0 15px rgba(0,210,255,0.4);">
+                        <h4 id="mi-nick-bingo" style="color:var(--blue); font-size:1.6rem; font-family: var(--font-heading); letter-spacing: 1px;">Inicia sesión</h4>
+                        <p id="mi-rango-bingo" style="color:#aaa; font-style:italic; font-size:0.9rem; margin-bottom: 10px;">Guerrero</p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
+                            <div><strong style="color:gold; font-size:1.1rem;" id="mi-xp-bingo">0 XP</strong><br><small style="color:#888;">Experiencia</small></div>
+                            <div><strong style="color:#ff4d4d; font-size:1.1rem;" id="mi-elo-bingo">1200 ELO</strong><br><small style="color:#888;">Nivel MMR</small></div>
+                            <div><strong style="color:var(--green); font-size:1.1rem;" id="mi-stats-bingo">0 PJ / 0 PG</strong><br><small style="color:#888;">Partidas</small></div>
+                            <div><strong style="color:#00ffff; font-size:1.1rem;" id="mi-winrate-bingo">0% WR</strong><br><small style="color:#888;">Efectividad</small></div>
+                        </div>
+
+                        <h3 style="color: var(--green); margin-top: 10px;" id="mi-ryos-bingo"><i class="fas fa-gem"></i> 0 Diamantes</h3>
                     </div>
                 </div>
                 <div class="container-glass glow-hover">
@@ -251,7 +276,7 @@
                     <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Crea una alianza para tener un chat privado y reclutar miembros.</p>
                     <input type="text" id="input-crear-comunidad" placeholder="Nombre de tu Alianza" style="width:100%; margin-bottom:10px;">
                     <button class="btn-primary" style="width:100%; background: var(--purple); color: white; margin-bottom:20px;" onclick="crearComunidad()">FUNDAR ALIANZA</button>
-                    
+
                     <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-sign-in-alt"></i> Unirse a Alianza</h3>
                     <input type="text" id="input-unirse-comunidad" placeholder="Nombre de Alianza Existente" style="width:100%; margin-bottom:10px;">
                     <button class="btn-secondary" style="width:100%; border-color: var(--purple); color: var(--purple);" onclick="unirseComunidad()">UNIRSE A ALIANZA</button>
@@ -262,14 +287,14 @@
                         <h3 style="color: var(--purple);"><i class="fas fa-users"></i> <span id="nombre-mi-comunidad">Mi Comunidad</span></h3>
                         <button id="btn-abandonar-comunidad" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; border-color: var(--red); color: var(--red);" onclick="abandonarComunidad()">Abandonar</button>
                     </div>
-                    
+
                     <div id="kage-comunidad-selector-container" style="display: none; margin-bottom: 15px; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 5px; border: 1px solid gold;">
                         <label style="color: gold; font-size: 0.8rem; display: block; margin-bottom: 5px;">Modo Kage (Espiar Alianzas)</label>
                         <select id="kage-comunidad-selector" style="width: 100%; padding: 8px; background: #000; border: 1px solid gold; color: gold; border-radius: 4px;" onchange="cambiarChatComunidadKage()"></select>
                     </div>
 
                     <div id="chat-comunidad-container" style="height: 250px; overflow-y: auto; background: #050508; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;"></div>
-                    
+
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="chat-input-comunidad" placeholder="Mensaje a tu Alianza..." style="flex: 1;">
                         <button class="btn-primary" style="background: var(--purple); color: white;" onclick="enviarMensajeComunidad()"><i class="fas fa-paper-plane"></i></button>
@@ -305,7 +330,7 @@
             <div style="text-align: center; margin-bottom: 30px;">
                 <button class="btn-primary" onclick="abrirModalClan()"><i class="fas fa-shield-alt"></i> MI ESCUADRÓN</button>
             </div>
-            
+
             <div class="torneos-grid">
                 <div class="container-glass glow-hover">
                     <h3 style="color:gold;"><i class="fas fa-trophy"></i> Top Escuadrones</h3>
@@ -348,7 +373,7 @@
                     <div class="price">240 Diamantes</div>
                     <a href="#modal-pago-ryos" class="btn-primary" onclick="document.getElementById('info-pago-ryos').innerText='Pack: 240 Diamantes'">COMPRAR PACK</a>
                 </div>
-                
+
                 <div id="catalogo-tienda" style="display: contents;"></div>
             </div>
         </section>
@@ -356,7 +381,7 @@
         <section id="admin" class="section fade-in" style="display: none;">
             <h2 class="section-head" id="titulo-panel-admin" style="color: var(--red);"><i class="fas fa-fire"></i> Sistema Kage Supremo</h2>
             <div class="container-glass">
-                
+
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn-filter active" onclick="mostrarTabAdmin('tab-torneos')">Eventos</button>
                     <button class="btn-filter" onclick="mostrarTabAdmin('tab-llaves-admin')">Mis Llaves</button>
@@ -391,7 +416,7 @@
                             </select>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
-                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;"> 
+                            <input type="checkbox" id="t-privado" style="width:20px; height:20px;">
                             <label style="color:white;">Evento Privado (Solo invitados)</label>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
@@ -417,7 +442,7 @@
                         <input type="text" id="input-ticker" placeholder="Mensaje urgente para la aldea..." required style="flex:1;">
                         <button type="submit" class="btn-primary">Lanzar Alerta</button>
                     </form>
-                    
+
                     <h3 style="margin: 25px 0 15px 0; color:var(--blue);">Transmisión Dinámica</h3>
                     <form id="form-config-stream" class="admin-form">
                         <div class="form-row">
@@ -471,6 +496,7 @@
                             <button class="btn-secondary" onclick="gestionarPlan('jonin')">Otorgar Jonin</button>
                             <button class="btn-secondary" style="color: gold; border-color: gold;" onclick="gestionarPlan('kasekage')">Otorgar Kasekage</button>
                             <button class="btn-secondary" onclick="gestionarPlan('genin')">Revertir a Genin</button>
+                            <button class="btn-secondary" style="color: #00ffff; border-color: #00ffff;" onclick="concederAccesoNexusManager()"><i class="fas fa-bolt"></i> Otorgar Manager Nexus</button>
                             <button class="btn-secondary" style="background: var(--red); color: white; border-color: var(--red);" onclick="banearUsuario()">Expulsar (Ban)</button>
                         </div>
                     </div>
@@ -524,7 +550,7 @@
                 <!-- PESTAÑA DE GESTIÓN NEXUS STORE -->
                 <div id="tab-nexus" class="admin-only" style="display: none;">
                     <h3 style="margin-bottom: 15px; color:#00ffff;"><i class="fas fa-bolt"></i> Panel de Control Nexus Store</h3>
-                    
+
                     <form id="form-config-nexus" class="admin-form" style="border-color: #00ffff;">
                         <h4 style="color: white; margin-bottom: 10px; font-size: 0.9rem;">Datos del Cajero y Fondo</h4>
                         <div class="form-row">
@@ -568,10 +594,10 @@
         <div class="modal-box" style="border-color: #00ffff; text-align: center; max-width: 450px; box-shadow: 0 0 25px rgba(0,255,255,0.3);">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-compra-nexus').style.display='none';">&times;</a>
             <h3 style="color: #00ffff; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-shopping-cart"></i> Completar Pedido</h3>
-            
+
             <p id="nexus-producto-desc" style="color: white; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;"></p>
             <p id="nexus-producto-precio" style="color: gold; font-size: 1.1rem; margin-bottom: 20px;"></p>
-            
+
             <!-- CAJA BANCARIA COPIABLE -->
             <div style="background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; border: 1px dashed #00ffff; margin-bottom: 20px; text-align: left;">
                 <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 5px;">Titular de la cuenta: <strong id="nexus-display-titular" style="color: white;">Cargando...</strong></p>
@@ -588,7 +614,7 @@
 
             <input type="hidden" id="nexus-item-name">
             <input type="hidden" id="nexus-item-price">
-            
+
             <div style="text-align: left; margin-bottom: 15px;">
                 <label style="color: #aaa; font-size: 0.85rem; font-weight: bold;">ID de Jugador (Obligatorio)</label>
                 <input type="number" id="nexus-player-id" placeholder="Ej: 12345678" style="width: 100%; margin-top: 5px; padding: 12px; font-size: 1.1rem;" required>
@@ -618,7 +644,7 @@
         <div class="modal-box">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
             <h3 style="text-align:center; margin-bottom: 20px;">ACCESO A LA ARENA</h3>
-            
+
             <div id="login-normal-section">
                 <input type="text" id="login-email-falso" placeholder="Nombre de Usuario" style="width:100%; margin-bottom:10px; padding: 10px; background: #111; border: 1px solid #333; color: white;">
                 <input type="password" id="login-pass" placeholder="Contraseña" style="width:100%; margin-bottom:15px; padding: 10px; background: #111; border: 1px solid #333; color: white;">
@@ -635,17 +661,17 @@
             </div>
 
             <div style="text-align:center; color:#555; border-top:1px solid #222; padding-top:15px; margin-top:5px; font-size:0.8rem;">O CONTINÚA CON REDES SOCIALES</div>
-            
+
             <button class="btn-google" id="login-google" style="margin-top:10px; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; background: white; color: black; border: none; font-size: 1rem;">
                 <i class="fab fa-google" style="color: #4285F4;"></i> Continuar con Google
             </button>
-            
+
             <button class="btn-google" id="login-facebook" style="margin-top:10px; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; background: #1877F2; color: white; border: none; font-size: 1rem;">
                 <i class="fab fa-facebook"></i> Continuar con Facebook
             </button>
         </div>
     </div>
-    
+
     <div id="modal-registro-nick" class="modal">
         <div class="modal-box">
             <h3 style="text-align:center;">Completa tu Identidad</h3>
@@ -658,9 +684,9 @@
 
     <!-- MODALES DE PAGOS (PASES / DIAMANTES) -->
     <div id="modal-pago-ryos" class="modal"><div class="modal-box" style="text-align: center; border-color: gold;"><a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a><h3 style="color: gold; margin-bottom: 20px;"><i class="fas fa-gem"></i> Obtener Diamantes</h3><p id="info-pago-ryos" style="margin-bottom: 10px; font-weight: bold; color: white;">Pack...</p><div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left; word-break: break-all;"><p>MercadoPago Alias: <strong>matias.mj7</strong></p><p>LemonTag: <strong>$matias.moto7</strong></p><p>BSC BEP-20 USDT: <strong>0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none; display: block; text-align: center;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
-    
+
     <div id="modal-pago-jonin" class="modal"><div class="modal-box" style="text-align: center; border-color: silver;"><a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a><h3>Pase Jonin</h3><div style="background: rgba(0,0,0,0.5); border: 1px dashed silver; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.95rem; text-align: left;"><p>MP Alias: <strong>matias.mj7</strong></p><p>LemonTag: <strong>$matias.moto7</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: var(--green); color: black; width: 100%; text-decoration:none; display: block; text-align: center;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
-    
+
     <div id="modal-pago-kasekage" class="modal"><div class="modal-box" style="text-align: center; border-color: gold;"><a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a><h3>Pase Kasekage</h3><div style="background: rgba(0,0,0,0.5); border: 1px dashed gold; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; font-size: 0.9rem; text-align: left; word-break: break-all;"><p>MP Alias: <strong>matias.mj7</strong></p><p>USDT (BSC): <strong>0x001f4624E271fBFCeB7e373a6958897882fEfd5A</strong></p></div><a href="https://wa.me/5491165658881" target="_blank" class="btn-primary" style="background: gold; color: black; width: 100%; text-decoration:none; display: block; text-align: center;"><i class="fab fa-whatsapp"></i> ENVIAR COMPROBANTE</a></div></div>
 
     <!-- MODAL PERFIL -->
@@ -742,7 +768,7 @@
         <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
             <h3 id="admin-partidos-titulo" style="color: var(--red); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;">Tribunal Kage</h3>
-            
+
             <div id="admin-inscripcion-manual" style="background: rgba(0,210,255,0.1); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: block;">
                 <h4 style="color: var(--blue); margin-bottom: 10px;"><i class="fas fa-user-plus"></i> Inscripción Manual</h4>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -818,7 +844,7 @@
         <div class="modal-box" style="max-height: 85vh; overflow-y: auto;">
             <a href="#" class="btn-close" onclick="document.getElementById('modal-equipos').style.display='none';">&times;</a>
             <h3 style="color: var(--blue); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;"><i class="fas fa-users"></i> Reclutamiento de Escuadras</h3>
-            
+
             <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="color: white; margin-bottom: 10px;">Crear Nueva Escuadra</h4>
                 <input type="hidden" id="eq-torneo-id">
@@ -844,6 +870,36 @@
             <button class="btn-primary" style="width: 100%; background: var(--green); color: black;" onclick="confirmarUnionEquipoPrivado()">ENTRAR AL EQUIPO</button>
         </div>
     </div>
+
+    <!-- FOOTER INFORMATIVO Y DE ALIANZAS -->
+    <footer style="background: rgba(5,5,8,0.98); border-top: 1px solid var(--blue); padding: 40px 20px 20px 20px; margin-top: 60px;">
+        <div class="content-wrapper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; padding: 0;">
+            <div>
+                <h3 style="color: var(--blue); font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 10px;">MBL ARG</h3>
+                <p style="color: #aaa; font-size: 0.85rem; line-height: 1.5;">La plataforma de torneos, ligas y comunidad líder de Mobile Legends en Argentina. Competí, gana premios y hacete leyenda en la Arena.</p>
+            </div>
+
+            <div>
+                <h4 style="color: white; margin-bottom: 12px; font-size: 1rem;"><i class="fas fa-handshake" style="color:var(--purple);"></i> Comunidades Aliadas</h4>
+                <ul style="list-style: none; font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px;">
+                    <li><a href="https://chat.whatsapp.com/DPIEu6EmZOBJWLcfdep908" target="_blank" style="color: #25D366; text-decoration: none;"><i class="fab fa-whatsapp"></i> Comunidad Nexus</a></li>
+                    <li><a href="https://chat.whatsapp.com/Fz51EFjE939ApUGFk3Xz9B" target="_blank" style="color: #25D366; text-decoration: none;"><i class="fab fa-whatsapp"></i> Comunidad Gonza Games</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 style="color: white; margin-bottom: 12px; font-size: 1rem;"><i class="fas fa-paper-plane" style="color:gold;"></i> Contacto & Asociaciones</h4>
+                <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 8px;"><i class="fas fa-envelope" style="color:var(--blue);"></i> Email: <strong>matias.moto7@gmail.com</strong></p>
+                <div style="display: flex; gap: 12px; font-size: 1.3rem; margin-top: 10px;">
+                    <a href="https://www.tiktok.com" target="_blank" style="color: white;" title="TikTok Lives"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/5491165658881" target="_blank" style="color: #25D366;" title="WhatsApp Kage"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; color: #666; font-size: 0.75rem; border-top: 1px solid #222; margin-top: 30px; padding-top: 15px;">
+            © 2025 MBL Arg - Todos los derechos reservados.
+        </div>
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>

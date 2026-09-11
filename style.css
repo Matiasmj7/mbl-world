@@ -350,12 +350,27 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     gap: 20px;
 }
 
+.card-t {
+    position: relative;
+    border: 2px solid transparent;
+    border-image: url('/overlay-card.png.png.png') 30 stretch;
+    background: rgba(5, 5, 8, 0.85);
+    backdrop-filter: blur(8px);
+}
+
 .bracket-match {
     position: relative;
-    background: #111;
-    border: 1px solid #333;
+    background: linear-gradient(135deg, rgba(10,10,20,0.95), rgba(5,5,15,0.95));
+    border: 1px solid var(--blue);
+    box-shadow: 0 0 10px rgba(0,210,255,0.25);
     border-radius: 8px;
     padding: 12px;
+}
+
+.bracket-player {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
 }
 
 .bracket-match:not(.bracket-match-last)::after {
@@ -473,16 +488,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 280px;
-    height: 280px;
+    width: 420px;
+    height: 420px;
     transform: translate(-50%, -50%);
     background-image: url('/logo-mblarg.png.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.06;
+    opacity: 0.22;
     pointer-events: none;
     z-index: 0;
+    filter: drop-shadow(0 0 20px rgba(0,210,255,0.4));
 }
 
 #contenedor-llaves-texto > * {
