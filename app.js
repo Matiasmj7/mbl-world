@@ -407,6 +407,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('mi-nick-bingo').innerText = currentUserName;
                     document.getElementById('mi-rango-bingo').innerText = (data.plan === 'kasekage') ? 'Mítico' : (data.plan === 'jonin' ? 'Épico' : 'Guerrero');
                     document.getElementById('mi-xp-bingo').innerText = `${data.xp || 0} XP`;
+                    if (document.getElementById('mi-elo-bingo')) document.getElementById('mi-elo-bingo').innerText = `${data.elo || ELO_INICIAL} ELO`;
+
+                    const pj = data.partidasJugadas || 0;
+                    const pg = data.partidasGanadas || 0;
+                    const wr = pj > 0 ? Math.round((pg / pj) * 100) : 0;
+                    if (document.getElementById('mi-stats-bingo')) document.getElementById('mi-stats-bingo').innerText = `${pj} PJ / ${pg} PG`;
+                    if (document.getElementById('mi-winrate-bingo')) document.getElementById('mi-winrate-bingo').innerText = `${wr}% WR`;
+                    if (document.getElementById('mi-avatar-bingo')) {
+                        document.getElementById('mi-avatar-bingo').src = (data.fotoPerfil && data.fotoPerfil !== '') ? data.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`;
+                    }
+
                     document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
                     document.getElementById('tienda-mis-ryos').innerHTML = `${misRyos} Diamantes`;
 
@@ -435,17 +446,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         escucharChatComunidad(miComunidad);
                     }
 
-                    if(esAdmin || miPlan === 'jonin' || miPlan === 'kasekage') {
+                    const esNexusManager = data.esNexusManager === true;
+
+                    if(esAdmin || miPlan === 'jonin' || miPlan === 'kasekage' || esNexusManager) {
                         if(adminNav) adminNav.style.display = 'block';
                         if(adminSection) adminSection.style.display = 'block';
 
-                        document.getElementById('titulo-panel-admin').innerText = esAdmin ? 'Centro de Mando del Creador' : 'Panel de Organización';
-                        document.getElementById('btn-admin-nav').innerText = esAdmin ? 'Creador' : 'Organizador';
+                        document.getElementById('titulo-panel-admin').innerText = esAdmin ? 'Centro de Mando del Creador' : (esNexusManager && miPlan === 'genin' ? 'Panel Nexus Manager' : 'Panel de Organización');
+                        document.getElementById('btn-admin-nav').innerText = esAdmin ? 'Creador' : 'Panel';
 
                         const adminElements = document.querySelectorAll('.admin-only');
                         adminElements.forEach(el => {
                             el.style.display = esAdmin ? 'inline-block' : 'none';
                         });
+
+                        if (esNexusManager) {
+                            const tabNexusBtn = document.querySelector("button[onclick=\"mostrarTabAdmin('tab-nexus')\"]");
+                            if (tabNexusBtn) tabNexusBtn.style.display = 'inline-block';
+                        }
 
                         if(!esAdmin && miPlan === 'jonin') {
                             document.getElementById('opt-3v3').disabled = true;
@@ -587,7 +605,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // Iniciar funciones Nexus
     escucharConfigNexus();
     cargarProductosNexus();
+    escucharReferenciasNexus();
+
+    const formRef = document.getElementById('form-crear-referencia');
+    if (formRef) {
+        formRef.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (currentUserName === 'Héroe Anónimo') return alert('Debes iniciar sesión para publicar una referencia.');
+            const puntos = parseInt(document.getElementById('ref-puntos').value);
+            const comentario = document.getElementById('ref-comentario').value.trim();
+
+            db.collection('nexus_referencias').add({
+                usuario: currentUserName,
+                puntos: puntos,
+                comentario: comentario,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                formRef.reset();
+                alert('¡Gracias por tu calificación sobre Nexus Store!');
+            });
+        });
+    }
 });
+
+function escucharReferenciasNexus() {
+    const cont = document.getElementById('lista-referencias-nexus');
+    if (!cont) return;
+
+    db.collection('nexus_referencias').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
+        cont.innerHTML = '';
+        if (snap.empty) {
+            cont.innerHTML = '<p style="color:#888; font-size:0.8rem; font-style:italic;">Aún no hay calificaciones. ¡Sé el primero!</p>';
+            return;
+        }
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            const estrellas = '⭐'.repeat(data.puntos || 5);
+            cont.innerHTML += `
+                <div style="background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 5px; border-left: 3px solid #00ffff; font-size: 0.85rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 3px;">
+                        <strong style="color:white;">${data.usuario}</strong>
+                        <span>${estrellas}</span>
+                    </div>
+                    <p style="color:#ccc; margin:0;">"${data.comentario}"</p>
+                </div>
+            `;
+        });
+    });
+}
 
 // ==========================================
 // SISTEMA NEXUS STORE (RECARGAS BANCARIAS)
@@ -702,16 +768,14 @@ function cargarProductosNexus() {
         });
 
         let htmlFinal = "";
-        let esPrimeraConProductos = true;
         Object.values(categorias).forEach(cat => {
             if (cat.html === '') return; // no mostramos categorías vacías
             htmlFinal += `
-                <details class="nexus-accordion" ${esPrimeraConProductos ? 'open' : ''}>
+                <details class="nexus-accordion">
                     <summary class="nexus-accordion-summary">${cat.titulo}</summary>
                     <div class="torneos-grid" style="margin-top: 20px;">${cat.html}</div>
                 </details>
             `;
-            esPrimeraConProductos = false;
         });
 
         listaPublica.innerHTML = htmlFinal || "<p style='color:#ccc; text-align:center;'>La tienda está reabasteciéndose. Vuelve pronto.</p>";
@@ -813,6 +877,8 @@ window.autenticarUsuarioManual = function() {
 window.cargarListaBorrarTorneosAdmin = function() {
     const cont = document.getElementById('admin-lista-borrar-torneos');
     if(!cont) return;
+    const esAdminSupremo = (auth.currentUser?.email === ADMIN_EMAIL);
+
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
         cont.innerHTML = "";
         if(snap.empty) {
@@ -821,18 +887,31 @@ window.cargarListaBorrarTorneosAdmin = function() {
         }
         snap.forEach(doc => {
             const d = doc.data();
-            cont.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:10px; border-radius:5px; border:1px solid #222; font-size:0.85rem; margin-bottom: 5px;">
-                    <span style="color:white;">${d.nombre} (${d.formato})</span>
-                    <button class="btn-primary" style="background:var(--red); color:white; padding:4px 12px; font-size:0.75rem; border:none; cursor:pointer;" onclick="borrarTorneoDefinitivo('${doc.id}','${d.nombre}')"><i class="fas fa-trash"></i> BORRAR</button>
-                </div>`;
+            if (esAdminSupremo || d.creador === currentUserName) {
+                cont.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:10px; border-radius:5px; border:1px solid #222; font-size:0.85rem; margin-bottom: 5px;">
+                        <span style="color:white;">${d.nombre} (${d.formato}) - <small style="color:#aaa;">Creador: ${d.creador || 'Desconocido'}</small></span>
+                        <button class="btn-primary" style="background:var(--red); color:white; padding:4px 12px; font-size:0.75rem; border:none; cursor:pointer;" onclick="borrarTorneoDefinitivo('${doc.id}','${d.nombre}')"><i class="fas fa-trash"></i> BORRAR</button>
+                    </div>`;
+            }
         });
     });
 };
 
-window.borrarTorneoDefinitivo = function(id, nombre) {
+window.borrarTorneoDefinitivo = async function(id, nombre) {
+    const docRef = db.collection('torneos').doc(id);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) return;
+    const creador = docSnap.data().creador;
+    const esAdminSupremo = (auth.currentUser?.email === ADMIN_EMAIL);
+
+    if (!esAdminSupremo && creador !== currentUserName) {
+        alert("Solo puedes eliminar los torneos creados por ti.");
+        return;
+    }
+
     if(confirm(`⚠️ ¿ESTÁS SEGURO?\nVas a eliminar permanentemente "${nombre}". Esto borrará sus llaves y todos los datos asociados.`)) {
-        db.collection('torneos').doc(id).delete().then(() => {
+        docRef.delete().then(() => {
             alert("Torneo purgado con éxito.");
         });
     }
@@ -1131,6 +1210,20 @@ window.crearComunidad = function() {
                 db.collection('ninjas').doc(currentUserId).update({ comunidad: nombre });
                 alert("¡Alianza fundada con éxito!");
             });
+        }
+    });
+};
+
+window.concederAccesoNexusManager = function() {
+    const nickBuscado = document.getElementById('gestion-nick').value.trim();
+    if(!nickBuscado) return;
+    db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
+        if(!snap.empty) {
+            const actual = snap.docs[0].data().esNexusManager === true;
+            snap.docs[0].ref.update({ esNexusManager: !actual });
+            alert(`Acceso a Nexus Store Manager ${!actual ? 'OTORGADO' : 'REVOCADO'} para ${nickBuscado}.`);
+        } else {
+            alert("No se encontró al ninja en los registros.");
         }
     });
 };
