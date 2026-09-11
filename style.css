@@ -1216,8 +1216,31 @@ input:focus, select:focus, textarea:focus {
 
     .modal-box {
         padding: 20px 15px;
-        max-height: 92vh;
-        width: 96%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) translateZ(0);
+        max-height: 80vh;
+        width: 94%;
+        max-width: 480px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #nexus-store, .container-glass {
+        transform: translateZ(0);
+    }
+
+    /* DESACTIVAR ROTACIÓN PESADA EN DÍAMANTES / TIENDA MÓVIL (ALIGERAR GPU) */
+    #nexus-store .neon-card::before,
+    #nexus-store .neon-card::after {
+        display: none !important;
+        animation: none !important;
+    }
+
+    #nexus-store .neon-card {
+        border: 2px solid #00f2fe !important;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.6) !important;
     }
 
     .torneos-grid, .agenda-grid {
