@@ -90,7 +90,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     height: 100vh;
     object-fit: cover;
     z-index: -2;
-    opacity: 0.4;
+    opacity: 0.85;
 }
 
 .bg-overlay {
@@ -99,7 +99,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(to bottom, rgba(5,5,8,0.3) 0%, var(--bg-dark) 100%);
+    background: linear-gradient(to bottom, rgba(5,5,8,0.1) 0%, rgba(5,5,8,0.6) 100%);
     z-index: -1;
 }
 
