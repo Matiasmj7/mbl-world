@@ -1073,6 +1073,7 @@ function cargarSorteos() {
         }
 
         const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+        const esOrganizador = esAdmin || miPlan === 'jonin' || miPlan === 'kasekage';
 
         snap.forEach(doc => {
             const data = doc.data();
@@ -1095,10 +1096,10 @@ function cargarSorteos() {
             }
 
             let adminHTML = "";
-            if (esAdmin) {
+            if (esOrganizador) {
                 if (data.estado === 'abierto') {
                     adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:#ff00ff; color:white;" onclick="ejecutarSorteo('${id}', '${data.premio}', ${data.cantidadGanadores})"><i class="fas fa-dice"></i> SORTEAR AHORA</button>`;
-                } else {
+                } else if (esAdmin || data.creador === currentUserName) {
                     adminHTML = `<button class="btn-primary" style="width:100%; margin-top:10px; background:var(--red); color:white; border:none;" onclick="borrarSorteo('${id}', '${data.premio}')"><i class="fas fa-trash"></i> BORRAR SORTEO</button>`;
                 }
             }
@@ -3501,6 +3502,7 @@ if (formSorteoAdmin) {
             estado: 'abierto',
             participantes: [],
             ganadores: [],
+            creador: currentUserName,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
             alert("¡Sorteo Mágico lanzado a la comunidad!");
