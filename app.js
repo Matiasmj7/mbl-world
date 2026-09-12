@@ -3651,6 +3651,14 @@ function renderizarHeroesGrid() {
         return;
     }
 
+    const tierOrder = { 'S': 1, 'A': 2, 'B': 3, 'C': 4, 'D': 5 };
+    filtrados.sort((a, b) => {
+        const tierA = tierOrder[a.tier || 'B'] || 99;
+        const tierB = tierOrder[b.tier || 'B'] || 99;
+        if (tierA !== tierB) return tierA - tierB;
+        return (a.name || a.nombre || '').localeCompare(b.name || b.nombre || '');
+    });
+
     const tierColors = {
         'S': '#ff0055',
         'A': 'gold',
@@ -3667,16 +3675,15 @@ function renderizarHeroesGrid() {
         const avatarSrc = h.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
 
         return `
-            <div class="container-glass glow-hover neon-card neon-purple" style="text-align: center; cursor: pointer; padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;" onclick="abrirModalHeroe('${h.id}')">
-                <div class="neon-card-inner" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:space-between; position:relative;">
-                    <div style="position:absolute; top:8px; right:8px; background: rgba(0,0,0,0.8); border: 1px solid ${colorTier}; color: ${colorTier}; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">Tier ${tier}</div>
-                    <div>
-                        <img src="${avatarSrc}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random'" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid ${colorTier}; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 10px ${colorTier};">
-                        <h3 class="hero-name-glow" style="margin-bottom: 4px;">${nombre}</h3>
-                        <span style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid #00f2fe; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold;">${rol}</span>
+            <div style="background: rgba(11, 14, 20, 0.75); border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; transition: background 0.2s, transform 0.2s;" class="glow-hover" onclick="abrirModalHeroe('${h.id}')">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                    <img src="${avatarSrc}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random'" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid ${colorTier}; flex-shrink: 0;" loading="lazy">
+                    <div style="min-width: 0; overflow: hidden;">
+                        <h4 class="hero-name-glow" style="font-size: 0.95rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nombre}</h4>
+                        <span style="color: #aaa; font-size: 0.75rem;">${rol}</span>
                     </div>
-                    <button class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 0.75rem; padding: 6px; border-color: #00f2fe; color: #00f2fe;">ESTRATEGIAS / COUNTERS</button>
                 </div>
+                <span style="color: ${colorTier}; text-shadow: 0 0 8px ${colorTier}; font-family: var(--font-heading); font-weight: bold; font-size: 1.1rem; flex-shrink: 0;">Tier ${tier}</span>
             </div>
         `;
     }).join('');
