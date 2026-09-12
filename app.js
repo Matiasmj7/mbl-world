@@ -961,7 +961,7 @@ function escucharPersonalizacion() {
 
             if (bgImage) {
                 bgImage.style.display = 'block';
-                bgImage.src = data.bgUrl || '/bingo_bg.jpg';
+                bgImage.src = data.bgUrl || '/bingo_bg.webp';
             }
 
             if (data.colorAcento) {

@@ -366,7 +366,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .card-t {
     position: relative;
     border: 2px solid transparent;
-    border-image: url('/overlay-card.png.png.png') 30 stretch;
+    border-image: url('/overlay-card.webp') 30 stretch;
     background: rgba(5, 5, 8, 0.85);
     backdrop-filter: blur(8px);
 }
@@ -504,7 +504,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     width: 420px;
     height: 420px;
     transform: translate(-50%, -50%);
-    background-image: url('/logo-mblarg.png.png');
+    background-image: url('/logo-mblarg.webp');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
