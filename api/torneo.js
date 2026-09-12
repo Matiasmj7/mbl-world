@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const defaultMeta = {
     title: 'MBL Arg | La Arena del Kage',
     description: 'Torneos, ligas y comunidad de Mobile Legends en Argentina.',
-    image: 'https://mblarg.vercel.app/logo-mblarg.png.png',
+    image: 'https://mblarg.vercel.app/logo-mblarg.webp',
     url: 'https://mblarg.vercel.app/'
   };
 
