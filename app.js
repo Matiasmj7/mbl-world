@@ -1680,7 +1680,7 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
     return `
         <div class="card-t container-glass glow-hover neon-card ${neonVariant}" style="position:relative; overflow:hidden; padding: 2px;">
             <div class="neon-card-inner" style="display:flex; flex-direction:column; height:100%;">
-                ${data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : ''}
+                ${data.acceso === 'comunidad' ? `<div style="position:absolute; top:10px; right:10px; color:#ff00ff; font-size:1rem; font-weight:bold; background:rgba(255,0,255,0.15); border:1px solid #ff00ff; padding:2px 8px; border-radius:4px;" title="Exclusivo Comunidad ${data.comunidadExclusiva || ''}"><i class="fas fa-users-slash"></i> EXCLUSIVO ${data.comunidadExclusiva ? data.comunidadExclusiva.toUpperCase() : 'COMUNIDAD'}</div>` : (data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : '')}
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                     <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
@@ -1762,6 +1762,14 @@ window.unirseTorneo = function(torneoId, estado) {
 
     db.collection('torneos').doc(torneoId).get().then(doc => {
         const data = doc.data();
+
+        if (data.acceso === 'comunidad' || data.comunidadExclusiva) {
+            const comExclusiva = data.comunidadExclusiva || "";
+            if (miComunidad.trim().toLowerCase() !== comExclusiva.trim().toLowerCase()) {
+                alert(`Este evento es exclusivo para miembros de la comunidad / escuadrón: "${comExclusiva}". Tu comunidad actual es: "${miComunidad || 'Ninguna'}".`);
+                return;
+            }
+        }
 
         if (data.formato === '1v1') {
             if ((data.lista_inscriptos?.length || 0) >= data.cuposTotales) {
@@ -2824,6 +2832,14 @@ function configurarAdminForms() {
     if(formTorneo) {
         formTorneo.addEventListener('submit', (e) => {
             e.preventDefault();
+            const modoAcceso = document.getElementById('t-acceso')?.value || (document.getElementById('t-privado')?.checked ? 'privado' : 'libre');
+            const comunidadDestino = (modoAcceso === 'comunidad') ? (document.getElementById('t-comunidad-exclusiva')?.value.trim() || miComunidad || "") : "";
+
+            if (modoAcceso === 'comunidad' && !comunidadDestino) {
+                alert("Debes ingresar el nombre de la comunidad autorizada.");
+                return;
+            }
+
             db.collection('torneos').add({
                 nombre: document.getElementById('t-nombre').value,
                 fecha: document.getElementById('t-fecha').value,
@@ -2832,7 +2848,9 @@ function configurarAdminForms() {
                 premio: document.getElementById('t-premio').value,
                 formato: document.getElementById('t-formato').value,
                 tipo: document.getElementById('t-tipo').value,
-                privado: document.getElementById('t-privado').checked,
+                acceso: modoAcceso,
+                comunidadExclusiva: comunidadDestino,
+                privado: (modoAcceso === 'privado'),
                 linkTiktok: document.getElementById('t-tiktok')?.value.trim() || "",
                 creador: currentUserName,
                 lista_inscriptos: [],

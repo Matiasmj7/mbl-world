@@ -476,7 +476,17 @@
                                 <option value="guerra_comunidades" id="opt-guerra-comunidades">GUERRA DE COMUNIDADES (Comunidad vs Comunidad)</option>
                             </select>
                         </div>
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                        <div class="form-row">
+                            <select id="t-acceso" onchange="const c = document.getElementById('t-comunidad-container'); if(c) c.style.display = (this.value === 'comunidad' ? 'block' : 'none');">
+                                <option value="libre">Acceso: Libre (Abierto a todos)</option>
+                                <option value="privado">Acceso: Privado (Solo invitados)</option>
+                                <option value="comunidad">Acceso: Exclusivo para Comunidad / Escuadrón</option>
+                            </select>
+                        </div>
+                        <div id="t-comunidad-container" style="display:none; margin-bottom: 10px;">
+                            <input type="text" id="t-comunidad-exclusiva" placeholder="Nombre exacto de la Comunidad / Gremio autorizada (Ej: Nexus Prime)" style="width:100%;">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px; display:none;">
                             <input type="checkbox" id="t-privado" style="width:20px; height:20px;">
                             <label style="color:white;">Evento Privado (Solo invitados)</label>
                         </div>
