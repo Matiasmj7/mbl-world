@@ -1708,6 +1708,11 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
                         ${esLiga ? '<i class="fas fa-list-ol"></i> RANKING LIGA' : 'CRUCES'}
                     </button>
                 </div>
+                ${data.linkTiktok && data.linkTiktok.trim() !== '' ? `
+                    <a href="${data.linkTiktok.trim().startsWith('http') ? data.linkTiktok.trim() : 'https://www.tiktok.com/@' + data.linkTiktok.trim().replace('@', '')}" target="_blank" class="btn-secondary" style="margin-top: 10px; width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.1);" title="Transmisión TikTok del Torneo">
+                        <i class="fab fa-tiktok" style="font-size: 1.1rem;"></i> TRANSMISIÓN TIKTOK
+                    </a>
+                ` : ''}
             </div>
         </div>
     `;
@@ -2826,6 +2831,7 @@ function configurarAdminForms() {
                 formato: document.getElementById('t-formato').value,
                 tipo: document.getElementById('t-tipo').value,
                 privado: document.getElementById('t-privado').checked,
+                linkTiktok: document.getElementById('t-tiktok')?.value.trim() || "",
                 creador: currentUserName,
                 lista_inscriptos: [],
                 lista_equipos: [],
@@ -2969,6 +2975,8 @@ function cargarTorneosParaAdminLlaves() {
 
             let accionHtml = "";
 
+            const tiktokBtn = `<button class="btn-secondary" style="border-color: #ff0055; color: #ff0055; margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="editarLinkTiktokTorneo('${doc.id}', '${data.linkTiktok || ''}')"><i class="fab fa-tiktok"></i> CANAL TIKTOK</button>`;
+
             if (data.estado === 'abierto') {
                 const requiereCheckIn = data.requiereCheckIn === true;
                 const checkInActivo = data.checkInAbierto === true;
@@ -2979,12 +2987,16 @@ function cargarTorneosParaAdminLlaves() {
                     <button class="btn-secondary" style="border-color: var(--purple); color: var(--purple); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirGestionInscritos('${doc.id}', '${data.formato}', '${data.nombre}')"><i class="fas fa-users-cog"></i> GESTIONAR INSCRITOS</button>
                     <button class="btn-secondary" style="border-color: var(--blue); color: var(--blue); margin-right: 5px; padding: 5px 10px; font-size: 0.8rem;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')"><i class="fas fa-user-plus"></i> AÑADIR</button>
                     ${checkInBoton}
+                    ${tiktokBtn}
                     <button class="btn-primary" style="background:var(--blue); color:black; padding: 5px 10px; font-size: 0.8rem;" onclick="generarLlaves('${doc.id}', '${data.nombre}')">GENERAR CRUCES</button>
                 `;
             } else if (data.estado === 'iniciado') {
-                accionHtml = `<button class="btn-secondary" style="border-color: gold; color: gold;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')">GESTIONAR PARTIDOS</button>`;
+                accionHtml = `
+                    ${tiktokBtn}
+                    <button class="btn-secondary" style="border-color: gold; color: gold;" onclick="abrirAdminPartidos('${doc.id}', '${data.nombre}', '${data.creador}', '${data.formato}')">GESTIONAR PARTIDOS</button>
+                `;
             } else {
-                accionHtml = `<span style="color:var(--red); font-weight:bold;">FINALIZADO</span>`;
+                accionHtml = `${tiktokBtn} <span style="color:var(--red); font-weight:bold;">FINALIZADO</span>`;
             }
 
             listaModAdmin.innerHTML += `
@@ -2999,6 +3011,20 @@ function cargarTorneosParaAdminLlaves() {
         });
     });
 }
+
+window.editarLinkTiktokTorneo = function(torneoId, currentLink) {
+    const nuevoLink = prompt("Ingresa la URL o canal de TikTok para transmitir este torneo:", currentLink || "");
+    if (nuevoLink === null) return;
+
+    db.collection('torneos').doc(torneoId).update({
+        linkTiktok: nuevoLink.trim()
+    }).then(() => {
+        alert("¡Enlace de TikTok para la transmisión guardado!");
+    }).catch(err => {
+        console.error("Error al actualizar enlace TikTok:", err);
+        alert("Error al guardar el enlace de TikTok.");
+    });
+};
 
 window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
     document.getElementById('admin-inscritos-torneo-id').value = torneoId;
