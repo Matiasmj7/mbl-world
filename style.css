@@ -998,43 +998,73 @@ input:focus, select:focus, textarea:focus {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 20px;
+    gap: 25px;
     margin-top: 50px;
+    flex-wrap: wrap;
 }
 
 .podium-spot {
     text-align: center;
-    background: var(--dark-glass);
-    padding: 20px;
-    border-radius: 10px 10px 0 0;
-    border: 1px solid #333;
-    border-bottom: none;
-    transition: transform 0.3s;
+    background: linear-gradient(180deg, rgba(15, 20, 30, 0.9) 0%, rgba(5, 5, 12, 0.95) 100%);
+    padding: 24px 18px 20px 18px;
+    border-radius: 14px 14px 8px 8px;
+    border: 2px solid #333;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-width: 220px;
+    box-sizing: border-box;
 }
 
 .podium-spot:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
 }
 
 .podium-spot img {
-    width: 80px;
-    height: 80px;
+    width: 85px;
+    height: 85px;
     border-radius: 50%;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     object-fit: cover;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
 }
 
-.rank-1 { height: 260px; border-color: gold; box-shadow: 0 -5px 20px rgba(255,215,0,0.2); }
-.rank-1 img { width: 100px; height: 100px; border: 3px solid gold; }
-.rank-1 h4 { color: gold; }
+.rank-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
 
-.rank-2 { height: 220px; border-color: silver; }
-.rank-2 img { border: 3px solid silver; }
-.rank-2 h4 { color: silver; }
+.rank-1 {
+    height: 290px;
+    border-color: gold;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.35), inset 0 0 20px rgba(255, 215, 0, 0.1);
+}
+.rank-1 img { width: 100px; height: 100px; border: 3px solid gold; filter: drop-shadow(0 0 10px gold); }
+.rank-1 h4 { color: gold; text-shadow: 0 0 8px gold; }
+.rank-1 .rank-badge { background: rgba(255, 215, 0, 0.2); color: gold; border: 1px solid gold; }
 
-.rank-3 { height: 190px; border-color: #cd7f32; }
-.rank-3 img { border: 3px solid #cd7f32; }
-.rank-3 h4 { color: #cd7f32; }
+.rank-2 {
+    height: 250px;
+    border-color: silver;
+    box-shadow: 0 0 20px rgba(190, 190, 190, 0.25), inset 0 0 15px rgba(190, 190, 190, 0.1);
+}
+.rank-2 img { border: 3px solid silver; filter: drop-shadow(0 0 8px silver); }
+.rank-2 h4 { color: silver; text-shadow: 0 0 8px silver; }
+.rank-2 .rank-badge { background: rgba(192, 192, 192, 0.2); color: silver; border: 1px solid silver; }
+
+.rank-3 {
+    height: 220px;
+    border-color: #cd7f32;
+    box-shadow: 0 0 18px rgba(205, 127, 50, 0.25), inset 0 0 15px rgba(205, 127, 50, 0.1);
+}
+.rank-3 img { border: 3px solid #cd7f32; filter: drop-shadow(0 0 8px #cd7f32); }
+.rank-3 h4 { color: #cd7f32; text-shadow: 0 0 8px #cd7f32; }
+.rank-3 .rank-badge { background: rgba(205, 127, 50, 0.2); color: #cd7f32; border: 1px solid #cd7f32; }
 
 /* ==========================================
    MISCELÁNEOS Y ADMIN

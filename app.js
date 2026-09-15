@@ -1209,6 +1209,7 @@ window.borrarSorteo = function(sorteoId, premioNombre) {
 // ==========================================
 window.crearComunidad = function() {
     const nombre = document.getElementById('input-crear-comunidad').value.trim();
+    const logo = document.getElementById('input-logo-comunidad')?.value.trim() || "";
     if(!nombre || currentUserName === "Héroe Anónimo") return;
 
     db.collection('comunidades').doc(nombre).get().then(doc => {
@@ -1217,6 +1218,8 @@ window.crearComunidad = function() {
         } else {
             db.collection('comunidades').doc(nombre).set({
                 nombre: nombre,
+                logo: logo,
+                puntos: 0,
                 lider: currentUserName,
                 miembros: [currentUserName],
                 creacion: firebase.firestore.FieldValue.serverTimestamp()
@@ -1293,16 +1296,20 @@ function cargarTopComunidades() {
         let comunidades = [];
         snap.forEach(doc => comunidades.push(doc.data()));
 
-        comunidades.sort((a, b) => b.miembros.length - a.miembros.length);
+        comunidades.sort((a, b) => (b.puntos || b.miembros.length) - (a.puntos || a.miembros.length));
 
         lista.innerHTML = "";
         comunidades.slice(0, 5).forEach((com, index) => {
             let color = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? '#cd7f32' : '#333'));
+            let logoImg = com.logo && com.logo !== "" ? `<img src="${com.logo}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid ${color};">` : '';
             lista.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; margin-bottom:5px; border-left:3px solid ${color};">
-                    <div>
-                        <strong>${index + 1}. ${com.nombre}</strong><br>
-                        <span style="font-size:0.7rem; color:#888;">Líder: ${com.lider}</span>
+                    <div style="display:flex; align-items:center;">
+                        ${logoImg}
+                        <div>
+                            <strong>${index + 1}. ${com.nombre}</strong><br>
+                            <span style="font-size:0.7rem; color:#888;">Líder: ${com.lider} | Pts: ${com.puntos || 0}</span>
+                        </div>
                     </div>
                     <div style="color:var(--purple); font-weight:bold;">
                         <i class="fas fa-users"></i> ${com.miembros.length}
@@ -2311,7 +2318,7 @@ function cargarHallOfFame() {
 }
 
 function crearCartaPodio(ninja, rank) {
-    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? ninja.fotoPerfil : `https://ui-avatars.com/api/?name=${ninja.nick}&background=random`;
+    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? ninja.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random`;
     let bordeEstilo = "";
 
     if(ninja.equipado && ninja.equipado.borde) {
@@ -2319,16 +2326,37 @@ function crearCartaPodio(ninja, rank) {
         if(itemBorde) bordeEstilo = itemBorde.estilo;
     }
 
+    const rankTitles = { 1: '#1 LEYENDA', 2: '#2 ELITE', 3: '#3 MAESTRO' };
+    const badgeText = rankTitles[rank] || `${rank}° LUGAR`;
+
     return `
         <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
-            <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 2rem; color: gold; filter: drop-shadow(0 0 10px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
-            <img src="${imgSrc}" style="${bordeEstilo}">
-            <h4>${rank}° Lugar</h4>
-            <h5>${ninja.nick}</h5>
-            <p><i class="fas fa-trophy"></i> ${ninja.torneosGanados} Copas</p>
+            <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -32px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; color: gold; filter: drop-shadow(0 0 12px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
+            <span class="rank-badge">${badgeText}</span>
+            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy"></div>
+            <h5 class="hero-name-glow" style="font-size: 1.2rem; margin: 6px 0;">${ninja.nick}</h5>
+            <p style="color: #00d2ff; font-weight: bold;"><i class="fas fa-trophy" style="color: gold;"></i> ${ninja.torneosGanados} Copas</p>
         </div>
     `;
 }
+
+window.reiniciarHallOfFame = async function() {
+    if(!confirm("🚨 ¡ADVERTENCIA MÁXIMA!\n¿Deseas reiniciar el Salón de la Fama? Esto pondrá las copas (torneosGanados) de todos los jugadores en 0.")) return;
+
+    try {
+        const snap = await db.collection('ninjas').where('torneosGanados', '>', 0).get();
+        const batch = db.batch();
+        snap.forEach(doc => {
+            batch.update(doc.ref, { torneosGanados: 0 });
+        });
+        await batch.commit();
+        alert("🏆 ¡Salón de la Fama reiniciado con éxito!");
+        cargarHallOfFame();
+    } catch (err) {
+        console.error("Error al reiniciar Salón de la Fama:", err);
+        alert("Error al reiniciar el Salón de la Fama.");
+    }
+};
 
 // ==========================================
 // GREMIO (CLANES Y ANUNCIOS)
@@ -2361,6 +2389,7 @@ window.abrirModalClan = function() {
 
 window.crearClan = function() {
     const nombreClan = document.getElementById('input-crear-clan').value.trim();
+    const logoClan = document.getElementById('input-logo-clan')?.value.trim() || "";
     if (!nombreClan) return;
 
     db.collection('clanes').doc(nombreClan).get().then(doc => {
@@ -2369,8 +2398,10 @@ window.crearClan = function() {
         } else {
             db.collection('clanes').doc(nombreClan).set({
                 nombre: nombreClan,
+                logo: logoClan,
                 miembros: [currentUserName],
                 xp: 0,
+                puntos: 0,
                 elo: ELO_INICIAL,
                 lider: currentUserName
             }).then(() => {
@@ -3049,7 +3080,53 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
 
     const partidos = [];
 
-    if (data.tipo === 'liga_grupos') {
+    if (data.tipo === 'guerra_comunidades') {
+        // GUERRA DE COMUNIDADES: emparejar participantes de distintas comunidades en la primera ronda.
+        const participantesConComunidad = [];
+        for (const p of participantes) {
+            let com = "Sin Comunidad";
+            const snap = await db.collection('ninjas').where('nick', '==', p).get();
+            if (!snap.empty && snap.docs[0].data().comunidad) {
+                com = snap.docs[0].data().comunidad;
+            }
+            participantesConComunidad.push({ nick: p, comunidad: com });
+        }
+
+        const porComunidad = {};
+        participantesConComunidad.forEach(item => {
+            if (!porComunidad[item.comunidad]) porComunidad[item.comunidad] = [];
+            porComunidad[item.comunidad].push(item.nick);
+        });
+
+        const comunidadesNombres = Object.keys(porComunidad);
+        if (comunidadesNombres.length >= 2) {
+            const comA = porComunidad[comunidadesNombres[0]];
+            const comB = porComunidad[comunidadesNombres[1]];
+            const maxLen = Math.max(comA.length, comB.length);
+
+            for (let i = 0; i < maxLen; i++) {
+                const p1 = comA[i] || "BYE";
+                const p2 = comB[i] || "BYE";
+                if (p1 === "BYE" && p2 === "BYE") continue;
+                partidos.push({
+                    p1: p1,
+                    p2: p2,
+                    ganador: (p2 === "BYE") ? p1 : ((p1 === "BYE") ? p2 : ""),
+                    ronda: 1
+                });
+            }
+        } else {
+            const sorteados = participantes.sort(() => Math.random() - 0.5);
+            for (let i = 0; i < sorteados.length; i += 2) {
+                partidos.push({
+                    p1: sorteados[i],
+                    p2: sorteados[i+1] || "BYE",
+                    ganador: sorteados[i+1] ? "" : sorteados[i],
+                    ronda: 1
+                });
+            }
+        }
+    } else if (data.tipo === 'liga_grupos') {
         // LIGA POR GRUPOS: Dividir participantes en Grupo A y Grupo B
         const sorteados = participantes.sort(() => Math.random() - 0.5);
         const mitad = Math.ceil(sorteados.length / 2);
@@ -3126,8 +3203,27 @@ window.abrirAdminPartidos = async function(torneoId, torneoNombre, creador, form
 
     // Necesitamos saber si es Liga o Torneo para decidir cómo mostrar los partidos.
     const torneoSnap = await db.collection('torneos').doc(torneoId).get();
-    const tipoEvento = (torneoSnap.data() || {}).tipo;
+    const torneoData = torneoSnap.data() || {};
+    const tipoEvento = torneoData.tipo;
     const esLiga = tipoEvento === 'liga' || tipoEvento === 'liga_grupos';
+
+    let participantesInscriptos = [];
+    if (formato === '1v1') {
+        participantesInscriptos = torneoData.lista_inscriptos || [];
+    } else {
+        participantesInscriptos = (torneoData.lista_equipos || []).map(eq => eq.nombre);
+    }
+
+    const selectP1 = document.getElementById('select-cruce-p1');
+    const selectP2 = document.getElementById('select-cruce-p2');
+    if (selectP1 && selectP2) {
+        selectP1.innerHTML = '<option value="">P1 / Equipo 1</option>';
+        selectP2.innerHTML = '<option value="">P2 / Equipo 2</option>';
+        participantesInscriptos.forEach(p => {
+            selectP1.innerHTML += `<option value="${p}">${p}</option>`;
+            selectP2.innerHTML += `<option value="${p}">${p}</option>`;
+        });
+    }
 
     db.collection('torneos').doc(torneoId).collection('llaves').orderBy('ronda', 'desc').onSnapshot(snap => {
         const contenedor = document.getElementById('contenedor-admin-partidos');
@@ -3270,6 +3366,33 @@ window.guardarSala = function(torneoId, partidoId) {
     });
 };
 
+window.crearCruceManualAdmin = async function() {
+    const torneoId = document.getElementById('input-torneo-manual-id').value;
+    const p1 = document.getElementById('select-cruce-p1').value;
+    const p2 = document.getElementById('select-cruce-p2').value;
+
+    if (!torneoId) return alert("Error: ID de torneo no especificado.");
+    if (!p1 || !p2) return alert("Selecciona ambos participantes para forjar el combate.");
+    if (p1 === p2) return alert("No se puede emparejar a un participante contra sí mismo.");
+
+    if (!confirm(`¿Confirmar cruce manual: ${p1} vs ${p2}?`)) return;
+
+    try {
+        const llavesRef = db.collection('torneos').doc(torneoId).collection('llaves');
+        await llavesRef.add({
+            p1: p1,
+            p2: p2,
+            ganador: "",
+            ronda: 1
+        });
+
+        alert("¡Cruce manual forjado exitosamente!");
+    } catch (err) {
+        console.error("Error al crear cruce manual:", err);
+        alert("Error al forjar cruce manual.");
+    }
+};
+
 window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
     if (!confirm(`¿Declarar a ${ganadorName} como vencedor de este combate?`)) return;
 
@@ -3325,6 +3448,21 @@ window.setGanadorManual = async function(torneoId, partidoId, ganadorName) {
                         partidasGanadas: firebase.firestore.FieldValue.increment(gano ? 1 : 0),
                         historialPartidos: historial.slice(-20)
                     });
+
+                    // Otorgar puntos automáticos a su Escuadrón (Clan) y Comunidad al ganar
+                    if (gano) {
+                        if (dataNinja.clan && dataNinja.clan !== "") {
+                            db.collection('clanes').doc(dataNinja.clan).update({
+                                xp: firebase.firestore.FieldValue.increment(50),
+                                puntos: firebase.firestore.FieldValue.increment(50)
+                            }).catch(() => {});
+                        }
+                        if (dataNinja.comunidad && dataNinja.comunidad !== "") {
+                            db.collection('comunidades').doc(dataNinja.comunidad).update({
+                                puntos: firebase.firestore.FieldValue.increment(50)
+                            }).catch(() => {});
+                        }
+                    }
                 }
             }
         };
