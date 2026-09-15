@@ -1149,23 +1149,19 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ==========================================
-   RESPONSIVE (MÓVILES)
+   RESPONSIVE (MÓVILES Y TABLETS <= 980px)
 ========================================= */
-@media (max-width: 900px) {
-    .stream-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .chat-container {
-        height: 500px;
-    }
-}
-
-@media (max-width: 768px) {
+@media screen and (max-width: 980px) {
     html, body {
         width: 100%;
         max-width: 100vw;
-        overflow-x: hidden;
+        overflow-x: hidden !important;
+    }
+
+    /* Prevenir desbordamiento de imágenes y fondos */
+    img, video, iframe, canvas, svg, picture {
+        max-width: 100%;
+        height: auto;
     }
 
     .content-wrapper {
@@ -1174,6 +1170,7 @@ input:focus, select:focus, textarea:focus {
         box-sizing: border-box;
     }
 
+    /* ENCABEZADO Y NAVEGACIÓN (<header> / <nav>) */
     .main-nav {
         padding: 12px 15px;
         flex-direction: column;
@@ -1192,6 +1189,115 @@ input:focus, select:focus, textarea:focus {
         width: 30px;
     }
 
+    .menu {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+    }
+
+    .menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .menu li {
+        flex-shrink: 0;
+    }
+
+    /* SUBMENÚS (Competir, Comunidad, Tienda) */
+    .nav-group,
+    .nav-dropdown {
+        display: contents;
+    }
+
+    .nav-group-label {
+        display: none;
+    }
+
+    /* SECCIÓN PASES DE BATALLA (Genin, Jonin, Kasekage) */
+    #planes .torneos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px;
+    }
+
+    #planes .plan-card {
+        transform: none !important;
+        width: 100%;
+    }
+
+    /* NEXUS STORE, TOP RANKING Y SISTEMA KAGE */
+    #nexus-store,
+    #ranking-dinamico,
+    #podio-leyendas,
+    #admin,
+    .creator-panel {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .torneos-grid, .agenda-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .podium-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .podium-spot {
+        width: 100%;
+        max-width: 280px;
+        height: auto !important;
+        border-radius: 10px;
+        border-bottom: 1px solid #333;
+    }
+
+    .stream-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-container {
+        height: 450px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-actions .btn-primary,
+    .hero-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .section-head {
+        font-size: 1.6rem;
+    }
+
+    .admin-form, form {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    input, select, textarea {
+        font-size: 16px !important; /* Evita auto-zoom en navegadores móviles */
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* MODALES Y AJUSTES VISUALES */
     .modal {
         padding: 10px;
     }
@@ -1202,23 +1308,27 @@ input:focus, select:focus, textarea:focus {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) translateZ(0);
-        max-height: 80vh;
-        width: 94%;
-        max-width: 480px;
+        max-height: 85vh;
+        width: 90vw !important;
+        max-width: 90vw !important;
+        margin: auto;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
     }
 
     #nexus-store, .container-glass {
         transform: translateZ(0);
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    /* DESACTIVAR ROTACIÓN DE .neon-card EN MOBILE (MANTENER GRADIENTE ESTÁTICO) */
+    /* DESACTIVAR ROTACIÓN DE .neon-card EN MOBILE */
     .neon-card::before {
         animation: none;
     }
 
-    /* REDUCIR BACKDROP-FILTER EN MOBILE (REEMPLAZAR BLUR Y COMPENSAR OPACIDAD +0.05) */
+    /* BACKDROP-FILTER EN MOBILE */
     .main-nav {
         background: rgba(5, 5, 8, 1);
         backdrop-filter: none;
@@ -1241,92 +1351,6 @@ input:focus, select:focus, textarea:focus {
         backdrop-filter: none;
     }
 
-    .torneos-grid, .agenda-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .podium-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .podium-spot {
-        width: 100%;
-        max-width: 280px;
-        height: auto !important;
-        border-radius: 10px;
-        border-bottom: 1px solid #333;
-    }
-
-    .hero-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .hero-actions .btn-primary,
-    .hero-actions .btn-secondary {
-        width: 100%;
-    }
-
-    .section-head {
-        font-size: 1.6rem;
-    }
-
-    input, select, textarea {
-        font-size: 16px !important; /* Evita el auto-zoom forzado de navegadores móviles */
-        position: relative;
-        z-index: 10;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .modal-box, .container-glass, form {
-        position: relative;
-        z-index: 10;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    /* NUEVO: en vez de que el menú se parta en 3-4 líneas apretadas,
-       se convierte en una tira horizontal deslizable, como hacen la
-       mayoría de apps de torneos en mobile. No se pierde ningún link,
-       solo cambia cómo se acomodan. */
-    .menu {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;
-        width: 100%;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 4px;
-    }
-
-    .menu::-webkit-scrollbar {
-        display: none;
-    }
-
-    .menu li {
-        flex-shrink: 0;
-    }
-
-    /* En mobile no hay hover, así que el dropdown no tendría cómo abrirse.
-       En vez de eso, "desarmamos" el grupo: sus hijos pasan a ser parte
-       directa de la tira horizontal, igual que en la versión anterior. */
-    .nav-group,
-    .nav-dropdown {
-        display: contents;
-    }
-
-    .nav-group-label {
-        display: none;
-    }
-
-    .form-row {
-        flex-direction: column;
-    }
-
     .hero-section {
         text-align: center;
         padding: 40px 0;
@@ -1336,7 +1360,7 @@ input:focus, select:focus, textarea:focus {
         font-size: 2.5rem;
     }
 
-    /* RESPONSIVE VERSUS (MOBIL VERTICAL) */
+    /* RESPONSIVE VERSUS (MOBILE VERTICAL) */
     .vs-match-container {
         flex-direction: column;
         gap: 8px;
