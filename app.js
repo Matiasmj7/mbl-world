@@ -607,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarProductosNexus();
     escucharReferenciasNexus();
     cargarBaseDatosHeroes();
+    escucharContadorSuscriptores();
 
     const formRef = document.getElementById('form-crear-referencia');
     if (formRef) {
@@ -3744,6 +3745,22 @@ window.abrirModalHeroe = function(heroeId) {
 
     document.getElementById('modal-detalle-heroe').style.display = 'flex';
 };
+
+// ==========================================
+// CONTADOR DE SUSCRIPTORES (NINJAS REGISTRADOS)
+// ==========================================
+function escucharContadorSuscriptores() {
+    const elContador = document.getElementById('contador-suscriptores');
+    if (!elContador) return;
+
+    db.collection('ninjas').onSnapshot(snap => {
+        const total = snap ? snap.size : 0;
+        elContador.innerText = `${total} Registrados`;
+    }, err => {
+        console.error("Error al escuchar suscriptores:", err);
+        elContador.innerText = "MBL Arena";
+    });
+}
 
 // ==========================================
 // UTILIDADES (CERRAR MODALES, SESIÓN)
