@@ -1983,10 +1983,12 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
         if (torneoData.campeon) {
             contenedorCampeon.innerHTML = `
-                <div style="background: rgba(255,215,0,0.1); border: 2px solid gold; padding: 20px; text-align: center; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
-                    <i class="fas fa-trophy" style="font-size: 3rem; color: gold; margin-bottom: 10px;"></i>
-                    <h2 style="color: gold; margin: 0;">CAMPEÓN DEFINITIVO</h2>
-                    <h1 style="color: white; margin: 10px 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">${torneoData.campeon}</h1>
+                <div style="position: relative; background: linear-gradient(180deg, rgba(30,25,5,0.85) 0%, rgba(10,10,15,0.95) 100%); border: 2px solid gold; padding: 25px 20px; text-align: center; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 0 25px rgba(255,215,0,0.4); overflow: hidden;">
+                    <div style="margin: 0 auto 10px auto; width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <img src="/trofeomblargdorado.webp" alt="Trofeo Campeón" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,215,0,0.8));">
+                    </div>
+                    <h2 style="color: gold; margin: 0; font-family: var(--font-heading); font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px gold;">👑 CAMPEÓN DEFINITIVO 👑</h2>
+                    <h1 style="color: #ffffff; margin: 10px 0 15px 0; font-size: 2.3rem; font-family: var(--font-heading); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,215,0,0.9), 0 0 30px rgba(255,215,0,0.5);">${torneoData.campeon}</h1>
                     ${botonCompartirWhatsapp(generarTextoCompartirCampeon(torneoData.campeon, torneoNombre, torneoData), 'max-width:280px; margin-left:auto; margin-right:auto;')}
                 </div>
             `;
