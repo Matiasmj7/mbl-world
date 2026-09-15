@@ -608,6 +608,9 @@ document.addEventListener('DOMContentLoaded', () => {
     escucharReferenciasNexus();
     cargarBaseDatosHeroes();
     escucharContadorSuscriptores();
+    escucharUsuariosEnLinea();
+    reportarPresenciaOnline();
+    setInterval(reportarPresenciaOnline, 20000);
 
     const formRef = document.getElementById('form-crear-referencia');
     if (formRef) {
@@ -1031,6 +1034,10 @@ function escucharStreamYDiscordGlobal() {
             } else if (plat === 'tiktok') {
                 finalSrc = `https://www.tiktok.com/embed/v2/${id}`;
                 statusText.innerHTML = `<i class="fab fa-tiktok"></i> PROMOCIÓN TIKTOK`;
+            } else if (plat === 'tiktok_live') {
+                const cleanUser = id.replace('@', '');
+                finalSrc = `https://www.tiktok.com/player/v1/live?username=${cleanUser}`;
+                statusText.innerHTML = `<i class="fab fa-tiktok" style="color:#ff0055;"></i> EN VIVO DESDE TIKTOK LIVE: <strong style="color:white;">@${cleanUser}</strong>`;
             } else if (plat === 'twitch') {
                 finalSrc = `https://player.twitch.tv/?channel=${id}&parent=${window.location.hostname}`;
                 statusText.innerHTML = `<i class="fab fa-twitch" style="color:#9146ff;"></i> EN VIVO TWITCH: <strong style="color:white;">${id}</strong>`;
@@ -1052,6 +1059,11 @@ function extraerIdLimpio(urlCruda, plataforma) {
         else if (plataforma === 'youtube') { if (id.includes('v=')) id = id.split('v=')[1].split('&')[0]; else if (id.includes('youtu.be/')) id = id.split('youtu.be/')[1].split('?')[0]; else if (id.includes('/live/')) id = id.split('/live/')[1].split('?')[0]; }
         else if (plataforma === 'kick') { if (id.includes('kick.com/')) id = id.split('kick.com/')[1].split('?')[0].replace('/', ''); }
         else if (plataforma === 'tiktok') { if (id.includes('/video/')) id = id.split('/video/')[1].split('?')[0]; }
+        else if (plataforma === 'tiktok_live') {
+            if (id.includes('tiktok.com/@')) id = id.split('tiktok.com/@')[1].split('/')[0].split('?')[0];
+            else if (id.includes('tiktok.com/')) id = id.split('tiktok.com/')[1].split('/')[0].split('?')[0];
+            id = id.replace('@', '');
+        }
     } catch(e) {}
     return id;
 }
@@ -3897,6 +3909,60 @@ function escucharContadorSuscriptores() {
     }, err => {
         console.error("Error al escuchar suscriptores:", err);
         elContador.innerText = "MBL Arena";
+    });
+}
+
+// ==========================================
+// PRESENCIA Y USUARIOS EN LÍNEA
+// ==========================================
+function reportarPresenciaOnline() {
+    if (!currentUserId || currentUserName === "Héroe Anónimo") return;
+
+    db.collection('presencia').doc(currentUserId).set({
+        nick: currentUserName,
+        foto: miPerfilActual?.fotoPerfil || '',
+        lastSeen: Date.now()
+    }, { merge: true }).catch(() => {});
+}
+
+function escucharUsuariosEnLinea() {
+    const elLista = document.getElementById('lista-usuarios-en-linea');
+    const elBadge = document.getElementById('contador-online-badge');
+    if (!elLista) return;
+
+    db.collection('presencia').onSnapshot(snap => {
+        const ahora = Date.now();
+        const limiteActivo = ahora - 60000;
+
+        let onlineUsers = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (data.lastSeen && data.lastSeen >= limiteActivo) {
+                onlineUsers.push(data);
+            }
+        });
+
+        if (elBadge) elBadge.innerText = `${onlineUsers.length} En Línea`;
+
+        if (onlineUsers.length === 0) {
+            elLista.innerHTML = `<span style="color:#888; font-size: 0.85rem; font-style: italic;">Esperando ninjas activos...</span>`;
+            return;
+        }
+
+        elLista.innerHTML = onlineUsers.map(u => {
+            const img = u.foto && u.foto !== '' ? u.foto : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random`;
+            return `
+                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(57, 255, 20, 0.3); padding: 4px 10px; border-radius: 20px; cursor: pointer;" onclick="abrirPerfil('${u.nick}')">
+                    <div style="position: relative;">
+                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy">
+                        <span style="position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1px solid #000; box-shadow: 0 0 6px var(--green);"></span>
+                    </div>
+                    <span style="font-size: 0.82rem; color: #fff; font-weight: bold;">${u.nick}</span>
+                </div>
+            `;
+        }).join('');
+    }, err => {
+        console.error("Error al escuchar presencia online:", err);
     });
 }
 
