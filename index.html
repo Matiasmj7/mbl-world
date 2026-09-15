@@ -290,6 +290,7 @@
                     <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-handshake"></i> Forjar Alianza</h3>
                     <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Crea una alianza para tener un chat privado y reclutar miembros.</p>
                     <input type="text" id="input-crear-comunidad" placeholder="Nombre de tu Alianza" style="width:100%; margin-bottom:10px;">
+                <input type="url" id="input-logo-comunidad" placeholder="URL Logo Alianza (Opcional)" style="width:100%; margin-bottom:10px;">
                     <button class="btn-primary" style="width:100%; background: var(--purple); color: white; margin-bottom:20px;" onclick="crearComunidad()">FUNDAR ALIANZA</button>
 
                     <h3 style="color: var(--purple); margin-bottom: 15px;"><i class="fas fa-sign-in-alt"></i> Unirse a Alianza</h3>
@@ -463,6 +464,7 @@
                                 <option value="torneo">Torneo Relámpago</option>
                                 <option value="liga" id="opt-liga">LIGA MENSUAL (Todos contra Todos)</option>
                                 <option value="liga_grupos" id="opt-liga-grupos">LIGA POR GRUPOS (Grupo A y B + Final)</option>
+                                <option value="guerra_comunidades" id="opt-guerra-comunidades">GUERRA DE COMUNIDADES (Comunidad vs Comunidad)</option>
                             </select>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
@@ -522,7 +524,8 @@
 
                     <h3 style="margin: 35px 0 15px 0; color: gold; border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-history"></i> Reinicio de Temporada (Libro Bingo)</h3>
                     <p style="font-size: 0.85rem; color: #888; margin-bottom: 10px;">Este botón restaurará los puntos de experiencia (XP) de TODOS los ninjas a 0 para comenzar un nuevo mes competitivo. Sus diamantes e inventarios no se borrarán.</p>
-                    <button class="btn-primary" style="background: gold; color: black; font-weight: bold; width: 100%;" onclick="reiniciarTopBingo()"><i class="fas fa-sync"></i> REINICIAR RANKING GLOBAL AHORA</button>
+                    <button class="btn-primary" style="background: gold; color: black; font-weight: bold; width: 100%; margin-bottom: 12px;" onclick="reiniciarTopBingo()"><i class="fas fa-sync"></i> REINICIAR RANKING GLOBAL AHORA</button>
+                    <button class="btn-secondary" style="color: gold; border-color: gold; width: 100%;" onclick="reiniciarHallOfFame()"><i class="fas fa-monument"></i> REINICIAR SALÓN DE LA FAMA</button>
 
                     <h3 style="margin: 35px 0 15px 0; color:var(--red); border-top: 1px solid #333; padding-top: 20px;">Purgar Taberna</h3>
                     <button class="btn-secondary" style="border-color:var(--red); color:var(--red); width: 100%;" onclick="limpiarTaberna()">VACIAR CHAT DE TABERNA</button>
@@ -831,6 +834,7 @@
             <h3 style="margin-bottom: 20px; color: var(--blue);"><i class="fas fa-shield-alt"></i> Cuartel del Escuadrón</h3>
             <div id="vista-sin-clan">
                 <input type="text" id="input-crear-clan" placeholder="Nombre Nuevo Escuadrón" style="width:100%; margin-bottom:10px;">
+                <input type="url" id="input-logo-clan" placeholder="URL Logo Escuadrón (Opcional)" style="width:100%; margin-bottom:10px;">
                 <button class="btn-primary" style="width:100%; margin-bottom:20px;" onclick="crearClan()">CREAR NUEVO</button>
                 <input type="text" id="input-unirse-clan" placeholder="Nombre Escuadrón Existente" style="width:100%; margin:10px 0;">
                 <button class="btn-secondary" style="width:100%;" onclick="unirseClan()">UNIRSE</button>
@@ -860,6 +864,16 @@
                     <input type="text" id="input-equipo-manual" placeholder="Nombre Equipo (Si aplica)" style="flex:1; padding: 8px; background: #000; border: 1px solid #333; color: white;">
                     <button class="btn-primary" style="padding:10px 20px; background: var(--blue); color: black; border: none; font-weight: bold; cursor: pointer;" onclick="inscribirJugadorManual()">AÑADIR</button>
                 </div>
+            </div>
+
+            <div id="admin-cruce-manual-box" style="background: rgba(138,43,226,0.1); border: 1px solid var(--purple); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: block;">
+                <h4 style="color: var(--purple); margin-bottom: 10px;"><i class="fas fa-sitemap"></i> Designar Cruce Manual</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center;">
+                    <select id="select-cruce-p1" style="flex:1; min-width: 120px; padding: 8px; background: #000; border: 1px solid #333; color: white;"><option value="">P1 / Equipo 1</option></select>
+                    <span style="color: gold; font-weight: bold;">VS</span>
+                    <select id="select-cruce-p2" style="flex:1; min-width: 120px; padding: 8px; background: #000; border: 1px solid #333; color: white;"><option value="">P2 / Equipo 2</option></select>
+                </div>
+                <button class="btn-primary" style="width:100%; background: var(--purple); color: white; border: none; font-weight: bold;" onclick="crearCruceManualAdmin()">FORJAR COMBATE MANUAL</button>
             </div>
 
             <div id="contenedor-admin-partidos" style="display: flex; flex-direction: column; gap: 15px;"></div>
