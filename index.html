@@ -78,6 +78,9 @@
             </ul>
         </nav>
         <div class="auth-zone">
+            <button id="btn-share-site" class="btn-share-nav" onclick="shareSite(event)" title="Compartir sitio" aria-label="Compartir sitio">
+                <i class="fas fa-share-alt"></i>
+            </button>
             <a href="#modal-notificaciones" id="btn-notif" style="display:none; color: gold; margin-right: 15px; text-decoration: none; position: relative;" onclick="abrirNotificaciones(event)">
                 <i class="fas fa-bell"></i>
                 <span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-10px; background:red; color:white; font-size:0.6rem; padding:2px 5px; border-radius:50%;">0</span>
@@ -1048,6 +1051,40 @@
             <p style="color: #666; font-style: italic;">Disclaimer: MBL Arg is an independent fan platform created under Moonton's Fan Content policy. Mobile Legends: Bang Bang and all related assets, logos, and heroes are trademarks or registered trademarks of Moonton Games.</p>
         </div>
     </footer>
+
+    <!-- MODAL COMPARTIR SITIO -->
+    <div id="modal-compartir-sitio" class="modal">
+        <div class="modal-box" style="border-color: var(--blue); max-width: 500px; text-align: center;">
+            <a href="#" class="btn-close" onclick="document.getElementById('modal-compartir-sitio').style.display='none';">&times;</a>
+            <h3 style="color: var(--blue); margin-bottom: 10px;"><i class="fas fa-share-nodes"></i> Compartir MBL World</h3>
+            <p style="color: #ccc; font-size: 0.88rem; margin-bottom: 20px;">Difunde la Arena en redes sociales, comunidades y canales de transmisión.</p>
+
+            <div style="background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; border: 1px dashed var(--blue); display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <span id="share-url-text" style="color: white; font-size: 0.9rem; font-family: monospace; word-break: break-all;">mbl-world.com</span>
+                <button class="btn-primary" style="padding: 8px 15px; font-size: 0.8rem; margin-left: 10px;" onclick="copiarEnlaceSitio(this)"><i class="fas fa-copy"></i> COPIAR ENLACE</button>
+            </div>
+
+            <h4 style="color: gold; margin-bottom: 12px; font-size: 0.95rem; text-align: left;"><i class="fas fa-paper-plane"></i> Redes y Mensajería Directa</h4>
+            <div class="share-social-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 25px;">
+                <a id="share-wa" href="#" target="_blank" class="share-btn-item" style="background: #25D366; color: black;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a id="share-tg" href="#" target="_blank" class="share-btn-item" style="background: #0088cc; color: white;"><i class="fab fa-telegram"></i> Telegram</a>
+                <a id="share-fb" href="#" target="_blank" class="share-btn-item" style="background: #1877F2; color: white;"><i class="fab fa-facebook"></i> Facebook</a>
+                <a id="share-tw" href="#" target="_blank" class="share-btn-item" style="background: #000000; color: white; border: 1px solid #444;"><i class="fab fa-x-twitter"></i> Twitter / X</a>
+            </div>
+
+            <h4 style="color: #00ffff; margin-bottom: 12px; font-size: 0.95rem; text-align: left;"><i class="fas fa-gamepad"></i> Chats de Stream & Comunidades</h4>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="btn-secondary" style="width: 100%; text-align: left; padding: 10px 14px; font-size: 0.85rem; color: #5865F2; border-color: #5865F2; display: flex; justify-content: space-between; align-items: center;" onclick="copiarTextoStream('¡Sumate a la Arena de Mobile Legends en Argentina! Torneos, Ligas y Recompensas: https://mbl-world.com')">
+                    <span><i class="fab fa-discord"></i> Formato para Discord / Grupos</span>
+                    <i class="fas fa-clone"></i>
+                </button>
+                <button class="btn-secondary" style="width: 100%; text-align: left; padding: 10px 14px; font-size: 0.85rem; color: #53fc18; border-color: #53fc18; display: flex; justify-content: space-between; align-items: center;" onclick="copiarTextoStream('🔥 ¡Unite a MBL World! Competí en torneos relámpago de MLBB -> https://mbl-world.com')">
+                    <span><i class="fas fa-tv"></i> Formato Chat Kick / Twitch / TikTok</span>
+                    <i class="fas fa-clone"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
