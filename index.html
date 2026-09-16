@@ -35,6 +35,9 @@
 
     <header class="main-nav">
         <div class="nav-logo"><img src="/logo-mblarg.webp" alt="MBL Arg" class="nav-logo-img">MBL <span class="accent" id="logo-accent">ARG</span></div>
+        <button id="btn-mobile-menu" class="mobile-menu-toggle" aria-label="Abrir menú de navegación">
+            <i class="fas fa-bars"></i>
+        </button>
         <nav>
             <ul class="menu">
                 <li id="menu-inicio"><a href="#inicio">Inicio</a></li>
@@ -573,6 +576,10 @@
                             <button class="btn-secondary" style="background: var(--red); color: white; border-color: var(--red);" onclick="banearUsuario()">Expulsar (Ban)</button>
                         </div>
                     </div>
+
+                    <h4 style="margin: 25px 0 10px 0; color: white;"><i class="fas fa-user-shield"></i> Usuarios con Roles o Permisos Asignados</h4>
+                    <p style="color: #888; font-size: 0.85rem; margin-bottom: 15px;">Lista de ninjas con rangos especiales (Jonin, Kasekage), permisos de Nexus Manager o estado de expulsión.</p>
+                    <div id="lista-ninjas-roles" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
 
                 <div id="tab-personalizacion" class="admin-only" style="display: none;">
