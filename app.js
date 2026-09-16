@@ -738,6 +738,71 @@ window.copiarCBUNexus = function(btnElement) {
     });
 };
 
+window.shareSite = function(e) {
+    if (e) e.preventDefault();
+    const shareTitle = "MBL World | La Arena del Kage";
+    const shareText = "Torneos, ligas y comunidad de Mobile Legends en Argentina. Sumate a la Arena y competí.";
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        }).catch(() => {
+            // Si el usuario cancela o falla, o si no lo soporta en desktop
+            abrirModalCompartirFallback(shareUrl);
+        });
+    } else {
+        abrirModalCompartirFallback(shareUrl);
+    }
+};
+
+function abrirModalCompartirFallback(shareUrl) {
+    const modal = document.getElementById('modal-compartir-sitio');
+    const shareTextEl = document.getElementById('share-url-text');
+
+    if (shareTextEl) shareTextEl.innerText = shareUrl;
+
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent("🔥 ¡Unite a MBL World! Torneos y Ligas de Mobile Legends en Argentina: ");
+
+    const waLink = document.getElementById('share-wa');
+    const tgLink = document.getElementById('share-tg');
+    const fbLink = document.getElementById('share-fb');
+    const twLink = document.getElementById('share-tw');
+
+    if (waLink) waLink.href = `https://api.whatsapp.com/send?text=${encodedText}${encodedUrl}`;
+    if (tgLink) tgLink.href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+    if (fbLink) fbLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    if (twLink) twLink.href = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+
+    if (modal) modal.style.display = 'flex';
+}
+
+window.copiarEnlaceSitio = function(btnElement) {
+    const shareUrl = window.location.href;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        if (btnElement) {
+            const orig = btnElement.innerHTML;
+            btnElement.innerHTML = `<i class="fas fa-check"></i> ¡ENLACE COPIADO!`;
+            setTimeout(() => { btnElement.innerHTML = orig; }, 2000);
+        } else {
+            alert("¡Enlace copiado!");
+        }
+    }).catch(() => {
+        alert("Enlace: " + shareUrl);
+    });
+};
+
+window.copiarTextoStream = function(texto) {
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("¡Texto para stream/comunidad copiado al portapapeles!");
+    }).catch(() => {
+        alert("Texto: " + texto);
+    });
+};
+
 function cargarProductosNexus() {
     const listaPublica = document.getElementById('lista-productos-nexus');
     const listaAdmin = document.getElementById('admin-lista-nexus');
