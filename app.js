@@ -372,6 +372,34 @@ const CATALOGO_TIENDA = [
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Control del Menú Hamburguesa Móvil
+    const btnMobileMenu = document.getElementById('btn-mobile-menu');
+    const menuEl = document.querySelector('.menu');
+    if (btnMobileMenu && menuEl) {
+        btnMobileMenu.addEventListener('click', () => {
+            menuEl.classList.toggle('active');
+            const icon = btnMobileMenu.querySelector('i');
+            if (icon) {
+                if (menuEl.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        });
+
+        // Cerrar menú al hacer click en cualquier enlace
+        menuEl.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (menuEl.classList.contains('active')) {
+                    menuEl.classList.remove('active');
+                    const icon = btnMobileMenu.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
+            });
+        });
+    }
+
     auth.onAuthStateChanged(user => {
         const userDisplay = document.getElementById('user-display');
         const adminNav = document.getElementById('admin-nav');
@@ -2783,6 +2811,75 @@ window.mostrarTabAdmin = function(tabId) {
         document.getElementById(t).style.display = 'none';
     });
     document.getElementById(tabId).style.display = 'block';
+    if (tabId === 'tab-gestion') {
+        cargarNinjasConRoles();
+    }
+};
+
+window.cargarNinjasConRoles = function() {
+    const cont = document.getElementById('lista-ninjas-roles');
+    if (!cont) return;
+
+    cont.innerHTML = `<p style="color:#aaa; font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Cargar lista de ninjas...</p>`;
+
+    db.collection('ninjas').get().then(snap => {
+        cont.innerHTML = '';
+        let contador = 0;
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            const plan = data.plan || 'genin';
+            const esNexus = data.esNexusManager === true;
+            const banned = data.banned === true;
+
+            if (plan !== 'genin' || esNexus || banned) {
+                contador++;
+                const item = document.createElement('div');
+                item.className = 'container-glass';
+                item.style.padding = '12px 15px';
+                item.style.marginBottom = '8px';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.style.flexWrap = 'wrap';
+                item.style.gap = '10px';
+
+                let badgesHTML = '';
+                if (plan === 'jonin') badgesHTML += `<span style="background:silver; color:black; font-weight:bold; padding:2px 8px; border-radius:4px; font-size:0.75rem;">JONIN</span> `;
+                if (plan === 'kasekage') badgesHTML += `<span style="background:gold; color:black; font-weight:bold; padding:2px 8px; border-radius:4px; font-size:0.75rem;">KASEKAGE</span> `;
+                if (esNexus) badgesHTML += `<span style="background:#00ffff; color:black; font-weight:bold; padding:2px 8px; border-radius:4px; font-size:0.75rem;">NEXUS MANAGER</span> `;
+                if (banned) badgesHTML += `<span style="background:var(--red); color:white; font-weight:bold; padding:2px 8px; border-radius:4px; font-size:0.75rem;">EXPULSADO</span> `;
+
+                item.innerHTML = `
+                    <div>
+                        <strong style="color:white; font-size:1rem; margin-right:8px;">${data.nick || 'Sin Nick'}</strong>
+                        ${badgesHTML}
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        ${plan !== 'genin' ? `<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="modificarNinjaDirecto('${doc.id}', {plan: 'genin'})">Revertir a Genin</button>` : ''}
+                        ${esNexus ? `<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:#00ffff; border-color:#00ffff;" onclick="modificarNinjaDirecto('${doc.id}', {esNexusManager: false})">Quitar Nexus</button>` : ''}
+                        ${banned ? `<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--green); border-color:var(--green);" onclick="modificarNinjaDirecto('${doc.id}', {banned: false})">Desbanear</button>` : `<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--red); border-color:var(--red);" onclick="modificarNinjaDirecto('${doc.id}', {banned: true})">Banear</button>`}
+                    </div>
+                `;
+                cont.appendChild(item);
+            }
+        });
+
+        if (contador === 0) {
+            cont.innerHTML = `<p style="color:#aaa; font-size:0.85rem; font-style:italic;">No hay ningún ninja con roles, permisos o bans especiales asignados actualmente.</p>`;
+        }
+    }).catch(err => {
+        cont.innerHTML = `<p style="color:var(--red); font-size:0.85rem;">Error al cargar lista: ${err.message}</p>`;
+    });
+};
+
+window.modificarNinjaDirecto = function(docId, cambios) {
+    if (confirm("¿Confirmar cambio en permisos del ninja?")) {
+        db.collection('ninjas').doc(docId).update(cambios).then(() => {
+            alert("Permisos actualizados.");
+            cargarNinjasConRoles();
+        }).catch(err => alert("Error: " + err.message));
+    }
 };
 
 window.inscribirJugadorManual = function() {
@@ -3619,8 +3716,10 @@ window.banearUsuario = function() {
     if(confirm(`¿Desterrar a ${nickBuscado} de la Arena de forma permanente?`)) {
         db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
             if(!snap.empty) {
-                snap.docs[0].ref.update({ banned: true });
-                alert("Ninja desterrado.");
+                snap.docs[0].ref.update({ banned: true }).then(() => {
+                    alert("Ninja desterrado.");
+                    if (typeof cargarNinjasConRoles === 'function') cargarNinjasConRoles();
+                });
             } else {
                 alert("No se encontró al ninja.");
             }
@@ -3633,8 +3732,10 @@ window.gestionarPlan = function(nuevoPlan) {
     if(!nickBuscado) return;
     db.collection('ninjas').where('nick', '==', nickBuscado).get().then(snap => {
         if(!snap.empty) {
-            snap.docs[0].ref.update({ plan: nuevoPlan });
-            alert(`Rango ${nuevoPlan.toUpperCase()} otorgado a ${nickBuscado}.`);
+            snap.docs[0].ref.update({ plan: nuevoPlan }).then(() => {
+                alert(`Rango ${nuevoPlan.toUpperCase()} otorgado a ${nickBuscado}.`);
+                if (typeof cargarNinjasConRoles === 'function') cargarNinjasConRoles();
+            });
         } else {
             alert("No se encontró al ninja en los registros.");
         }

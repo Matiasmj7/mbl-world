@@ -183,6 +183,23 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     align-items: center;
 }
 
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(0, 210, 255, 0.15);
+    box-shadow: 0 0 10px var(--blue);
+}
+
 .btn-auth {
     background: transparent;
     color: var(--blue);
@@ -1222,17 +1239,27 @@ input:focus, select:focus, textarea:focus {
     }
 
     /* ENCABEZADO Y NAVEGACIÓN (<header> / <nav>) */
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        order: 3;
+    }
+
     .main-nav {
         padding: 12px 15px;
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
         position: sticky;
         top: 0;
         width: 100%;
     }
 
     .nav-logo {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+        order: 1;
     }
 
     .nav-logo-img {
@@ -1240,32 +1267,92 @@ input:focus, select:focus, textarea:focus {
         width: 30px;
     }
 
-    .menu {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;
+    .auth-zone {
+        order: 2;
+        margin-left: auto;
+        margin-right: 10px;
+    }
+
+    .main-nav nav {
+        order: 4;
         width: 100%;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 4px;
     }
 
-    .menu::-webkit-scrollbar {
+    .menu {
         display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 12px;
+        background: rgba(8, 10, 16, 0.98);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        padding: 15px;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+        max-height: 75vh;
+        overflow-y: auto;
     }
 
-    .menu li {
-        flex-shrink: 0;
+    .menu.active {
+        display: flex;
+    }
+
+    .menu > li {
+        width: 100%;
+    }
+
+    .menu > li > a {
+        display: block;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+    }
+
+    .menu > li > a:hover {
+        background: rgba(0, 210, 255, 0.1);
     }
 
     /* SUBMENÚS (Competir, Comunidad, Tienda) */
-    .nav-group,
-    .nav-dropdown {
-        display: contents;
+    .nav-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 5px;
     }
 
     .nav-group-label {
-        display: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--blue);
+        cursor: default;
+    }
+
+    .nav-dropdown {
+        display: flex;
+        flex-direction: column;
+        position: static;
+        background: rgba(0, 0, 0, 0.3);
+        border: none;
+        border-left: 2px solid var(--blue);
+        box-shadow: none;
+        padding: 5px 0 5px 10px;
+        margin-left: 10px;
+        border-radius: 0 0 6px 6px;
+    }
+
+    .nav-dropdown li a {
+        display: block;
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        color: #ddd;
     }
 
     /* SECCIÓN PASES DE BATALLA (Genin, Jonin, Kasekage) */
