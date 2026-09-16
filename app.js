@@ -2069,7 +2069,12 @@ function botonCompartirWhatsapp(texto, extraStyle = '') {
     return `<a href="${url}" target="_blank" class="btn-secondary" style="width:100%; margin-top:8px; font-size:0.75rem; padding:6px; border-color:#25D366; color:#25D366; text-decoration:none; display:block; text-align:center; ${extraStyle}"><i class="fab fa-whatsapp"></i> COMPARTIR RESULTADO</a>`;
 }
 
+let torneoIdActualLlaves = "";
+let torneoNombreActualLlaves = "";
+
 window.verLlaves = function(torneoId, torneoNombre) {
+    torneoIdActualLlaves = torneoId;
+    torneoNombreActualLlaves = torneoNombre;
     document.getElementById('llaves-titulo').innerText = `Pergamino de Cruces: ${torneoNombre}`;
     const contenedorText = document.getElementById('contenedor-llaves-texto');
     const contenedorCampeon = document.getElementById('contenedor-campeon');
@@ -2266,6 +2271,183 @@ window.verLlaves = function(torneoId, torneoNombre) {
             contenedorText.innerHTML = bracketHtml;
         });
     });
+};
+
+window.abrirLlavePanoramica = function() {
+    const contenedorCampeon = document.getElementById('contenedor-campeon').innerHTML;
+    const contenedorText = document.getElementById('contenedor-llaves-texto').innerHTML;
+    const titulo = torneoNombreActualLlaves || 'MBL World - Llave de Torneo';
+
+    const win = window.open('', '_blank');
+    if (!win) {
+        alert("Por favor permite las ventanas emergentes (pop-ups) en tu navegador para ver la llave completa.");
+        return;
+    }
+
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${titulo} | Llave Completa - MBL World</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap');
+                :root {
+                    --blue: #00d2ff;
+                    --purple: #8a2be2;
+                    --green: #39ff14;
+                    --red: #ff004c;
+                    --font-heading: 'Rajdhani', 'Montserrat', sans-serif;
+                }
+                * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+                body {
+                    background-color: #0a0a0c;
+                    color: white;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                }
+                header {
+                    position: sticky;
+                    top: 0;
+                    z-index: 1000;
+                    background: rgba(10, 10, 15, 0.95);
+                    backdrop-filter: blur(10px);
+                    border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+                    padding: 15px 25px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+                }
+                .pop-title {
+                    font-family: var(--font-heading);
+                    font-size: 1.6rem;
+                    color: var(--blue);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .pop-actions {
+                    display: flex;
+                    gap: 10px;
+                }
+                .pop-btn {
+                    padding: 10px 18px;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    font-size: 0.85rem;
+                    text-transform: uppercase;
+                    cursor: pointer;
+                    border: none;
+                    transition: all 0.3s;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .pop-btn-blue { background: var(--blue); color: black; box-shadow: 0 0 10px rgba(0,210,255,0.4); }
+                .pop-btn-blue:hover { transform: translateY(-2px); box-shadow: 0 0 20px var(--blue); }
+                .pop-btn-outline { background: transparent; border: 1px solid var(--blue); color: var(--blue); }
+                .pop-btn-outline:hover { background: rgba(0,210,255,0.15); }
+
+                main {
+                    flex: 1;
+                    padding: 30px;
+                    overflow: auto;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                #export-container {
+                    width: 100%;
+                    max-width: 1400px;
+                    background: #0b0e14;
+                    border: 1px solid rgba(0,210,255,0.3);
+                    border-radius: 12px;
+                    padding: 30px;
+                    box-shadow: 0 0 30px rgba(0,0,0,0.9);
+                    position: relative;
+                }
+
+                .bracket-scroll { display: flex; gap: 40px; overflow-x: auto; padding: 10px; }
+                .bracket-round { display: flex; flex-direction: column; min-width: 240px; flex-shrink: 0; }
+                .bracket-round-title { color: var(--blue); text-align: center; text-transform: uppercase; font-family: var(--font-heading); font-size: 1rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+                .bracket-round-matches { display: flex; flex-direction: column; justify-content: space-around; gap: 20px; flex: 1; }
+                .bracket-match { background: linear-gradient(135deg, rgba(15,15,30,0.95), rgba(5,5,15,0.95)); border: 1px solid var(--blue); border-radius: 8px; padding: 12px; position: relative; box-shadow: 0 0 12px rgba(0,210,255,0.2); }
+                .bracket-player { font-family: var(--font-heading); font-size: 1.05rem; padding: 6px 0; color: white; display: flex; align-items: center; }
+                .bracket-player.winner { color: var(--green); font-weight: bold; }
+                .bracket-player.perdedor { color: #555; text-decoration: line-through; }
+                .bracket-vs-divider { border-top: 1px dashed #333; margin: 4px 0; }
+
+                #export-container::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%; left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 400px; height: 400px;
+                    background: url('/trofeomblargdorado.webp') center/contain no-repeat;
+                    opacity: 0.2; pointer-events: none;
+                }
+            </style>
+        </head>
+        <body>
+            <header>
+                <div class="pop-title"><i class="fas fa-trophy"></i> ${titulo}</div>
+                <div class="pop-actions">
+                    <button class="pop-btn pop-btn-blue" onclick="descargarLlavePNG()"><i class="fas fa-download"></i> Descargar PNG</button>
+                    <button class="pop-btn pop-btn-outline" onclick="compartirLlave()"><i class="fas fa-share-alt"></i> Copiar / Compartir</button>
+                </div>
+            </header>
+            <main>
+                <div id="export-container">
+                    <div style="text-align:center; margin-bottom: 20px;">
+                        <h2 style="font-family:var(--font-heading); font-size: 2rem; color: #fff;">${titulo}</h2>
+                        <p style="color:var(--blue); font-size:0.85rem;">MBL WORLD · ARENA DEL KAGE</p>
+                    </div>
+                    ${contenedorCampeon}
+                    ${contenedorText}
+                </div>
+            </main>
+
+            <script>
+                function descargarLlavePNG() {
+                    const el = document.getElementById('export-container');
+                    html2canvas(el, { backgroundColor: '#0b0e14', scale: 2 }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'mbl-world-torneo-llave.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }).catch(err => {
+                        alert('No se pudo generar la imagen PNG. Intenta una captura de pantalla.');
+                    });
+                }
+
+                function compartirLlave() {
+                    const shareData = {
+                        title: '${titulo} - MBL World',
+                        text: '¡Mira los cruces y resultados de ${titulo} en MBL World!',
+                        url: window.opener ? window.opener.location.href : window.location.href
+                    };
+                    if (navigator.share) {
+                        navigator.share(shareData).catch(() => {});
+                    } else {
+                        navigator.clipboard.writeText(shareData.url).then(() => {
+                            alert('¡Enlace copiado al portapapeles!');
+                        });
+                    }
+                }
+            </script>
+        </body>
+        </html>
+    `);
+    win.document.close();
 };
 
 // ==========================================
