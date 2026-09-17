@@ -102,7 +102,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: top center;
     z-index: -2;
     opacity: 0.85;
 }
@@ -144,7 +145,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px var(--blue);
+    color: var(--blue);
+    -webkit-text-stroke: 1.5px #ffffff;
+    text-stroke: 1.5px #ffffff;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.7);
 }
 
 .nav-logo-img {
@@ -155,7 +159,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .nav-logo .accent {
-    color: var(--blue);
+    color: #ffffff;
+    -webkit-text-stroke: 1.5px var(--blue);
+    text-stroke: 1.5px var(--blue);
 }
 
 .menu {
@@ -680,8 +686,28 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .hero-section {
-    padding: 60px 0;
-    text-align: center;
+    padding: 60px 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 400px;
+}
+
+#nexus-store {
+    background: rgba(5, 10, 20, 0.35) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+}
+
+#nexus-store.solid-on-scroll {
+    background: rgba(5, 8, 15, 0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-color: rgba(0, 255, 255, 0.5);
 }
 
 .title-main {
@@ -1534,6 +1560,21 @@ input:focus, select:focus, textarea:focus {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         box-sizing: border-box;
+    }
+
+    #nexus-store {
+        background: rgba(5, 10, 20, 0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 255, 255, 0.25);
+        transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+    }
+
+    #nexus-store.solid-on-scroll {
+        background: rgba(5, 8, 15, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-color: rgba(0, 255, 255, 0.5);
     }
 
     #nexus-store, .container-glass {
