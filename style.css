@@ -1696,7 +1696,12 @@ input:focus, select:focus, textarea:focus {
   text-shadow: 0 0 8px #fff;
 }
 
-/* 1. MARCOS NEÓN ESTÁTICOS */
+/* 1. MARCOS NEÓN (GIRATORIOS EN PC / ESTÁTICOS EN MÓVIL) */
+@keyframes rotate-neon {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .neon-card {
   position: relative;
   border-radius: 12px;
@@ -1711,6 +1716,7 @@ input:focus, select:focus, textarea:focus {
   transform: translateY(-2px);
 }
 
+/* Efecto por defecto (Móviles / Tablets <= 980px: Estático para ahorro de batería/GPU) */
 .neon-card::before {
   content: '';
   position: absolute;
@@ -1718,7 +1724,7 @@ input:focus, select:focus, textarea:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  animation: none !important;
+  animation: none;
   z-index: 1;
 }
 
@@ -1733,7 +1739,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
 }
 
-/* VARIANTES DE COLOR (ESTÁTICAS) */
+/* VARIANTES DE COLOR ESTÁTICAS (Móviles) */
 .neon-card.neon-cyan::before,
 .neon-card:not([class*="neon-"])::before {
   background: linear-gradient(135deg, var(--neon-cyan) 0%, rgba(0,210,255,0.4) 100%);
@@ -1759,6 +1765,38 @@ input:focus, select:focus, textarea:focus {
   background: linear-gradient(135deg, var(--neon-purple) 0%, rgba(157,0,255,0.4) 100%);
 }
 .neon-card.neon-purple { box-shadow: 0 0 15px var(--neon-purple-glow); }
+
+/* VISTA ESCRITORIO (PC >= 981px): Animación de resplandor giratorio con conic-gradient */
+@media screen and (min-width: 981px) {
+  .neon-card::before {
+    top: -60%;
+    left: -60%;
+    width: 220%;
+    height: 220%;
+    animation: rotate-neon 4s linear infinite !important;
+  }
+
+  .neon-card.neon-cyan::before,
+  .neon-card:not([class*="neon-"])::before {
+    background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-cyan) 270deg, #ffffff 330deg, var(--neon-cyan) 360deg);
+  }
+
+  .neon-card.neon-gold::before {
+    background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-gold) 270deg, #fff7c2 330deg, var(--neon-gold) 360deg);
+  }
+
+  .neon-card.neon-red::before {
+    background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-red) 270deg, #ffb3c6 330deg, var(--neon-red) 360deg);
+  }
+
+  .neon-card.neon-green::before {
+    background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-green) 270deg, #ccffdd 330deg, var(--neon-green) 360deg);
+  }
+
+  .neon-card.neon-purple::before {
+    background: conic-gradient(from 0deg, transparent 0deg 180deg, var(--neon-purple) 270deg, #f3ccff 330deg, var(--neon-purple) 360deg);
+  }
+}
 
 /* EXCLUSIÓN PANEL DE CREADOR */
 .creator-panel .neon-card::before,
