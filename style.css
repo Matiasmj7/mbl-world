@@ -101,6 +101,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     object-fit: cover;
     z-index: -2;
     opacity: 0.85;
@@ -112,6 +113,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: linear-gradient(to bottom, rgba(5,5,8,0.1) 0%, rgba(5,5,8,0.6) 100%);
     z-index: -1;
 }
@@ -850,6 +852,7 @@ input:focus, select:focus, textarea:focus {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.85);
     z-index: 2500;
     justify-content: center;
@@ -870,6 +873,7 @@ input:focus, select:focus, textarea:focus {
     width: 100%;
     max-width: 500px;
     max-height: 90vh; 
+    max-height: 90dvh;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
@@ -1523,6 +1527,7 @@ input:focus, select:focus, textarea:focus {
         left: 50%;
         transform: translate(-50%, -50%) translateZ(0);
         max-height: 85vh;
+        max-height: 85dvh;
         width: 90vw !important;
         max-width: 90vw !important;
         margin: auto;
