@@ -1651,9 +1651,9 @@ input:focus, select:focus, textarea:focus {
 
 .team-red {
   flex: 1;
-  background: linear-gradient(135deg, #4a0011 0%, #1a0006 100%);
-  border: 2px solid #ff0044;
-  box-shadow: 0 0 15px rgba(255, 0, 68, 0.4);
+  background: linear-gradient(135deg, #800020 0%, #3d000d 60%, #120004 100%);
+  border: 2px solid #ff0055;
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.6), inset 0 0 15px rgba(255, 0, 85, 0.35);
   clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
   padding: 12px 15px;
   color: #fff;
@@ -1662,13 +1662,15 @@ input:focus, select:focus, textarea:focus {
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 0, 85, 0.8);
 }
 
 .team-blue {
   flex: 1;
-  background: linear-gradient(135deg, #001f3f 0%, #000a17 100%);
+  background: linear-gradient(135deg, #003b70 0%, #001933 60%, #000d1a 100%);
   border: 2px solid #00d2ff;
-  box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.6), inset 0 0 15px rgba(0, 210, 255, 0.35);
   clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
   padding: 12px 15px;
   margin-left: -5%;
@@ -1679,21 +1681,38 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
+}
+
+@keyframes vs-glow-pulse {
+  0% {
+    box-shadow: 0 0 15px #00d2ff, 0 0 25px #ff0055, inset 0 0 10px #ffffff;
+    text-shadow: 0 0 8px #ffffff, 0 0 18px #ffd700;
+  }
+  50% {
+    box-shadow: 0 0 25px #ff0055, 0 0 35px #00d2ff, inset 0 0 15px #ffd700;
+    text-shadow: 0 0 14px #ffffff, 0 0 25px #ff0055;
+  }
+  100% {
+    box-shadow: 0 0 15px #00d2ff, 0 0 25px #ff0055, inset 0 0 10px #ffffff;
+    text-shadow: 0 0 8px #ffffff, 0 0 18px #ffd700;
+  }
 }
 
 .vs-badge {
   position: absolute;
   z-index: 10;
   font-family: 'Impact', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-style: italic;
-  color: #fff;
-  background: #000;
-  border: 2px solid #fff;
-  padding: 4px 10px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #1f2838 0%, #05080d 100%);
+  border: 2px solid #ffffff;
+  padding: 4px 12px;
   border-radius: 8px;
-  box-shadow: 0 0 20px #00d2ff, 0 0 10px #ff0044;
-  text-shadow: 0 0 8px #fff;
+  animation: vs-glow-pulse 2s infinite ease-in-out;
+  letter-spacing: 1.5px;
 }
 
 /* 1. MARCOS NEÓN (GIRATORIOS EN PC / ESTÁTICOS EN MÓVIL) */
