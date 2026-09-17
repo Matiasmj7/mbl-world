@@ -809,7 +809,15 @@ function cargarProductosNexus() {
     if(!listaPublica) return;
     mostrarSkeleton(listaPublica, 'card', 3);
 
+    // Timeout de seguridad en móviles para limpiar skeleton en caso de falla de red
+    const timeoutSeguridad = setTimeout(() => {
+        if (listaPublica && listaPublica.querySelector('.skeleton')) {
+            listaPublica.innerHTML = "<p style='color:#ccc; text-align:center;'>No se pudo cargar la tienda. Revisa tu conexión a internet.</p>";
+        }
+    }, 7000);
+
     db.collection('nexus_productos').orderBy('timestamp', 'asc').onSnapshot(snap => {
+        clearTimeout(timeoutSeguridad);
         if(listaAdmin) listaAdmin.innerHTML = "";
 
         if (snap.empty) {
@@ -875,7 +883,7 @@ function cargarProductosNexus() {
         Object.values(categorias).forEach(cat => {
             if (cat.html === '') return; // no mostramos categorías vacías
             htmlFinal += `
-                <details class="nexus-accordion" open>
+                <details class="nexus-accordion">
                     <summary class="nexus-accordion-summary">${cat.titulo}</summary>
                     <div class="nexus-grid" style="margin-top: 15px;">${cat.html}</div>
                 </details>
@@ -1637,7 +1645,17 @@ function cargarTorneosDesdeNube() {
     mostrarSkeleton(listaLigas, 'card', 2);
     if (listaAgenda) mostrarSkeleton(listaAgenda, 'card', 3);
 
+    const timeoutTorneos = setTimeout(() => {
+        if (listaTorneos && listaTorneos.querySelector('.skeleton')) {
+            listaTorneos.innerHTML = "<p style='color:#888; text-align:center;'>No hay eventos para mostrar en este momento.</p>";
+        }
+        if (listaLigas && listaLigas.querySelector('.skeleton')) {
+            listaLigas.innerHTML = "<p style='color:#888; text-align:center;'>No hay ligas activas.</p>";
+        }
+    }, 7000);
+
     db.collection('torneos').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        clearTimeout(timeoutTorneos);
         listaTorneos.innerHTML = '';
         listaLigas.innerHTML = '';
         const eventos = [];
