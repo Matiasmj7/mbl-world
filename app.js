@@ -829,22 +829,22 @@ function cargarProductosNexus() {
             const id = doc.id;
 
             let imgIcon = data.img && data.img !== ""
-                ? `<img src="${data.img}" style="width:50px; height:50px; object-fit:contain; margin-bottom:10px;">`
-                : `<i class="fas fa-gem" style="font-size:2rem; color:#00ffff; margin-bottom:10px; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
+                ? `<img src="${data.img}" class="nexus-prod-img" alt="${data.nombre}">`
+                : `<i class="fas fa-gem nexus-prod-icon" style="color:#00ffff; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
 
             if (data.tipo === 'pase' && (!data.img || data.img === "")) {
-                imgIcon = `<i class="fas fa-ticket-alt" style="font-size:2rem; color:gold; margin-bottom:10px; filter: drop-shadow(0 0 10px gold);"></i>`;
+                imgIcon = `<i class="fas fa-ticket-alt nexus-prod-icon" style="color:gold; filter: drop-shadow(0 0 10px gold);"></i>`;
             }
 
-            // Renderizado Público (Añadido background transparente)
+            // Renderizado Público (Añadido background transparente y tarjeta compacta)
             const tarjetaHtml = `
-                <div class="container-glass plan-card glow-hover" style="border-color: #00ffff; background: transparent; display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="container-glass plan-card nexus-prod-card glow-hover" style="border-color: #00ffff; background: transparent; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         ${imgIcon}
-                        <h3 style="color: white; font-size:1.4rem;">${data.nombre}</h3>
-                        <div class="price" style="color: gold; font-size: 1.6rem; text-shadow: 0 0 5px rgba(255,215,0,0.5);">${data.precio}</div>
+                        <h3 style="color: white; font-size:1.15rem; margin-bottom:5px;">${data.nombre}</h3>
+                        <div class="price" style="color: gold; font-size: 1.35rem; text-shadow: 0 0 5px rgba(255,215,0,0.5);">${data.precio}</div>
                     </div>
-                    <button class="btn-primary" style="background: #00ffff; color: black; width: 100%; box-shadow: 0 0 10px #00ffff; margin-top: 15px;" onclick="abrirModalCompraNexus('${data.nombre}', '${data.precio}')">COMPRAR</button>
+                    <button class="btn-primary" style="background: #00ffff; color: black; width: 100%; box-shadow: 0 0 10px #00ffff; margin-top: 10px; padding: 8px 12px; font-size:0.88rem;" onclick="abrirModalCompraNexus('${data.nombre}', '${data.precio}')">COMPRAR</button>
                 </div>
             `;
 
@@ -875,9 +875,9 @@ function cargarProductosNexus() {
         Object.values(categorias).forEach(cat => {
             if (cat.html === '') return; // no mostramos categorías vacías
             htmlFinal += `
-                <details class="nexus-accordion">
+                <details class="nexus-accordion" open>
                     <summary class="nexus-accordion-summary">${cat.titulo}</summary>
-                    <div class="torneos-grid" style="margin-top: 20px;">${cat.html}</div>
+                    <div class="nexus-grid" style="margin-top: 15px;">${cat.html}</div>
                 </details>
             `;
         });
