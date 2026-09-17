@@ -4383,3 +4383,15 @@ function escucharUsuariosEnLinea() {
 // ==========================================
 window.cerrarModalPerfil = function(e) { if(e) e.preventDefault(); history.back(); };
 window.cerrarSesion = function() { auth.signOut().then(() => window.location.reload()); };
+
+// Translucidez y solidez dinámica al scroll para Nexus Store
+window.addEventListener('scroll', () => {
+    const nexusEl = document.getElementById('nexus-store');
+    if (nexusEl) {
+        if (window.scrollY > 150) {
+            nexusEl.classList.add('solid-on-scroll');
+        } else {
+            nexusEl.classList.remove('solid-on-scroll');
+        }
+    }
+});
