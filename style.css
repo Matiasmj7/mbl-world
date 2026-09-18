@@ -438,6 +438,27 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     backdrop-filter: blur(8px);
 }
 
+.card-torneo-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.3));
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.card-t:hover .card-torneo-bg {
+    opacity: 0.35;
+    transform: scale(1.03);
+}
+
 .bracket-match {
     position: relative;
     background: linear-gradient(135deg, rgba(10,10,20,0.95), rgba(5,5,15,0.95));
