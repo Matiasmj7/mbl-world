@@ -2064,3 +2064,85 @@ strong, b, .text-bold-glow {
   text-shadow: 0 0 8px var(--neon-cyan-glow, rgba(0, 210, 255, 0.7));
 }
 
+/* REDES SOCIALES - BOTONES / RECUADROS */
+.social-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  padding: 18px 12px;
+  background: rgba(10, 14, 22, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.social-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.social-box i {
+  font-size: 1.2rem;
+}
+
+.social-box:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: brightness(1.15);
+}
+
+/* Colores representativos de cada red social */
+.social-box-tt {
+  background: linear-gradient(135deg, #00f2fe 0%, #000000 50%, #fe2c55 100%);
+  border-color: #00f2fe;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.social-box-kc {
+  background: #000000;
+  color: #53FC18;
+  border-color: #53FC18;
+  box-shadow: 0 0 10px rgba(83, 252, 24, 0.3);
+}
+
+.social-box-fb {
+  background: #1877F2;
+  border-color: #3b8efc;
+  box-shadow: 0 0 10px rgba(24, 119, 242, 0.4);
+}
+
+.social-box-yt {
+  background: #FF0000;
+  border-color: #ff3333;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+.social-box-wa {
+  background: #25D366;
+  color: #051a0d;
+  border-color: #34ea77;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
+}
+
+.social-box-ds {
+  background: #5865F2;
+  border-color: #7289da;
+  box-shadow: 0 0 10px rgba(88, 101, 242, 0.4);
+}
+
+.social-box-ig {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-color: #e1306c;
+  box-shadow: 0 0 10px rgba(225, 48, 108, 0.4);
+}
+
