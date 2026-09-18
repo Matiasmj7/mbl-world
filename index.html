@@ -164,16 +164,16 @@
                         <iframe id="stream-frame" src="" frameborder="0" allowfullscreen scrolling="no" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                     </div>
                     <div class="chat-container">
-                        <div class="chat-head">Chat de la Aldea</div>
-                        <div id="social-media-bar" style="display: flex; justify-content: space-around; background: #111; padding: 10px; border-bottom: 1px solid #222; font-size: 1.2rem;">
-                            <a id="link-soc-wa" href="https://wa.me/5491165658881" target="_blank" style="color: #25D366;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                            <a id="link-soc-ds" href="#" target="_blank" style="color: #5865F2;" title="Discord"><i class="fab fa-discord"></i></a>
-                            <a id="link-soc-fb" href="#" target="_blank" style="color: #1877F2;" title="Facebook"><i class="fab fa-facebook"></i></a>
-                            <a id="link-soc-tt" href="#" target="_blank" style="color: #ffffff; text-shadow: 0 0 3px #000;" title="TikTok"><i class="fab fa-tiktok"></i></a>
-                            <a id="link-soc-ig" href="#" target="_blank" style="color: #E1306C;" title="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a id="link-soc-yt" href="#" target="_blank" style="color: #FF0000;" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <div class="chat-head">NUESTRAS REDES SOCIALES</div>
+                        <div id="social-media-bar" class="social-grid-container">
+                            <a id="link-soc-tt" href="#" target="_blank" class="social-box social-box-tt" title="TikTok"><i class="fab fa-tiktok"></i> TikTok</a>
+                            <a id="link-soc-kc" href="#" target="_blank" class="social-box social-box-kc" title="Kick"><i class="fas fa-play"></i> Kick</a>
+                            <a id="link-soc-fb" href="#" target="_blank" class="social-box social-box-fb" title="Facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
+                            <a id="link-soc-yt" href="#" target="_blank" class="social-box social-box-yt" title="YouTube"><i class="fab fa-youtube"></i> YouTube</a>
+                            <a id="link-soc-wa" href="https://wa.me/5491165658881" target="_blank" class="social-box social-box-wa" title="WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                            <a id="link-soc-ds" href="#" target="_blank" class="social-box social-box-ds" title="Discord"><i class="fab fa-discord"></i> Discord</a>
+                            <a id="link-soc-ig" href="#" target="_blank" class="social-box social-box-ig" title="Instagram"><i class="fab fa-instagram"></i> Instagram</a>
                         </div>
-                        <iframe id="chat-externo-frame" class="chat-frame" src="" style="min-height: 450px; flex-grow: 1; border:none;"></iframe>
                     </div>
                 </div>
             </div>
@@ -543,7 +543,6 @@
                             </select>
                             <input type="text" id="stream-id-admin" placeholder="ID del Canal o Enlace" required>
                         </div>
-                        <input type="url" id="discord-url-admin" placeholder="URL de WidgetBot Discord" style="width:100%; margin-bottom:10px;">
                         <button type="submit" class="btn-primary" style="background: var(--red); color: white;">ACTUALIZAR SEÑAL GLOBAL</button>
                     </form>
 
@@ -600,14 +599,15 @@
                             </label>
                         </div>
 
-                        <h4 style="color:var(--blue); margin: 25px 0 10px 0; border-top: 1px dashed #333; padding-top: 15px;"><i class="fas fa-link"></i> Enlaces Sociales del Stream</h4>
+                        <h4 style="color:var(--blue); margin: 25px 0 10px 0; border-top: 1px dashed #333; padding-top: 15px;"><i class="fas fa-link"></i> Enlaces Sociales de la Aldea y Creador</h4>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;">
+                            <input type="url" id="cfg-link-tt" placeholder="Enlace de TikTok">
+                            <input type="url" id="cfg-link-kc" placeholder="Enlace de Kick">
+                            <input type="url" id="cfg-link-fb" placeholder="Enlace de Facebook">
+                            <input type="url" id="cfg-link-yt" placeholder="Enlace de YouTube">
                             <input type="url" id="cfg-link-wa" placeholder="Enlace de WhatsApp">
                             <input type="url" id="cfg-link-ds" placeholder="Enlace de Discord">
-                            <input type="url" id="cfg-link-fb" placeholder="Enlace de Facebook">
-                            <input type="url" id="cfg-link-tt" placeholder="Enlace de TikTok">
                             <input type="url" id="cfg-link-ig" placeholder="Enlace de Instagram">
-                            <input type="url" id="cfg-link-yt" placeholder="Enlace de YouTube">
                         </div>
 
                         <h4 style="color:white; margin-bottom: 10px;">Visibilidad de Secciones</h4>

@@ -1075,7 +1075,7 @@ function escucharPersonalizacion() {
                 if (colorInput) colorInput.value = data.colorAcento;
             }
 
-            const redes = ['wa', 'ds', 'fb', 'tt', 'ig', 'yt'];
+            const redes = ['wa', 'ds', 'fb', 'tt', 'ig', 'yt', 'kc'];
             redes.forEach(red => {
                 const linkEl = document.getElementById(`link-soc-${red}`);
                 const inputEl = document.getElementById(`cfg-link-${red}`);
@@ -1113,17 +1113,15 @@ function escucharPersonalizacion() {
 // ==========================================
 function escucharStreamYDiscordGlobal() {
     const iframeStream = document.getElementById('stream-frame');
-    const iframeDiscord = document.getElementById('chat-externo-frame');
     const statusText = document.getElementById('status-stream');
 
-    if(!iframeStream || !statusText || !iframeDiscord) return;
+    if(!iframeStream || !statusText) return;
 
     db.collection('configuracion').doc('global_media').onSnapshot(doc => {
         if(doc.exists) {
             const data = doc.data();
             const plat = data.plataforma || 'kick';
             const id = data.id || 'matias_mj7';
-            const discordUrl = data.discordUrl || 'https://e.widgetbot.io/channels/299881420891881473/299881420891881473';
             let finalSrc = "";
 
             if (plat === 'kick') {
@@ -1145,7 +1143,6 @@ function escucharStreamYDiscordGlobal() {
             }
 
             if(iframeStream.src !== finalSrc) iframeStream.src = finalSrc;
-            if(iframeDiscord.src !== discordUrl) iframeDiscord.src = discordUrl;
         } else {
             iframeStream.src = `https://player.kick.com/matias_mj7`;
             statusText.innerHTML = `<i class="fas fa-satellite-dish" style="color:var(--green);"></i> EN VIVO DESDE KICK: <strong style="color:white;">matias_mj7</strong>`;
@@ -3275,7 +3272,8 @@ function configurarAdminForms() {
                 fb: document.getElementById('cfg-link-fb').value,
                 tt: document.getElementById('cfg-link-tt').value,
                 ig: document.getElementById('cfg-link-ig').value,
-                yt: document.getElementById('cfg-link-yt').value
+                yt: document.getElementById('cfg-link-yt').value,
+                kc: document.getElementById('cfg-link-kc') ? document.getElementById('cfg-link-kc').value : ''
             };
 
             const visibilidad = {
@@ -4054,12 +4052,10 @@ if(formConfigStream) {
         const plat = document.getElementById('stream-plataforma-admin').value;
         const idCrudo = document.getElementById('stream-id-admin').value;
         const idLimpio = extraerIdLimpio(idCrudo, plat);
-        const urlDiscord = document.getElementById('discord-url-admin').value;
 
         db.collection('configuracion').doc('global_media').update({
             plataforma: plat,
-            id: idLimpio,
-            discordUrl: urlDiscord
+            id: idLimpio
         }).then(() => alert("Señal de Transmisión Sincronizada con la aldea."));
     });
 }
