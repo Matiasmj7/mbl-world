@@ -1788,10 +1788,13 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
         }
     }
 
+    const bgLogo = (data.imagenFondo && data.imagenFondo.trim() !== '') ? data.imagenFondo.trim() : 'logo-mblarg.png';
+
     return `
         <div class="card-t container-glass glow-hover neon-card ${neonVariant}" style="position:relative; overflow:hidden; padding: 2px;">
-            <div class="neon-card-inner" style="display:flex; flex-direction:column; height:100%;">
-                ${data.acceso === 'comunidad' ? `<div style="position:absolute; top:10px; right:10px; color:#ff00ff; font-size:1rem; font-weight:bold; background:rgba(255,0,255,0.15); border:1px solid #ff00ff; padding:2px 8px; border-radius:4px;" title="Exclusivo Comunidad ${data.comunidadExclusiva || ''}"><i class="fas fa-users-slash"></i> EXCLUSIVO ${data.comunidadExclusiva ? data.comunidadExclusiva.toUpperCase() : 'COMUNIDAD'}</div>` : (data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : '')}
+            <div class="neon-card-inner" style="display:flex; flex-direction:column; height:100%; position:relative; z-index:2; overflow:hidden;">
+                <div class="card-torneo-bg" style="background-image: url('${bgLogo}');"></div>
+                ${data.acceso === 'comunidad' ? `<div style="position:absolute; top:10px; right:10px; color:#ff00ff; font-size:1rem; font-weight:bold; background:rgba(255,0,255,0.15); border:1px solid #ff00ff; padding:2px 8px; border-radius:4px; z-index:3;" title="Exclusivo Comunidad ${data.comunidadExclusiva || ''}"><i class="fas fa-users-slash"></i> EXCLUSIVO ${data.comunidadExclusiva ? data.comunidadExclusiva.toUpperCase() : 'COMUNIDAD'}</div>` : (data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem; z-index:3;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : '')}
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                     <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
@@ -3202,6 +3205,8 @@ function configurarAdminForms() {
                 return;
             }
 
+            const imagenFondoInput = document.getElementById('t-imagen-fondo')?.value.trim();
+
             db.collection('torneos').add({
                 nombre: document.getElementById('t-nombre').value,
                 fecha: document.getElementById('t-fecha').value,
@@ -3214,6 +3219,7 @@ function configurarAdminForms() {
                 comunidadExclusiva: comunidadDestino,
                 privado: (modoAcceso === 'privado'),
                 linkTiktok: document.getElementById('t-tiktok')?.value.trim() || "",
+                imagenFondo: imagenFondoInput || "logo-mblarg.png",
                 creador: currentUserName,
                 lista_inscriptos: [],
                 lista_equipos: [],
