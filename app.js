@@ -1,4 +1,44 @@
 // ==========================================
+// HELPER: CONVERTIDOR AUTOMÁTICO DE ENLACES NUBE (DIRECT IMAGE URL)
+// ==========================================
+function getDirectImageUrl(url) {
+    if (!url || typeof url !== "string") return url || "";
+    let cleanUrl = url.trim();
+    if (!cleanUrl) return "";
+
+    // Google Drive
+    if (cleanUrl.includes("drive.google.com")) {
+        const fileDMatch = cleanUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileDMatch && fileDMatch[1]) {
+            return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
+        }
+        const openIdMatch = cleanUrl.match(/drive\.google\.com\/(?:open|uc)\?.*id=([a-zA-Z0-9_-]+)/);
+        if (openIdMatch && openIdMatch[1]) {
+            return `https://lh3.googleusercontent.com/d/${openIdMatch[1]}`;
+        }
+    }
+
+    // Dropbox
+    if (cleanUrl.includes("dropbox.com")) {
+        if (cleanUrl.includes("dl=0")) {
+            return cleanUrl.replace("dl=0", "raw=1");
+        } else if (cleanUrl.includes("dl=1")) {
+            return cleanUrl.replace("dl=1", "raw=1");
+        } else if (!cleanUrl.includes("raw=1")) {
+            return cleanUrl + (cleanUrl.includes("?") ? "&raw=1" : "?raw=1");
+        }
+    }
+
+    // GitHub
+    if (cleanUrl.includes("github.com") && !cleanUrl.includes("raw.githubusercontent.com")) {
+        return cleanUrl.replace(/^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/(?:blob|raw)\/(.+)$/i, "https://raw.githubusercontent.com/$1/$2");
+    }
+
+    return cleanUrl;
+}
+window.getDirectImageUrl = getDirectImageUrl;
+
+// ==========================================
 // REGISTRO DE SERVICE WORKER (PWA)
 // ==========================================
 if ('serviceWorker' in navigator) {
@@ -443,7 +483,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (document.getElementById('mi-stats-bingo')) document.getElementById('mi-stats-bingo').innerText = `${pj} PJ / ${pg} PG`;
                     if (document.getElementById('mi-winrate-bingo')) document.getElementById('mi-winrate-bingo').innerText = `${wr}% WR`;
                     if (document.getElementById('mi-avatar-bingo')) {
-                        document.getElementById('mi-avatar-bingo').src = (data.fotoPerfil && data.fotoPerfil !== '') ? data.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`;
+                        const avatarSrc = (data.fotoPerfil && data.fotoPerfil !== '') ? getDirectImageUrl(data.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`;
+                        const el = document.getElementById('mi-avatar-bingo');
+                        el.src = avatarSrc;
+                        el.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`; };
                     }
 
                     document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
@@ -703,7 +746,7 @@ function escucharConfigNexus() {
             if(data.bgImage) {
                 const bgEl = document.getElementById('nexus-bg-image');
                 if(bgEl) {
-                    bgEl.src = data.bgImage;
+                    bgEl.src = getDirectImageUrl(data.bgImage);
                     bgEl.style.display = 'block';
                 }
             }
@@ -837,7 +880,7 @@ function cargarProductosNexus() {
             const id = doc.id;
 
             let imgIcon = data.img && data.img !== ""
-                ? `<img src="${data.img}" class="nexus-prod-img" alt="${data.nombre}">`
+                ? `<img src="${getDirectImageUrl(data.img)}" class="nexus-prod-img" alt="${data.nombre}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Item&background=random';">`
                 : `<i class="fas fa-gem nexus-prod-icon" style="color:#00ffff; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
 
             if (data.tipo === 'pase' && (!data.img || data.img === "")) {
@@ -1411,7 +1454,7 @@ function cargarTopComunidades() {
         lista.innerHTML = "";
         comunidades.slice(0, 5).forEach((com, index) => {
             let color = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? '#cd7f32' : '#333'));
-            let logoImg = com.logo && com.logo !== "" ? `<img src="${com.logo}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid ${color};">` : '';
+            let logoImg = com.logo && com.logo !== "" ? `<img src="${getDirectImageUrl(com.logo)}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid ${color};" onerror="this.style.display='none';">` : '';
             lista.innerHTML += `
                 <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; margin-bottom:5px; border-left:3px solid ${color};">
                     <div style="display:flex; align-items:center;">
@@ -2109,7 +2152,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
             contenedorCampeon.innerHTML = `
                 <div style="position: relative; background: linear-gradient(180deg, rgba(30,25,5,0.85) 0%, rgba(10,10,15,0.95) 100%); border: 2px solid gold; padding: 25px 20px; text-align: center; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 0 25px rgba(255,215,0,0.4); overflow: hidden;">
                     <div style="margin: 0 auto 10px auto; width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <img src="/trofeomblargdorado.webp" alt="Trofeo Campeón" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,215,0,0.8));">
+                        <img src="/trofeomblargdorado.webp" alt="Trofeo Campeón" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,215,0,0.8));" onerror="this.style.display='none';">
                     </div>
                     <h2 style="color: gold; margin: 0; font-family: var(--font-heading); font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px gold;">👑 CAMPEÓN DEFINITIVO 👑</h2>
                     <h1 style="color: #ffffff; margin: 10px 0 15px 0; font-size: 2.3rem; font-family: var(--font-heading); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,215,0,0.9), 0 0 30px rgba(255,215,0,0.5);">${torneoData.campeon}</h1>
@@ -2181,8 +2224,10 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 }
             }
 
-            const fotoP1 = fotosPorNick[partido.p1] ? `<img src="${fotosPorNick[partido.p1]}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;">` : "";
-            const fotoP2 = fotosPorNick[partido.p2] ? `<img src="${fotosPorNick[partido.p2]}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;">` : "";
+            const p1Avatar = fotosPorNick[partido.p1] ? getDirectImageUrl(fotosPorNick[partido.p1]) : "";
+            const p2Avatar = fotosPorNick[partido.p2] ? getDirectImageUrl(fotosPorNick[partido.p2]) : "";
+            const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p1)}&background=random';">` : "";
+            const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p2)}&background=random';">` : "";
 
             return `
                 <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''} neon-card">
@@ -2507,7 +2552,7 @@ function cargarVideosAbismo() {
 
                     <div class="video-preview-card" id="cont-${id}" onclick="activarVideo('${id}', '${data.url}')">
                         ${btnBorrar}
-                        <img src="${urlThumbnail}" class="thumbnail-img">
+                        <img src="${getDirectImageUrl(urlThumbnail)}" class="thumbnail-img" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Video&background=random';">
                         <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
                     </div>
 
@@ -2638,7 +2683,7 @@ function cargarHallOfFame() {
 }
 
 function crearCartaPodio(ninja, rank) {
-    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? ninja.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random`;
+    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? getDirectImageUrl(ninja.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random`;
     let bordeEstilo = "";
 
     if(ninja.equipado && ninja.equipado.borde) {
@@ -2653,7 +2698,7 @@ function crearCartaPodio(ninja, rank) {
         <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
             <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -32px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; color: gold; filter: drop-shadow(0 0 12px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
             <span class="rank-badge">${badgeText}</span>
-            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy"></div>
+            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random';"></div>
             <h5 class="hero-name-glow" style="font-size: 1.2rem; margin: 6px 0;">${ninja.nick}</h5>
             <p style="color: #00d2ff; font-weight: bold;"><i class="fas fa-trophy" style="color: gold;"></i> ${ninja.torneosGanados} Copas</p>
         </div>
@@ -2971,9 +3016,10 @@ window.abrirPerfil = async function(nickBuscado) {
                 redesCont.innerHTML = "";
             }
 
-            let imgSrc = data.fotoPerfil && data.fotoPerfil !== "" ? data.fotoPerfil : `https://ui-avatars.com/api/?name=${data.nick}&background=random`;
+            let imgSrc = data.fotoPerfil && data.fotoPerfil !== "" ? getDirectImageUrl(data.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`;
             const avatarEl = document.getElementById('perfil-avatar');
             avatarEl.src = imgSrc;
+            avatarEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`; };
             avatarEl.style = "width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:10px;";
 
             document.getElementById('perfil-pin-container').innerHTML = "";
@@ -3029,6 +3075,8 @@ window.abrirModalEditarPerfil = function() {
     document.getElementById('modal-editar-perfil').style.display = 'flex';
     document.getElementById('edit-bio').value = miPerfilActual.bio || "";
     document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
+    const fotoUrlInput = document.getElementById('edit-foto-url');
+    if (fotoUrlInput) fotoUrlInput.value = miPerfilActual.fotoPerfil || "";
 };
 
 const formEditarPerfil = document.getElementById('form-editar-perfil');
@@ -3036,6 +3084,7 @@ if(formEditarPerfil) {
     formEditarPerfil.addEventListener('submit', async (e) => {
         e.preventDefault();
         const file = document.getElementById('edit-foto-file').files[0];
+        const fotoUrl = document.getElementById('edit-foto-url') ? document.getElementById('edit-foto-url').value.trim() : "";
         const bio = document.getElementById('edit-bio').value.trim();
         const red = document.getElementById('edit-redes').value.trim();
         const btn = document.getElementById('btn-guardar-perfil');
@@ -3051,6 +3100,8 @@ if(formEditarPerfil) {
                 await storageRef.put(file);
                 const url = await storageRef.getDownloadURL();
                 updateData.fotoPerfil = url;
+            } else if (fotoUrl) {
+                updateData.fotoPerfil = getDirectImageUrl(fotoUrl);
             }
 
             await db.collection('ninjas').doc(currentUserId).update(updateData);
@@ -3240,7 +3291,8 @@ function configurarAdminForms() {
             const nombre = document.getElementById('n-edit-prod-nombre').value.trim();
             const precio = document.getElementById('n-edit-prod-precio').value.trim();
             const tipo = document.getElementById('n-edit-prod-tipo').value;
-            const img = document.getElementById('n-edit-prod-img').value.trim();
+            const imgRaw = document.getElementById('n-edit-prod-img').value.trim();
+            const img = getDirectImageUrl(imgRaw);
 
             if (!id || !nombre || !precio) return alert("Por favor completa los campos requeridos.");
 
@@ -3330,11 +3382,12 @@ function configurarAdminForms() {
     if(formProdNexus) {
         formProdNexus.addEventListener('submit', (e) => {
             e.preventDefault();
+            const imgRaw = document.getElementById('n-prod-img').value.trim();
             db.collection('nexus_productos').add({
                 nombre: document.getElementById('n-prod-nombre').value.trim(),
                 precio: document.getElementById('n-prod-precio').value.trim(),
                 tipo: document.getElementById('n-prod-tipo').value,
-                img: document.getElementById('n-prod-img').value.trim(),
+                img: getDirectImageUrl(imgRaw),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 formProdNexus.reset();
@@ -4237,12 +4290,12 @@ function renderizarHeroesGrid() {
         const rol = h.role || h.rol;
         const tier = h.tier || 'B';
         const colorTier = tierColors[tier] || '#00f2fe';
-        const avatarSrc = h.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
+        const avatarSrc = h.avatar ? getDirectImageUrl(h.avatar) : `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
 
         return `
             <div style="background: rgba(11, 14, 20, 0.75); border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; transition: background 0.2s, transform 0.2s;" class="glow-hover" onclick="abrirModalHeroe('${h.id}')">
                 <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                    <img src="${avatarSrc}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random'" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid ${colorTier}; flex-shrink: 0;" loading="lazy">
+                    <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random';" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid ${colorTier}; flex-shrink: 0;" loading="lazy">
                     <div style="min-width: 0; overflow: hidden;">
                         <h4 class="hero-name-glow" style="font-size: 0.95rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nombre}</h4>
                         <span style="color: #aaa; font-size: 0.75rem;">${rol}</span>
@@ -4280,12 +4333,12 @@ window.abrirModalHeroe = function(heroeId) {
 
     const nombre = heroe.name || heroe.nombre;
     const rol = heroe.role || heroe.rol;
-    const avatar = heroe.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
+    const avatar = heroe.avatar ? getDirectImageUrl(heroe.avatar) : `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`;
 
     const avatarEl = document.getElementById('heroe-modal-avatar');
     if (avatarEl) {
         avatarEl.src = avatar;
-        avatarEl.onerror = () => { avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`; };
+        avatarEl.onerror = () => { avatarEl.onerror=null; avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=random`; };
     }
 
     document.getElementById('heroe-modal-nombre').innerText = nombre;
@@ -4364,11 +4417,11 @@ function escucharUsuariosEnLinea() {
         }
 
         elLista.innerHTML = onlineUsers.map(u => {
-            const img = u.foto && u.foto !== '' ? u.foto : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random`;
+            const img = u.foto && u.foto !== '' ? getDirectImageUrl(u.foto) : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random`;
             return `
                 <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(57, 255, 20, 0.3); padding: 4px 10px; border-radius: 20px; cursor: pointer;" onclick="abrirPerfil('${u.nick}')">
                     <div style="position: relative;">
-                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy">
+                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random';">
                         <span style="position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1px solid #000; box-shadow: 0 0 6px var(--green);"></span>
                     </div>
                     <span style="font-size: 0.82rem; color: #fff; font-weight: bold;">${u.nick}</span>
