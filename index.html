@@ -380,20 +380,39 @@
         </section>
 
         <section id="gremio" class="section fade-in">
-            <h2 class="section-head" id="head-gremio">Gremio y Escuadrones</h2>
+            <div class="mbl-badge-title"><span><i class="fas fa-shield-alt"></i> GREMIO Y ESCUADRONES</span></div>
             <div style="text-align: center; margin-bottom: 30px;">
                 <button class="btn-primary" onclick="abrirModalClan()"><i class="fas fa-shield-alt"></i> MI ESCUADRÓN</button>
             </div>
 
             <div class="torneos-grid">
-                <div class="container-glass glow-hover">
-                    <h3 style="color:gold;"><i class="fas fa-trophy"></i> Top Escuadrones</h3>
-                    <div id="lista-top-clanes" style="margin-top:15px;"></div>
+                <div class="neon-card neon-cyan" style="padding: 20px;">
+                    <h3 style="color:gold; font-family: var(--font-heading); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-trophy" style="color: gold;"></i> Top Escuadrones
+                    </h3>
+                    <div id="lista-top-clanes"></div>
                 </div>
 
-                <div class="container-glass glow-hover">
-                    <h3 style="color:var(--blue);"><i class="fas fa-scroll"></i> Reclutamiento</h3>
-                    <button class="btn-secondary" style="width:100%; margin: 10px 0;" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Publicar Anuncio</button>
+                <div class="neon-card neon-cyan" style="padding: 20px;">
+                    <h3 style="color:var(--blue); font-family: var(--font-heading); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-scroll" style="color: var(--blue);"></i> Reclutamiento
+                    </h3>
+                    <button class="btn-secondary" style="width:100%; margin: 0 0 15px 0; background: rgba(0, 242, 254, 0.1);" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Publicar Anuncio</button>
+
+                    <!-- Buscador y Filtros por Rol -->
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="input-buscar-anuncios" placeholder="Buscar jugador, escuadrón o héroe..." style="width:100%; margin-bottom: 10px; font-size: 0.85rem;" oninput="filtrarAnunciosGremio()">
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <button class="btn-filter active btn-filter-rol" data-rol="todos" onclick="filtrarRolAnuncios('todos')">Todos</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="mago" onclick="filtrarRolAnuncios('mago')">Mago</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="adc" onclick="filtrarRolAnuncios('adc')">ADC</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="jungla" onclick="filtrarRolAnuncios('jungla')">Jungla</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="tanque" onclick="filtrarRolAnuncios('tanque')">Tanque</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="soporte" onclick="filtrarRolAnuncios('soporte')">Soporte</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="combate" onclick="filtrarRolAnuncios('combate')">Combate</button>
+                        </div>
+                    </div>
+
                     <div id="lista-anuncios"></div>
                 </div>
             </div>
@@ -576,6 +595,13 @@
                             <button class="btn-secondary" style="color: #00ffff; border-color: #00ffff;" onclick="concederAccesoNexusManager()"><i class="fas fa-bolt"></i> Otorgar Manager Nexus</button>
                             <button class="btn-secondary" style="background: var(--red); color: white; border-color: var(--red);" onclick="banearUsuario()">Expulsar (Ban)</button>
                         </div>
+                    </div>
+
+                    <!-- Nueva sección: Gestión de Temporadas de Escuadrones -->
+                    <div style="margin-top: 25px; background: rgba(255,0,0,0.1); padding: 15px; border: 1px solid var(--red); border-radius: 8px;">
+                        <h4 style="color: var(--red); margin-bottom: 8px; font-family: var(--font-heading);"><i class="fas fa-sync-alt"></i> Gestión de Temporadas de Escuadrones</h4>
+                        <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 15px;">Reinicia las estadísticas globales de los escuadrones para dar inicio a una nueva temporada competitiva. Esta acción reseteará todos los escuadrones a <strong>1200 ELO</strong> y <strong>0 XP</strong>.</p>
+                        <button class="btn-secondary" style="background: var(--red); color: white; border-color: var(--red); font-weight: bold; width: 100%;" onclick="reiniciarTemporadaEscuadrones()"><i class="fas fa-undo"></i> REINICIAR STATS DE TEMPORADA (1200 ELO / 0 XP)</button>
                     </div>
 
                     <h4 style="margin: 25px 0 10px 0; color: white;"><i class="fas fa-user-shield"></i> Usuarios con Roles o Permisos Asignados</h4>
@@ -873,8 +899,20 @@
                 <button class="btn-secondary" style="width:100%;" onclick="unirseClan()">UNIRSE</button>
             </div>
             <div id="vista-con-clan" style="display: none; text-align: center;">
-                <h2 id="clan-nombre-display" style="color: white; margin-bottom: 10px;">NOMBRE CLAN</h2>
-                <p style="color: gold; font-weight: bold; margin-bottom: 20px;"><span id="clan-xp-display">0</span> XP · <span id="clan-elo-display" style="color:#ff4d4d;">1200</span> ELO</p>
+                <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #00f2fe; box-shadow: 0 0 15px rgba(0,242,254,0.5); margin: 0 auto 12px auto; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center;">
+                    <img id="clan-logo-display" src="" alt="Logo Escuadrón" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Escuadron&background=random';">
+                </div>
+                <h2 id="clan-nombre-display" style="color: white; margin-bottom: 5px; font-family: var(--font-heading);">NOMBRE CLAN</h2>
+                <p style="color: gold; font-weight: bold; margin-bottom: 15px;"><span id="clan-xp-display">0</span> XP · <span id="clan-elo-display" style="color:#ff4d4d;">1200</span> ELO</p>
+
+                <!-- Panel exclusivo de edición para Líder / Creador -->
+                <div id="panel-editar-clan" style="display: none; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px dashed var(--blue); margin-bottom: 15px;">
+                    <h4 style="color: var(--blue); margin-bottom: 8px; font-size: 0.85rem; text-align: left;"><i class="fas fa-edit"></i> Gestión del Escuadrón (Líder)</h4>
+                    <input type="url" id="input-editar-logo-clan" placeholder="Nueva URL Logo (Google Drive, Dropbox, etc.)" style="width: 100%; font-size: 0.85rem; margin-bottom: 8px;">
+                    <button class="btn-primary" style="width: 100%; font-size: 0.8rem; padding: 6px;" onclick="guardarLogoClan()"><i class="fas fa-save"></i> ACTUALIZAR LOGO</button>
+                </div>
+
+                <h4 style="color: #ccc; text-align: left; font-size: 0.85rem; margin-bottom: 8px;"><i class="fas fa-users"></i> Integrantes</h4>
                 <ul id="lista-miembros-clan" style="list-style: none; padding: 0; margin-bottom: 20px; text-align: left; max-height: 150px; overflow-y: auto;"></ul>
                 <button class="btn-secondary" style="border-color: var(--red); color: var(--red); width: 100%;" onclick="abandonarClan()">Abandonar Escuadrón</button>
             </div>
@@ -917,12 +955,31 @@
     <!-- MODALES VARIOS -->
     <div id="modal-anuncio" class="modal">
         <div class="modal-box">
-            <a href="#" class="btn-close" onclick="cerrarModalPerfil(event)">&times;</a>
-            <h3>Publicar en Tablón</h3>
+            <a href="#" class="btn-close" onclick="document.getElementById('modal-anuncio').style.display='none';">&times;</a>
+            <h3 style="margin-bottom: 20px; color: var(--blue);"><i class="fas fa-scroll"></i> Publicar Anuncio de Reclutamiento</h3>
             <form id="form-anuncio">
-                <input type="text" id="a-busco" placeholder="¿Qué buscas?" required style="width:100%; margin-bottom:10px;">
-                <input type="text" id="a-soy" placeholder="¿Qué ofreces?" required style="width:100%; margin-bottom:10px;">
-                <textarea id="a-mensaje" placeholder="Mensaje..." required style="width:100%; height: 80px; resize: none; margin-bottom:15px;"></textarea>
+                <div style="margin-bottom: 12px; text-align: left;">
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:4px;">Tipo de Anuncio:</label>
+                    <select id="a-tipo" style="width:100%; background:#111; color:white; padding:8px; border-radius:5px; border:1px solid #333;">
+                        <option value="busca_equipo">[BUSCA EQUIPO] - Jugador buscando escuadrón</option>
+                        <option value="recluta_jugador">[RECLUTA JUGADOR] - Escuadrón buscando miembros</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px; text-align: left;">
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:4px;">Rol Principal:</label>
+                    <select id="a-rol" style="width:100%; background:#111; color:white; padding:8px; border-radius:5px; border:1px solid #333;">
+                        <option value="Todos">Flexible / Todos</option>
+                        <option value="Mago">Mago</option>
+                        <option value="ADC">ADC / Tirador</option>
+                        <option value="Jungla">Jungla</option>
+                        <option value="Tanque">Tanque</option>
+                        <option value="Soporte">Soporte</option>
+                        <option value="Combate">Combate / Sidelane</option>
+                    </select>
+                </div>
+                <input type="text" id="a-busco" placeholder="¿Qué buscas? (ej: Escuadrón Activo para Torneos)" required style="width:100%; margin-bottom:12px;">
+                <input type="text" id="a-soy" placeholder="¿Qué ofreces/Héroe principal? (ej: Main Ling / Mítico 50 estrellas)" required style="width:100%; margin-bottom:12px;">
+                <textarea id="a-mensaje" placeholder="Mensaje descriptivo..." required style="width:100%; height: 80px; resize: none; margin-bottom:15px;"></textarea>
                 <button type="submit" class="btn-save" style="width:100%;">PUBLICAR ANUNCIO</button>
             </form>
         </div>
