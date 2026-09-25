@@ -2739,11 +2739,35 @@ window.abrirModalClan = function() {
                 const data = doc.data();
                 document.getElementById('clan-xp-display').innerText = data.xp || 0;
                 document.getElementById('clan-elo-display').innerText = data.elo || ELO_INICIAL;
+
+                const logoImgEl = document.getElementById('clan-logo-display');
+                const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(miClan)}&background=random`;
+                if(logoImgEl) {
+                    logoImgEl.src = logoUrl;
+                    logoImgEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(miClan)}&background=random`; };
+                }
+
+                // Mostrar opción de edición de logo si el usuario es el Líder o Admin Supremo
+                const panelEditar = document.getElementById('panel-editar-clan');
+                const esLider = data.lider === currentUserName || data.miembros?.[0] === currentUserName || currentUserEmail === ADMIN_EMAIL;
+                if(panelEditar) {
+                    panelEditar.style.display = esLider ? 'block' : 'none';
+                    if (esLider && document.getElementById('input-editar-logo-clan')) {
+                        document.getElementById('input-editar-logo-clan').value = data.logo || "";
+                    }
+                }
+
                 const lista = document.getElementById('lista-miembros-clan');
                 lista.innerHTML = "";
-                data.miembros.forEach(m => {
-                    lista.innerHTML += `<li style="padding: 5px; border-bottom: 1px solid #333; color: white;"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${m}</li>`;
-                });
+                if(data.miembros) {
+                    data.miembros.forEach(m => {
+                        const esLiderRol = (m === data.lider || m === data.miembros[0]) ? `<span style="color:gold; font-size:0.75rem; font-weight:bold; margin-left:6px;"><i class="fas fa-crown"></i> LÍDER</span>` : '';
+                        lista.innerHTML += `<li style="padding: 6px 10px; border-bottom: 1px solid #333; color: white; display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fas fa-user-ninja" style="color:var(--blue); margin-right:6px;"></i> ${m}</span>
+                            ${esLiderRol}
+                        </li>`;
+                    });
+                }
             }
         });
     } else {
@@ -2752,10 +2776,28 @@ window.abrirModalClan = function() {
     }
 };
 
+window.guardarLogoClan = function() {
+    if(!miClan) return;
+    const inputUrl = document.getElementById('input-editar-logo-clan');
+    if(!inputUrl) return;
+    const rawUrl = inputUrl.value.trim();
+    const finalUrl = getDirectImageUrl(rawUrl);
+
+    db.collection('clanes').doc(miClan).update({
+        logo: finalUrl
+    }).then(() => {
+        alert("¡Logo del escuadrón actualizado con éxito!");
+    }).catch(e => {
+        console.error("Error al actualizar logo del escuadrón:", e);
+        alert("Error al actualizar el logo.");
+    });
+};
+
 window.crearClan = function() {
     const nombreClan = document.getElementById('input-crear-clan').value.trim();
-    const logoClan = document.getElementById('input-logo-clan')?.value.trim() || "";
-    if (!nombreClan) return;
+    const rawLogo = document.getElementById('input-logo-clan')?.value.trim() || "";
+    const logoClan = getDirectImageUrl(rawLogo);
+    if (!nombreClan) return alert("Por favor ingresa un nombre para tu escuadrón.");
 
     db.collection('clanes').doc(nombreClan).get().then(doc => {
         if (doc.exists) {
@@ -2811,24 +2853,61 @@ function cargarTopClanes() {
     const listaClanes = document.getElementById('lista-top-clanes');
     if(!listaClanes) return;
     mostrarSkeleton(listaClanes, 'linea', 5);
-    db.collection('clanes').orderBy('xp', 'desc').limit(5).onSnapshot(snap => {
+    db.collection('clanes').orderBy('xp', 'desc').limit(10).onSnapshot(snap => {
         listaClanes.innerHTML = "";
+        if (snap.empty) {
+            listaClanes.innerHTML = `<p style="color:#888; font-style:italic; font-size:0.9rem; text-align:center;">No hay escuadrones registrados en la aldea.</p>`;
+            return;
+        }
+
         snap.forEach((doc, index) => {
             const data = doc.data();
-            let colorRank = "white";
-            if(index === 0) colorRank = "gold";
-            if(index === 1) colorRank = "silver";
-            if(index === 2) colorRank = "#cd7f32";
+            const rankNum = index + 1;
+            const rankBadge = `#${rankNum}`;
+            let colorRank = "var(--blue)";
+            let boxGlow = "box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);";
+
+            if(index === 0) {
+                colorRank = "gold";
+                boxGlow = "box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); border-color: gold;";
+            } else if(index === 1) {
+                colorRank = "silver";
+                boxGlow = "box-shadow: 0 0 12px rgba(192, 192, 192, 0.4); border-color: silver;";
+            } else if(index === 2) {
+                colorRank = "#cd7f32";
+                boxGlow = "box-shadow: 0 0 12px rgba(205, 127, 50, 0.4); border-color: #cd7f32;";
+            }
+
+            const nombreEscuadron = data.nombre || doc.id || "Escuadrón";
+            const eloValor = (data.elo !== undefined && data.elo !== null && !isNaN(data.elo)) ? data.elo : ELO_INICIAL;
+            const xpValor = (data.xp !== undefined && data.xp !== null && !isNaN(data.xp)) ? data.xp : 0;
+            const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(nombreEscuadron)}&background=random`;
 
             listaClanes.innerHTML += `
-                <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.5); margin-bottom: 5px; border-radius: 5px; border-left: 3px solid ${colorRank};">
-                    <span style="font-weight: bold; color: ${colorRank};">${index + 1}. ${data.nombre} <span style="color:#ff4d4d; font-size:0.75rem; font-weight:normal;">(${data.elo || ELO_INICIAL} ELO)</span></span>
-                    <span style="color: gold; font-weight: bold;">${data.xp} XP</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: rgba(5, 8, 15, 0.85); margin-bottom: 12px; border-radius: 12px; border: 1px solid rgba(0,210,255,0.3); ${boxGlow} transition: transform 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+                        <span style="font-weight: 900; font-family: var(--font-heading); font-size: 1.2rem; color: ${colorRank}; min-width: 32px; text-align: center;">${rankBadge}</span>
+                        <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid ${colorRank}; box-shadow: 0 0 12px ${colorRank}; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
+                            <img src="${logoUrl}" alt="${nombreEscuadron}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombreEscuadron)}&background=random';">
+                        </div>
+                        <div style="min-width: 0; overflow: hidden;">
+                            <h4 style="margin: 0 0 4px 0; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nombreEscuadron}</h4>
+                            <div style="display: flex; gap: 10px; font-size: 0.85rem;">
+                                <span class="stat-highlight red" style="color:#ff4d4d; font-weight:bold;"><i class="fas fa-fire"></i> ${eloValor} ELO</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0; margin-left: 10px;">
+                        <span class="stat-highlight gold" style="color: gold; font-weight: 900; font-size: 1.1rem; display: block;"><i class="fas fa-star"></i> ${xpValor} XP</span>
+                    </div>
                 </div>
             `;
         });
     });
 }
+
+let listaAnunciosGlobal = [];
+let filtroRolAnunciosActual = 'todos';
 
 const formAnuncio = document.getElementById('form-anuncio');
 if(formAnuncio) {
@@ -2836,16 +2915,31 @@ if(formAnuncio) {
         e.preventDefault();
         if (currentUserName === "Héroe Anónimo") return;
 
+        const busco = document.getElementById('a-busco').value.trim();
+        const soy = document.getElementById('a-soy').value.trim();
+        const mensaje = document.getElementById('a-mensaje').value.trim();
+        const tipo = document.getElementById('a-tipo')?.value || 'busca_equipo';
+        const rol = document.getElementById('a-rol')?.value || 'Todos';
+
+        if (!busco || !soy || !mensaje) {
+            return alert("Por favor completa todos los campos del anuncio sin caracteres vacíos.");
+        }
+
         db.collection('anuncios_gremio').add({
             usuario: currentUserName,
-            busco: document.getElementById('a-busco').value,
-            soy: document.getElementById('a-soy').value,
-            mensaje: document.getElementById('a-mensaje').value,
+            busco: busco,
+            soy: soy,
+            mensaje: mensaje,
+            tipo: tipo,
+            rol: rol,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
             document.getElementById('form-anuncio').reset();
             document.getElementById('modal-anuncio').style.display = 'none';
-            alert("Anuncio clavado en el tablón.");
+            alert("¡Anuncio clavado con éxito en el tablón de reclutamiento!");
+        }).catch(e => {
+            console.error("Error al publicar anuncio:", e);
+            alert("Error al publicar el anuncio.");
         });
     });
 }
@@ -2853,23 +2947,92 @@ if(formAnuncio) {
 function cargarAnunciosGremio() {
     const listaAnuncios = document.getElementById('lista-anuncios');
     if(!listaAnuncios) return;
-    db.collection('anuncios_gremio').orderBy('timestamp', 'desc').limit(10).onSnapshot(snap => {
-        listaAnuncios.innerHTML = "";
+    mostrarSkeleton(listaAnuncios, 'card', 3);
+
+    db.collection('anuncios_gremio').orderBy('timestamp', 'desc').limit(30).onSnapshot(snap => {
+        listaAnunciosGlobal = [];
         snap.forEach(doc => {
-            const data = doc.data();
-            listaAnuncios.innerHTML += `
-                <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 5px; border: 1px solid #333; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <strong style="color: var(--blue); cursor:pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja"></i> ${data.usuario}</strong>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #ccc; margin-bottom: 5px;">
-                        <span style="color: var(--green);">[Busca]:</span> ${data.busco} <br>
-                        <span style="color: gold;">[Es]:</span> ${data.soy}
-                    </div>
-                    <p style="font-size: 0.9rem; color: white; font-style: italic;">"${data.mensaje}"</p>
-                </div>
-            `;
+            listaAnunciosGlobal.push({ id: doc.id, ...doc.data() });
         });
+        renderizarAnunciosGremio();
+    });
+}
+
+window.filtrarRolAnuncios = function(rol) {
+    filtroRolAnunciosActual = rol.toLowerCase();
+    document.querySelectorAll('.btn-filter-rol').forEach(b => {
+        if (b.getAttribute('data-rol') === filtroRolAnunciosActual) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
+    });
+    renderizarAnunciosGremio();
+};
+
+window.filtrarAnunciosGremio = function() {
+    renderizarAnunciosGremio();
+};
+
+function renderizarAnunciosGremio() {
+    const listaAnuncios = document.getElementById('lista-anuncios');
+    if(!listaAnuncios) return;
+
+    const queryTexto = (document.getElementById('input-buscar-anuncios')?.value || "").toLowerCase().trim();
+
+    const filtrados = listaAnunciosGlobal.filter(item => {
+        const coincideRol = filtroRolAnunciosActual === 'todos' || (item.rol || '').toLowerCase() === filtroRolAnunciosActual || (item.busco || '').toLowerCase().includes(filtroRolAnunciosActual) || (item.soy || '').toLowerCase().includes(filtroRolAnunciosActual);
+
+        const coincideTexto = !queryTexto ||
+            (item.usuario || '').toLowerCase().includes(queryTexto) ||
+            (item.busco || '').toLowerCase().includes(queryTexto) ||
+            (item.soy || '').toLowerCase().includes(queryTexto) ||
+            (item.mensaje || '').toLowerCase().includes(queryTexto);
+
+        return coincideRol && coincideTexto;
+    });
+
+    if (filtrados.length === 0) {
+        listaAnuncios.innerHTML = `<p style="color:#888; font-style:italic; font-size:0.85rem; text-align:center; padding:15px;">No se encontraron anuncios con los criterios seleccionados.</p>`;
+        return;
+    }
+
+    listaAnuncios.innerHTML = "";
+    filtrados.forEach(data => {
+        const esBuscaEquipo = (data.tipo === 'busca_equipo' || (data.busco || '').toLowerCase().includes('equipo'));
+        const badgeTag = esBuscaEquipo ? '[BUSCA EQUIPO]' : '[RECLUTA JUGADOR]';
+        const cardStyle = esBuscaEquipo
+            ? "border-left: 4px solid var(--green); box-shadow: 0 0 12px rgba(57, 255, 20, 0.25);"
+            : "border-left: 4px solid var(--blue); box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);";
+        const tagColor = esBuscaEquipo ? "var(--green)" : "var(--blue)";
+
+        let fechaHoraStr = "";
+        if (data.timestamp) {
+            const fecha = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+            fechaHoraStr = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        const rolBadge = data.rol && data.rol !== 'Todos' ? `<span style="background:rgba(255,255,255,0.1); color:gold; font-size:0.75rem; padding:2px 8px; border-radius:10px; margin-left:6px;"><i class="fas fa-gamepad"></i> ${data.rol}</span>` : '';
+
+        listaAnuncios.innerHTML += `
+            <div style="background: rgba(10, 15, 25, 0.85); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); ${cardStyle} margin-bottom: 12px; transition: transform 0.2s;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="color: ${tagColor}; font-weight: 900; font-size: 0.8rem; font-family: var(--font-heading); letter-spacing: 0.5px;">${badgeTag}</span>
+                        ${rolBadge}
+                    </div>
+                    <span style="font-size: 0.72rem; color: #888;"><i class="far fa-clock"></i> ${fechaHoraStr}</span>
+                </div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <strong style="color: #ffffff; font-size:0.95rem; cursor:pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${data.usuario}</strong>
+                </div>
+                <div style="font-size: 0.85rem; color: #ccc; margin-bottom: 8px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px;">
+                    <div><span style="color: var(--green); font-weight:bold;">Busca:</span> ${data.busco}</div>
+                    <div><span style="color: gold; font-weight:bold;">Ofrece:</span> ${data.soy}</div>
+                </div>
+                <p style="font-size: 0.88rem; color: #e0e0e0; font-style: italic; margin: 0; word-break: break-word;">"${data.mensaje}"</p>
+            </div>
+        `;
     });
 }
 
@@ -4030,6 +4193,38 @@ window.declararCampeon = async function(torneoId, campeonName) {
 
     alert(`¡${campeonName} HA SIDO CORONADO CAMPEÓN DE LA ARENA!`);
     window.location.hash = "#";
+};
+
+window.reiniciarTemporadaEscuadrones = async function() {
+    if (currentUserEmail !== ADMIN_EMAIL) {
+        return alert("Solo el Creador Supremo tiene autorización para reiniciar las temporadas de escuadrones.");
+    }
+
+    if (!confirm("🚨 ¿Estás seguro de reiniciar la temporada de escuadrones?\n\nEsta acción establecerá el ELO de todos los escuadrones en 1200 ELO y su XP en 0 XP.")) {
+        return;
+    }
+
+    try {
+        const snap = await db.collection('clanes').get();
+        if (snap.empty) {
+            return alert("No hay escuadrones registrados para reiniciar.");
+        }
+
+        const batch = db.batch();
+        snap.docs.forEach(doc => {
+            batch.update(doc.ref, {
+                elo: ELO_INICIAL,
+                xp: 0,
+                puntos: 0
+            });
+        });
+
+        await batch.commit();
+        alert("¡Temporada de Escuadrones reiniciada con éxito! Todos los escuadrones han sido restablecidos a 1200 ELO y 0 XP.");
+    } catch (e) {
+        console.error("Error al reiniciar temporada de escuadrones:", e);
+        alert("Error al intentar reiniciar la temporada de escuadrones.");
+    }
 };
 
 window.banearUsuario = function() {
