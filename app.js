@@ -189,8 +189,22 @@ function generarFilaAdminPartidoHTML(torneoId, partido, partidoId, mostrarRonda)
         accionHtml = `<span style="color:var(--green); font-weight:bold;"><i class="fas fa-check"></i> ${partido.ganador}</span>`;
     } else {
         accionHtml = `
-            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p1}')">Gana ${partido.p1}</button>
-            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${partido.p2}')">Gana ${partido.p2}</button>
+            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; margin-right:5px;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${escapeJS(partido.p1)}')">Gana ${escapeHTML(partido.p1)}</button>
+            <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="setGanadorManual('${torneoId}', '${partidoId}', '${escapeJS(partido.p2)}')">Gana ${escapeHTML(partido.p2)}</button>
+        `;
+    }
+
+    let sustitucionHtml = "";
+    if (partido.p2 !== "BYE") {
+        sustitucionHtml = `
+            <div style="margin-top: 8px; display: flex; gap: 8px; font-size: 0.75rem;">
+                <button class="btn-secondary" style="padding: 3px 8px; border-color: gold; color: gold; font-size: 0.75rem;" onclick="sustituirEnMatch('${torneoId}', '${partidoId}', '${escapeJS(partido.p1)}', true)" title="Sustituir P1 en este partido">
+                    <i class="fas fa-exchange-alt"></i> Sustituir ${escapeHTML(partido.p1)}
+                </button>
+                <button class="btn-secondary" style="padding: 3px 8px; border-color: gold; color: gold; font-size: 0.75rem;" onclick="sustituirEnMatch('${torneoId}', '${partidoId}', '${escapeJS(partido.p2)}', false)" title="Sustituir P2 en este partido">
+                    <i class="fas fa-exchange-alt"></i> Sustituir ${escapeHTML(partido.p2)}
+                </button>
+            </div>
         `;
     }
 
@@ -220,10 +234,11 @@ function generarFilaAdminPartidoHTML(torneoId, partido, partidoId, mostrarRonda)
     return `
         <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--blue); padding: 15px; border-radius: 8px; margin-bottom: 10px; margin-top:5px;">
             ${rondaLabel}
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color:white; font-size:1.1rem; font-weight:bold;">${partido.p1} <span style="color:#666;">VS</span> ${partido.p2}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="color:white; font-size:1.1rem; font-weight:bold;">${escapeHTML(partido.p1)} <span style="color:#666;">VS</span> ${escapeHTML(partido.p2)}</span>
                 <div>${accionHtml}</div>
             </div>
+            ${sustitucionHtml}
             ${reporteHtml}
             ${salaHtml}
         </div>
@@ -1102,6 +1117,100 @@ window.borrarTorneoDefinitivo = async function(id, nombre) {
         docRef.delete().then(() => {
             alert("Torneo purgado con éxito.");
         });
+    }
+};
+
+window.sustituirInscrito = async function(torneoId, tipo, nombreOriginal) {
+    const nuevoNombre = prompt(`Ingresa el nuevo participante/equipo que sustituirá a "${nombreOriginal}":`, nombreOriginal);
+    if (!nuevoNombre || !nuevoNombre.trim() || nuevoNombre.trim() === nombreOriginal) return;
+
+    const sustituto = nuevoNombre.trim();
+    const torneoRef = db.collection('torneos').doc(torneoId);
+
+    try {
+        const docSnap = await torneoRef.get();
+        if (!docSnap.exists) return;
+
+        const data = docSnap.data();
+
+        if (tipo === '1v1') {
+            let lista = data.lista_inscriptos || [];
+            lista = lista.map(item => item === nombreOriginal ? sustituto : item);
+            let checkIns = data.checkIns || [];
+            checkIns = checkIns.map(item => item === nombreOriginal ? sustituto : item);
+            await torneoRef.update({
+                lista_inscriptos: lista,
+                checkIns: checkIns
+            });
+        } else {
+            let equipos = data.lista_equipos || [];
+            equipos = equipos.map(eq => {
+                if (eq.nombre === nombreOriginal) {
+                    return { ...eq, nombre: sustituto };
+                }
+                return eq;
+            });
+            let checkIns = data.checkIns || [];
+            checkIns = checkIns.map(item => item === nombreOriginal ? sustituto : item);
+            await torneoRef.update({
+                lista_equipos: equipos,
+                checkIns: checkIns
+            });
+        }
+
+        // Actualizar también en las llaves (partidos) si ya fueron generados
+        const llavesSnap = await torneoRef.collection('llaves').get();
+        if (!llavesSnap.empty) {
+            const batch = db.batch();
+            llavesSnap.forEach(partidoDoc => {
+                const pData = partidoDoc.data();
+                let updateData = {};
+                if (pData.p1 === nombreOriginal) updateData.p1 = sustituto;
+                if (pData.p2 === nombreOriginal) updateData.p2 = sustituto;
+                if (pData.ganador === nombreOriginal) updateData.ganador = sustituto;
+
+                if (Object.keys(updateData).length > 0) {
+                    batch.update(partidoDoc.ref, updateData);
+                }
+            });
+            await batch.commit();
+        }
+
+        alert(`¡Sustitución exitosa! "${nombreOriginal}" fue reemplazado por "${sustituto}".`);
+    } catch (e) {
+        console.error("Error al sustituir participante:", e);
+        alert("Error al intentar realizar la sustitución.");
+    }
+};
+
+window.sustituirEnMatch = async function(torneoId, partidoId, participanteOriginal, esP1) {
+    const nuevoNombre = prompt(`Ingresa el nuevo participante que sustituirá a "${participanteOriginal}" en este partido:`, participanteOriginal);
+    if (!nuevoNombre || !nuevoNombre.trim() || nuevoNombre.trim() === participanteOriginal) return;
+
+    const sustituto = nuevoNombre.trim();
+    const partidoRef = db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId);
+
+    try {
+        const partidoSnap = await partidoRef.get();
+        if (!partidoSnap.exists) return;
+
+        const pData = partidoSnap.data();
+        let updateData = {};
+        if (esP1) {
+            updateData.p1 = sustituto;
+        } else {
+            updateData.p2 = sustituto;
+        }
+
+        if (pData.ganador === participanteOriginal) {
+            updateData.ganador = sustituto;
+        }
+
+        await partidoRef.update(updateData);
+        alert(`¡Sustituido con éxito! "${participanteOriginal}" fue reemplazado por "${sustituto}" en la llave.`);
+    } catch (e) {
+        console.error("Error al sustituir en la llave:", e);
+        alert("Error al intentar realizar la sustitución en la llave.");
     }
 };
 
@@ -3803,9 +3912,12 @@ window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
 
             inscritos.forEach(jugador => {
                 listaCont.innerHTML += `
-                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:white; font-weight:bold;">${jugador}</span>
-                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', '1v1', '${jugador}')"><i class="fas fa-trash"></i> EXPULSAR</button>
+                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <span style="color:white; font-weight:bold;">${escapeHTML(jugador)}</span>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-secondary" style="border-color:gold; color:gold; padding:5px 10px; font-size:0.75rem;" onclick="sustituirInscrito('${torneoId}', '1v1', '${escapeJS(jugador)}')"><i class="fas fa-exchange-alt"></i> SUSTITUIR</button>
+                            <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', '1v1', '${escapeJS(jugador)}')"><i class="fas fa-trash"></i> EXPULSAR</button>
+                        </div>
                     </div>
                 `;
             });
@@ -3815,12 +3927,15 @@ window.abrirGestionInscritos = function(torneoId, formato, nombreTorneo) {
 
             equipos.forEach(eq => {
                 listaCont.innerHTML += `
-                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="background:#111; padding:10px; border-radius:5px; border:1px solid #333; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <div>
-                            <span style="color:var(--blue); font-weight:bold; font-size:1.1rem;">${eq.nombre}</span><br>
-                            <span style="color:#aaa; font-size:0.8rem;">Integrantes: <strong style="color:white;">${eq.miembros.join(', ')}</strong></span>
+                            <span style="color:var(--blue); font-weight:bold; font-size:1.1rem;">${escapeHTML(eq.nombre)}</span><br>
+                            <span style="color:#aaa; font-size:0.8rem;">Integrantes: <strong style="color:white;">${escapeHTML(eq.miembros.join(', '))}</strong></span>
                         </div>
-                        <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', 'equipos', '${eq.nombre}')"><i class="fas fa-trash"></i> EXPULSAR EQUIPO</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-secondary" style="border-color:gold; color:gold; padding:5px 10px; font-size:0.75rem;" onclick="sustituirInscrito('${torneoId}', 'equipos', '${escapeJS(eq.nombre)}')"><i class="fas fa-exchange-alt"></i> SUSTITUIR</button>
+                            <button class="btn-secondary" style="border-color:var(--red); color:var(--red); padding:5px 10px; font-size:0.75rem;" onclick="eliminarInscrito('${torneoId}', 'equipos', '${escapeJS(eq.nombre)}')"><i class="fas fa-trash"></i> EXPULSAR EQUIPO</button>
+                        </div>
                     </div>
                 `;
             });
