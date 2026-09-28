@@ -641,7 +641,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     max-width: 85%;
     max-height: 85%;
     transform: translate(-50%, -50%);
-    background-image: url('/trofeomblargdorado.webp');
+    background-image: url('trofeomblargdorado.webp');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
