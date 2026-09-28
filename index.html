@@ -866,6 +866,41 @@
         </div>
     </div>
 
+    <!-- MODAL SUSTITUIR JUGADOR AUSENTE -->
+    <div id="modal-sustituir-jugador" class="modal" style="z-index: 2500;">
+        <div class="modal-box" style="max-width: 500px;">
+            <button type="button" class="btn-close" onclick="cerrarModal('modal-sustituir-jugador', event)" aria-label="Cerrar">&times;</button>
+            <h3 style="color: var(--yellow); margin-bottom: 10px; text-align: center;">
+                <i class="fas fa-user-ninja"></i> Sustituir Jugador Ausente
+            </h3>
+            <div id="sustituir-info-enfrentamiento" style="background: rgba(255, 204, 0, 0.1); border: 1px dashed var(--yellow); padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; color: white;">
+                <!-- Info match y jugador actual dinámico -->
+            </div>
+
+            <input type="hidden" id="sustituir-torneo-id">
+            <input type="hidden" id="sustituir-partido-id">
+            <input type="hidden" id="sustituir-slot-jugador">
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">
+                    <i class="fas fa-search"></i> Buscar Jugador / Sustituto:
+                </label>
+                <input type="text" id="sustituir-input-buscar" placeholder="Escribe el nick para filtrar..." style="width: 100%; margin-bottom: 10px;" oninput="filtrarListaSustitutos()">
+
+                <label style="display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">
+                    <i class="fas fa-users"></i> Seleccionar Sustituto:
+                </label>
+                <select id="sustituir-select-usuario" style="width: 100%; padding: 10px; border-radius: 6px; background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--blue); font-size: 0.95rem;">
+                    <option value="">-- Cargar lista... --</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn-primary" style="width: 100%; background: var(--yellow); color: black; font-weight: bold;" onclick="confirmarSustitucionJugador()">
+                <i class="fas fa-user-edit"></i> Confirmar Reemplazo
+            </button>
+        </div>
+    </div>
+
     <!-- MODALES CLAN Y EQUIPOS -->
     <div id="modal-clan" class="modal">
         <div class="modal-box">

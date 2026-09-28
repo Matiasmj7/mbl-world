@@ -1007,6 +1007,132 @@ window.borrarProductoNexus = function(id, nombre) {
 };
 
 // ==========================================
+// SUSTITUIR JUGADOR EN VIVO (ADMIN)
+// ==========================================
+let listaUsuariosSustitutosCache = [];
+
+window.abrirModalSustitucion = async function(torneoId, partidoId, jugadorActual, slotJugador, tituloRonda) {
+    if (!currentUserEmail || currentUserEmail !== ADMIN_EMAIL) {
+        alert("Solo el Administrador Kage puede sustituir jugadores.");
+        return;
+    }
+
+    document.getElementById('sustituir-torneo-id').value = torneoId;
+    document.getElementById('sustituir-partido-id').value = partidoId;
+    document.getElementById('sustituir-slot-jugador').value = slotJugador;
+    document.getElementById('sustituir-input-buscar').value = "";
+
+    const infoBox = document.getElementById('sustituir-info-enfrentamiento');
+    infoBox.innerHTML = `
+        <div><strong>Fase / Ronda:</strong> ${escapeHTML(tituloRonda)}</div>
+        <div style="margin-top:4px;"><strong>Jugador a reemplazar:</strong> <span style="color:var(--yellow);">${escapeHTML(jugadorActual)}</span> (${slotJugador.toUpperCase()})</div>
+    `;
+
+    const select = document.getElementById('sustituir-select-usuario');
+    select.innerHTML = `<option value="">Cargando usuarios registrados...</option>`;
+
+    abrirModal('modal-sustituir-jugador');
+
+    try {
+        const snap = await db.collection('ninjas').get();
+        const lista = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (data.nick && data.nick.trim() !== '') {
+                lista.push({
+                    id: doc.id,
+                    nick: data.nick.trim(),
+                    email: data.email || ''
+                });
+            }
+        });
+
+        // Ordenar alfabéticamente por nick
+        lista.sort((a, b) => a.nick.localeCompare(b.nick, undefined, { sensitivity: 'base' }));
+        listaUsuariosSustitutosCache = lista;
+
+        window.filtrarListaSustitutos();
+    } catch (err) {
+        console.error("Error al obtener lista de sustitutos:", err);
+        select.innerHTML = `<option value="">Error al cargar usuarios</option>`;
+    }
+};
+
+window.filtrarListaSustitutos = function() {
+    const busqueda = (document.getElementById('sustituir-input-buscar').value || '').trim().toLowerCase();
+    const select = document.getElementById('sustituir-select-usuario');
+
+    const filtrados = listaUsuariosSustitutosCache.filter(u => u.nick.toLowerCase().includes(busqueda));
+
+    if (filtrados.length === 0) {
+        select.innerHTML = `<option value="">No se encontraron nicks coincidentes</option>`;
+        return;
+    }
+
+    select.innerHTML = filtrados.map(u => `<option value="${escapeHTML(u.nick)}">${escapeHTML(u.nick)}</option>`).join('');
+};
+
+window.confirmarSustitucionJugador = async function() {
+    if (!currentUserEmail || currentUserEmail !== ADMIN_EMAIL) {
+        alert("Acceso denegado: Se requieren permisos de Administrador.");
+        return;
+    }
+
+    const torneoId = document.getElementById('sustituir-torneo-id').value;
+    const partidoId = document.getElementById('sustituir-partido-id').value;
+    const slotJugador = document.getElementById('sustituir-slot-jugador').value;
+    const nuevoNick = document.getElementById('sustituir-select-usuario').value;
+
+    if (!torneoId || !partidoId || !slotJugador) {
+        alert("Faltan datos del enfrentamiento.");
+        return;
+    }
+
+    if (!nuevoNick) {
+        alert("Por favor selecciona un sustituto de la lista.");
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de reemplazar al jugador (${slotJugador.toUpperCase()}) por "${nuevoNick}" en esta casilla?`)) {
+        return;
+    }
+
+    try {
+        const matchRef = db.collection('torneos').doc(torneoId).collection('llaves').doc(partidoId);
+        const matchDoc = await matchRef.get();
+
+        if (!matchDoc.exists) {
+            alert("El enfrentamiento no existe en la base de datos.");
+            return;
+        }
+
+        const matchData = matchDoc.data();
+        const prevNick = matchData[slotJugador];
+
+        const updateData = {};
+        updateData[slotJugador] = nuevoNick;
+        updateData[`sustitucion_${slotJugador}`] = {
+            anteriorNick: prevNick,
+            nuevoNick: nuevoNick,
+            fecha: new Date().toISOString(),
+            admin: currentUserEmail
+        };
+
+        // Si el ganador del partido ya era el jugador reemplazado, actualizar la marca de ganador
+        if (matchData.ganador === prevNick) {
+            updateData.ganador = nuevoNick;
+        }
+
+        await matchRef.update(updateData);
+
+        cerrarModal('modal-sustituir-jugador');
+        alert(`¡Sustitución exitosa! Se reemplazó a "${prevNick}" por "${nuevoNick}".`);
+    } catch (err) {
+        console.error("Error al actualizar sustitución en Firestore:", err);
+        alert("Ocurrió un error al confirmar la sustitución: " + err.message);
+    }
+};
+
 // SISTEMA DE LOGIN MANUAL Y REPORTES
 // ==========================================
 window.abrirModalReporte = function(torneoId, partidoId, p1, p2) {
@@ -2200,7 +2326,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
         // Arma la ficha de un partido (usada tanto por el bracket de Torneo
         // como por el fixture de Liga, para no repetir la lógica dos veces).
-        const construirFichaPartido = (partido, partidoId, sinConector) => {
+        const construirFichaPartido = (partido, partidoId, sinConector, tituloRonda) => {
             let p1Clase = "bracket-player player-name-glow";
             let p2Clase = "bracket-player player-name-glow";
             if (partido.ganador === partido.p1) p1Clase += " winner";
@@ -2209,7 +2335,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
             if (partido.ganador && partido.ganador !== partido.p2) p2Clase += " perdedor";
 
             let estadoTexto = partido.ganador
-                ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${partido.ganador}</span>`
+                ? `<span style="color:var(--green); font-size:0.75rem;"><i class="fas fa-check-circle"></i> ${escapeHTML(partido.ganador)}</span>`
                 : `<span style="color:var(--red); font-size:0.75rem;"><i class="fas fa-clock"></i> Pendiente</span>`;
 
             let compartirHtml = "";
@@ -2236,14 +2362,14 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 if (partido.salaId) {
                     salaHtml = `
                         <div style="background: rgba(0,210,255,0.1); padding: 8px; margin-top: 10px; border-radius: 4px; border: 1px dashed var(--blue); display: flex; justify-content: space-around; font-size: 0.8rem;">
-                            <span style="color: white;">Sala: <strong style="color: var(--blue); user-select: all;">${partido.salaId}</strong></span>
-                            <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${partido.salaPass || 'Sin Pass'}</strong></span>
+                            <span style="color: white;">Sala: <strong style="color: var(--blue); user-select: all;">${escapeHTML(partido.salaId)}</strong></span>
+                            <span style="color: white;">Pass: <strong style="color: var(--blue); user-select: all;">${escapeHTML(partido.salaPass || 'Sin Pass')}</strong></span>
                         </div>
                     `;
                 }
                 if (!partido.ganador) {
                     reportarHtml = `
-                        <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.75rem; padding: 8px; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${torneoId}', '${partidoId}', '${partido.p1}', '${partido.p2}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
+                        <button class="btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.75rem; padding: 8px; border-color: #ff00ff; color: #ff00ff;" onclick="abrirModalReporte('${escapeJS(torneoId)}', '${escapeJS(partidoId)}', '${escapeJS(partido.p1)}', '${escapeJS(partido.p2)}')"><i class="fas fa-camera"></i> REPORTAR RESULTADO</button>
                     `;
                 }
             }
@@ -2253,13 +2379,39 @@ window.verLlaves = function(torneoId, torneoNombre) {
             const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p1)}&background=random';">` : "";
             const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p2)}&background=random';">` : "";
 
+            const esAdmin = (currentUserEmail && currentUserEmail === ADMIN_EMAIL);
+            const tagSustitutoP1 = partido.sustitucion_p1 ? ` <span title="Sustituido en vivo" style="color:var(--yellow); font-size:0.75rem;"><i class="fas fa-user-edit"></i></span>` : '';
+            const tagSustitutoP2 = partido.sustitucion_p2 ? ` <span title="Sustituido en vivo" style="color:var(--yellow); font-size:0.75rem;"><i class="fas fa-user-edit"></i></span>` : '';
+
+            let adminBtnP1 = "";
+            let adminBtnP2 = "";
+            if (esAdmin && partido.p1 && partido.p1 !== 'BYE' && partido.p1 !== 'Esperando...') {
+                adminBtnP1 = `<button type="button" title="Sustituir Jugador Ausente" style="background:none; border:none; color:var(--yellow); cursor:pointer; margin-left: auto; font-size: 0.85rem; padding: 2px 4px;" onclick="abrirModalSustitucion('${escapeJS(torneoId)}', '${escapeJS(partidoId)}', '${escapeJS(partido.p1)}', 'p1', '${escapeJS(tituloRonda || 'Enfrentamiento')}')"><i class="fas fa-exchange-alt"></i></button>`;
+            }
+            if (esAdmin && partido.p2 && partido.p2 !== 'BYE' && partido.p2 !== 'Esperando...') {
+                adminBtnP2 = `<button type="button" title="Sustituir Jugador Ausente" style="background:none; border:none; color:var(--yellow); cursor:pointer; margin-left: auto; font-size: 0.85rem; padding: 2px 4px;" onclick="abrirModalSustitucion('${escapeJS(torneoId)}', '${escapeJS(partidoId)}', '${escapeJS(partido.p2)}', 'p2', '${escapeJS(tituloRonda || 'Enfrentamiento')}')"><i class="fas fa-exchange-alt"></i></button>`;
+            }
+
+            const p1ClickableAttr = (esAdmin && partido.p1 && partido.p1 !== 'BYE' && partido.p1 !== 'Esperando...') ? `style="cursor:pointer;" onclick="abrirModalSustitucion('${escapeJS(torneoId)}', '${escapeJS(partidoId)}', '${escapeJS(partido.p1)}', 'p1', '${escapeJS(tituloRonda || 'Enfrentamiento')}')"` : '';
+            const p2ClickableAttr = (esAdmin && partido.p2 && partido.p2 !== 'BYE' && partido.p2 !== 'Esperando...') ? `style="cursor:pointer;" onclick="abrirModalSustitucion('${escapeJS(torneoId)}', '${escapeJS(partidoId)}', '${escapeJS(partido.p2)}', 'p2', '${escapeJS(tituloRonda || 'Enfrentamiento')}')"` : '';
+
             return `
                 <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''} neon-card">
                     <div class="neon-card-content">
                         <div class="vs-match-container">
-                            <div class="team-red ${p1Clase}">${fotoP1}${partido.p1}</div>
+                            <div class="team-red ${p1Clase}" style="display:flex; align-items:center; width:100%;">
+                                <div ${p1ClickableAttr} style="display:flex; align-items:center; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    ${fotoP1}<span>${escapeHTML(partido.p1)}</span>${tagSustitutoP1}
+                                </div>
+                                ${adminBtnP1}
+                            </div>
                             <div class="vs-badge">VS</div>
-                            <div class="team-blue ${p2Clase}">${fotoP2}${partido.p2}</div>
+                            <div class="team-blue ${p2Clase}" style="display:flex; align-items:center; width:100%;">
+                                <div ${p2ClickableAttr} style="display:flex; align-items:center; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    ${fotoP2}<span>${escapeHTML(partido.p2)}</span>${tagSustitutoP2}
+                                </div>
+                                ${adminBtnP2}
+                            </div>
                         </div>
                         <div style="text-align:center; margin-top:8px;">${estadoTexto}</div>
                         ${salaHtml}
@@ -2300,13 +2452,13 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
                     if (partidoFinal) {
                         html += "<h4 style='color: #ff00ff; margin: 25px 0 15px 0; border-top: 1px solid #333; padding-top: 15px;'><i class='fas fa-crown'></i> GRAN FINAL</h4>";
-                        html += construirFichaPartido(partidoFinal, partidoFinal.id, true);
+                        html += construirFichaPartido(partidoFinal, partidoFinal.id, true, "Gran Final");
                     }
 
                     html += "<h4 style='color: var(--blue); margin: 25px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de la Fase de Grupos</h4>";
                     html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
                     partidosLiga.filter(p => !p.isFinal).forEach(partido => {
-                        html += construirFichaPartido(partido, partido.id, true);
+                        html += construirFichaPartido(partido, partido.id, true, `Fecha ${partido.ronda || 'Liga'}`);
                     });
                     html += "</div>";
                 } else {
@@ -2314,7 +2466,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                     html += "<h4 style='color: var(--blue); margin: 10px 0 15px 0; border-bottom: 1px solid #333; padding-bottom:8px;'>Fixture de Partidos</h4>";
                     html += "<div style='display:flex; flex-direction:column; gap:12px;'>";
                     partidosLiga.forEach(partido => {
-                        html += construirFichaPartido(partido, partido.id, true);
+                        html += construirFichaPartido(partido, partido.id, true, `Fecha ${partido.ronda || 'Liga'}`);
                     });
                     html += "</div>";
                 }
@@ -2348,7 +2500,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 `;
 
                 partidos.forEach(partido => {
-                    bracketHtml += construirFichaPartido(partido, partido.id, esUltimaRonda);
+                    bracketHtml += construirFichaPartido(partido, partido.id, esUltimaRonda, tituloRonda);
                 });
 
                 bracketHtml += `</div></div>`;
