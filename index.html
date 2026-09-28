@@ -580,6 +580,10 @@
                     <button class="btn-primary" style="background: gold; color: black; font-weight: bold; width: 100%; margin-bottom: 12px;" onclick="reiniciarTopBingo()"><i class="fas fa-sync"></i> REINICIAR RANKING GLOBAL AHORA</button>
                     <button class="btn-secondary" style="color: gold; border-color: gold; width: 100%;" onclick="reiniciarHallOfFame()"><i class="fas fa-monument"></i> REINICIAR SALÓN DE LA FAMA</button>
 
+                    <h3 style="margin: 35px 0 15px 0; color:var(--red); border-top: 1px solid #333; padding-top: 20px;"><i class="fas fa-shield-alt"></i> Moderación de Escuadrones / Clanes</h3>
+                    <p style="font-size: 0.85rem; color: #888; margin-bottom: 10px;">Elimina escuadrones inactivos o inapropiados de la aldea.</p>
+                    <div id="admin-lista-gestion-clanes" style="display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed var(--red); max-height: 250px; overflow-y: auto;"></div>
+
                     <h3 style="margin: 35px 0 15px 0; color:var(--red); border-top: 1px solid #333; padding-top: 20px;">Purgar Taberna</h3>
                     <button class="btn-secondary" style="border-color:var(--red); color:var(--red); width: 100%;" onclick="limpiarTaberna()">VACIAR CHAT DE TABERNA</button>
                 </div>
@@ -1155,6 +1159,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Datalist global para autocompletado/predictor de nombres de usuarios registrados -->
+    <datalist id="lista-ninjas-registrados"></datalist>
 
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>

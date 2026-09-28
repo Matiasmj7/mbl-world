@@ -1,6 +1,26 @@
 // ==========================================
-// HELPER: CONVERTIDOR AUTOMÁTICO DE ENLACES NUBE (DIRECT IMAGE URL)
+// HELPERS: SANITIZACIÓN Y CONVERTIDOR DE ENLACES NUBE
 // ==========================================
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeJS(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r');
+}
+
 function getDirectImageUrl(url) {
     if (!url || typeof url !== "string") return url || "";
     let cleanUrl = url.trim();
@@ -534,6 +554,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (esNexusManager) {
                             const tabNexusBtn = document.querySelector("button[onclick=\"mostrarTabAdmin('tab-nexus')\"]");
                             if (tabNexusBtn) tabNexusBtn.style.display = 'inline-block';
+                        }
+
+                        if (esAdmin) {
+                            inicializarPredictorUsuariosCreador();
                         }
 
                         if(!esAdmin && miPlan === 'jonin') {
@@ -3020,7 +3044,15 @@ function renderizarAnunciosGremio() {
             fechaHoraStr = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         }
 
-        const rolBadge = data.rol && data.rol !== 'Todos' ? `<span style="background:rgba(255,255,255,0.1); color:gold; font-size:0.75rem; padding:2px 8px; border-radius:10px; margin-left:6px;"><i class="fas fa-gamepad"></i> ${data.rol}</span>` : '';
+        const rolBadge = data.rol && data.rol !== 'Todos' ? `<span style="background:rgba(255,255,255,0.1); color:gold; font-size:0.75rem; padding:2px 8px; border-radius:10px; margin-left:6px;"><i class="fas fa-gamepad"></i> ${escapeHTML(data.rol)}</span>` : '';
+
+        const esMio = (currentUserName !== "Héroe Anónimo" && data.usuario === currentUserName);
+        const esAdmin = (auth.currentUser?.email === ADMIN_EMAIL);
+        const btnEliminarAnuncio = (esMio || esAdmin) ? `
+            <button class="btn-secondary" style="color: var(--red); border-color: var(--red); padding: 2px 8px; font-size: 0.72rem; margin-left: 8px;" onclick="borrarAnuncioGremio('${data.id}', event)">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+        ` : '';
 
         listaAnuncios.innerHTML += `
             <div style="background: rgba(10, 15, 25, 0.85); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); ${cardStyle} margin-bottom: 12px; transition: transform 0.2s;">
@@ -3032,17 +3064,31 @@ function renderizarAnunciosGremio() {
                     <span style="font-size: 0.72rem; color: #888;"><i class="far fa-clock"></i> ${fechaHoraStr}</span>
                 </div>
                 <div style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                    <strong style="color: #ffffff; font-size:0.95rem; cursor:pointer;" onclick="abrirPerfil('${data.usuario}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${data.usuario}</strong>
+                    <strong style="color: #ffffff; font-size:0.95rem; cursor:pointer;" onclick="abrirPerfil('${escapeJS(data.usuario)}')"><i class="fas fa-user-ninja" style="color:var(--blue);"></i> ${escapeHTML(data.usuario)}</strong>
+                    ${btnEliminarAnuncio}
                 </div>
                 <div style="font-size: 0.85rem; color: #ccc; margin-bottom: 8px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 5px;">
-                    <div><span style="color: var(--green); font-weight:bold;">Busca:</span> ${data.busco}</div>
-                    <div><span style="color: gold; font-weight:bold;">Ofrece:</span> ${data.soy}</div>
+                    <div><span style="color: var(--green); font-weight:bold;">Busca:</span> ${escapeHTML(data.busco || '')}</div>
+                    <div><span style="color: gold; font-weight:bold;">Ofrece:</span> ${escapeHTML(data.soy || '')}</div>
                 </div>
-                <p style="font-size: 0.88rem; color: #e0e0e0; font-style: italic; margin: 0; word-break: break-word;">"${data.mensaje}"</p>
+                <p style="font-size: 0.88rem; color: #e0e0e0; font-style: italic; margin: 0; word-break: break-word;">"${escapeHTML(data.mensaje || '')}"</p>
             </div>
         `;
     });
 }
+
+window.borrarAnuncioGremio = async function(idAnuncio, event) {
+    if (event) event.stopPropagation();
+    if (!confirm("¿Estás seguro de eliminar este anuncio de reclutamiento?")) return;
+
+    try {
+        await db.collection('anuncios_gremio').doc(idAnuncio).delete();
+        alert("Anuncio eliminado correctamente.");
+    } catch (e) {
+        console.error("Error al borrar anuncio de reclutamiento:", e);
+        alert("Error al eliminar el anuncio.");
+    }
+};
 
 window.abrirModalAnuncio = function() {
     if (currentUserName === "Héroe Anónimo") { window.location.hash = "#modal-login"; return; }
@@ -3290,6 +3336,43 @@ if(formEditarPerfil) {
 }
 
 // ==========================================
+// PREDICTOR / AUTOCOMPLETADO DE USUARIOS PARA CREADOR
+// ==========================================
+function inicializarPredictorUsuariosCreador() {
+    const dataList = document.getElementById('lista-ninjas-registrados');
+    if (!dataList) return;
+
+    db.collection('ninjas').get().then(snap => {
+        dataList.innerHTML = "";
+        const nicksSet = new Set();
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (data.nick && data.nick.trim()) {
+                nicksSet.add(data.nick.trim());
+            }
+        });
+
+        nicksSet.forEach(nick => {
+            const opt = document.createElement('option');
+            opt.value = nick;
+            dataList.appendChild(opt);
+        });
+
+        // Asignar atributo list="lista-ninjas-registrados" a todos los inputs de texto relevantes
+        const inputsTexto = document.querySelectorAll('input[type="text"], input[type="search"]:not([list])');
+        inputsTexto.forEach(input => {
+            const id = input.id || '';
+            // No asignar a inputs de contraseñas, URLs, montos o IDs de salas/canales no relacionados
+            if (!id.includes('pass') && !id.includes('url') && !id.includes('cbu') && !id.includes('wa') && !id.includes('link')) {
+                input.setAttribute('list', 'lista-ninjas-registrados');
+            }
+        });
+    }).catch(e => {
+        console.error("Error al cargar predictor de usuarios:", e);
+    });
+}
+
+// ==========================================
 // ADMINISTRACIÓN: GESTIÓN DE TORNEOS (KAGE)
 // ==========================================
 window.mostrarTabAdmin = function(tabId) {
@@ -3300,6 +3383,73 @@ window.mostrarTabAdmin = function(tabId) {
     document.getElementById(tabId).style.display = 'block';
     if (tabId === 'tab-gestion') {
         cargarNinjasConRoles();
+    } else if (tabId === 'tab-moderacion') {
+        cargarGestionClanesAdmin();
+    }
+};
+
+window.cargarGestionClanesAdmin = function() {
+    const cont = document.getElementById('admin-lista-gestion-clanes');
+    if (!cont) return;
+    cont.innerHTML = `<p style="color:#aaa; font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Cargar escuadrones...</p>`;
+
+    db.collection('clanes').orderBy('nombre', 'asc').get().then(snap => {
+        if (snap.empty) {
+            cont.innerHTML = `<p style="color:#888; font-size:0.85rem; text-align:center;">No hay escuadrones registrados en la aldea.</p>`;
+            return;
+        }
+        cont.innerHTML = "";
+        snap.forEach(doc => {
+            const data = doc.data();
+            const nombreClan = data.nombre || doc.id;
+            const miembrosCount = (data.miembros && Array.isArray(data.miembros)) ? data.miembros.length : 0;
+            const xp = data.xp || 0;
+
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;";
+            div.innerHTML = `
+                <div>
+                    <strong style="color: gold;"><i class="fas fa-users"></i> ${escapeHTML(nombreClan)}</strong>
+                    <span style="color: #bbb; font-size: 0.75rem; margin-left: 10px;">Miembros: ${miembrosCount} | XP: ${xp}</span>
+                </div>
+                <button class="btn-secondary" style="color: var(--red); border-color: var(--red); padding: 4px 10px; font-size: 0.75rem;" onclick="eliminarClanAdmin('${escapeJS(nombreClan)}')">
+                    <i class="fas fa-trash-alt"></i> ELIMINAR
+                </button>
+            `;
+            cont.appendChild(div);
+        });
+    }).catch(err => {
+        console.error("Error al cargar escuadrones para moderación:", err);
+        cont.innerHTML = `<p style="color:var(--red); font-size:0.85rem;">Error al cargar escuadrones.</p>`;
+    });
+};
+
+window.eliminarClanAdmin = async function(nombreClan) {
+    if (auth.currentUser?.email !== ADMIN_EMAIL) {
+        return alert("Solo el Creador Supremo puede eliminar escuadrones.");
+    }
+
+    if (!confirm(`🚨 ¿Estás seguro de ELIMINAR permanentemente el escuadrón "${nombreClan}"?\n\nLos miembros quedarán libres para unirse o crear otro escuadrón.`)) {
+        return;
+    }
+
+    try {
+        await db.collection('clanes').doc(nombreClan).delete();
+
+        // Quitar la asignación de clan en los ninjas pertenecientes a este clan
+        const ninjasAfectados = await db.collection('ninjas').where('clan', '==', nombreClan).get();
+        const batch = db.batch();
+        ninjasAfectados.forEach(doc => {
+            batch.update(doc.ref, { clan: "" });
+        });
+        await batch.commit();
+
+        alert(`El escuadrón "${nombreClan}" ha sido eliminado con éxito.`);
+        cargarGestionClanesAdmin();
+        if (typeof cargarTopClanes === 'function') cargarTopClanes();
+    } catch (e) {
+        console.error("Error al eliminar escuadrón:", e);
+        alert("Error al eliminar el escuadrón.");
     }
 };
 
