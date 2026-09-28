@@ -387,33 +387,43 @@
 
             <div class="torneos-grid">
                 <div class="neon-card neon-cyan" style="padding: 20px;">
-                    <h3 style="color:gold; font-family: var(--font-heading); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-trophy" style="color: gold;"></i> Top Escuadrones
-                    </h3>
-                    <div id="lista-top-clanes"></div>
+                    <div class="neon-card-inner" style="display: flex; flex-direction: column; max-height: 520px;">
+                        <h3 style="color:gold; font-family: var(--font-heading); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                            <span><i class="fas fa-trophy" style="color: gold;"></i> Top Escuadrones</span>
+                        </h3>
+                        <div id="lista-top-clanes" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+                    </div>
                 </div>
 
                 <div class="neon-card neon-cyan" style="padding: 20px;">
-                    <h3 style="color:var(--blue); font-family: var(--font-heading); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-scroll" style="color: var(--blue);"></i> Reclutamiento
-                    </h3>
-                    <button class="btn-secondary" style="width:100%; margin: 0 0 15px 0; background: rgba(0, 242, 254, 0.1);" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Publicar Anuncio</button>
-
-                    <!-- Buscador y Filtros por Rol -->
-                    <div style="margin-bottom: 15px;">
-                        <input type="text" id="input-buscar-anuncios" placeholder="Buscar jugador, escuadrón o héroe..." style="width:100%; margin-bottom: 10px; font-size: 0.85rem;" oninput="filtrarAnunciosGremio()">
-                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                            <button class="btn-filter active btn-filter-rol" data-rol="todos" onclick="filtrarRolAnuncios('todos')">Todos</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="mago" onclick="filtrarRolAnuncios('mago')">Mago</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="adc" onclick="filtrarRolAnuncios('adc')">ADC</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="jungla" onclick="filtrarRolAnuncios('jungla')">Jungla</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="tanque" onclick="filtrarRolAnuncios('tanque')">Tanque</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="soporte" onclick="filtrarRolAnuncios('soporte')">Soporte</button>
-                            <button class="btn-filter btn-filter-rol" data-rol="combate" onclick="filtrarRolAnuncios('combate')">Combate</button>
+                    <div class="neon-card-inner" style="display: flex; flex-direction: column; max-height: 520px;">
+                        <!-- Parte Superior: Título + Botón Publicar Anuncio -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-shrink: 0;">
+                            <h3 style="color:var(--blue); font-family: var(--font-heading); margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.3rem;">
+                                <i class="fas fa-scroll" style="color: var(--blue);"></i> Reclutamiento
+                            </h3>
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; background: rgba(0, 242, 254, 0.15); white-space: nowrap;" onclick="abrirModalAnuncio()"><i class="fas fa-pen"></i> Publicar Anuncio</button>
                         </div>
-                    </div>
 
-                    <div id="lista-anuncios"></div>
+                        <!-- Sub-header: Barra de Búsqueda -->
+                        <div style="margin-bottom: 10px; flex-shrink: 0;">
+                            <input type="text" id="input-buscar-anuncios" placeholder="Buscar jugador, escuadrón o héroe..." style="width:100%; font-size: 0.85rem;" oninput="filtrarAnunciosGremio()">
+                        </div>
+
+                        <!-- Filtros por Rol: Fila única limpia con Scroll Horizontal -->
+                        <div style="display: flex; gap: 6px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0; scrollbar-width: thin;">
+                            <button class="btn-filter active btn-filter-rol" data-rol="todos" onclick="filtrarRolAnuncios('todos')">TODOS</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="mago" onclick="filtrarRolAnuncios('mago')">MAGO</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="adc" onclick="filtrarRolAnuncios('adc')">ADC</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="jungla" onclick="filtrarRolAnuncios('jungla')">JUNGLA</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="tanque" onclick="filtrarRolAnuncios('tanque')">TANQUE</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="soporte" onclick="filtrarRolAnuncios('soporte')">SOPORTE</button>
+                            <button class="btn-filter btn-filter-rol" data-rol="combate" onclick="filtrarRolAnuncios('combate')">COMBATE</button>
+                        </div>
+
+                        <!-- Lista de Anuncios con Scroll Vertical Propio -->
+                        <div id="lista-anuncios" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+                    </div>
                 </div>
             </div>
 

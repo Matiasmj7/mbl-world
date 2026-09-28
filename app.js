@@ -2726,35 +2726,42 @@ window.reiniciarHallOfFame = async function() {
 // ==========================================
 // GREMIO (CLANES Y ANUNCIOS)
 // ==========================================
-window.abrirModalClan = function() {
-    if (currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
+window.abrirModalClan = function(nombreClanEspecifico) {
+    const clanVer = nombreClanEspecifico || miClan;
+    if (!clanVer && currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
     document.getElementById('modal-clan').style.display = 'flex';
-    if (miClan !== "") {
+    if (clanVer) {
         document.getElementById('vista-sin-clan').style.display = 'none';
         document.getElementById('vista-con-clan').style.display = 'block';
-        document.getElementById('clan-nombre-display').innerText = miClan;
+        document.getElementById('clan-nombre-display').innerText = clanVer;
 
-        db.collection('clanes').doc(miClan).onSnapshot(doc => {
+        db.collection('clanes').doc(clanVer).onSnapshot(doc => {
             if(doc.exists) {
                 const data = doc.data();
                 document.getElementById('clan-xp-display').innerText = data.xp || 0;
                 document.getElementById('clan-elo-display').innerText = data.elo || ELO_INICIAL;
 
                 const logoImgEl = document.getElementById('clan-logo-display');
-                const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(miClan)}&background=random`;
+                const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(clanVer)}&background=random`;
                 if(logoImgEl) {
                     logoImgEl.src = logoUrl;
-                    logoImgEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(miClan)}&background=random`; };
+                    logoImgEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(clanVer)}&background=random`; };
                 }
 
                 // Mostrar opción de edición de logo si el usuario es el Líder o Admin Supremo
                 const panelEditar = document.getElementById('panel-editar-clan');
-                const esLider = data.lider === currentUserName || data.miembros?.[0] === currentUserName || currentUserEmail === ADMIN_EMAIL;
+                const esLider = (data.lider === currentUserName || data.miembros?.[0] === currentUserName || currentUserEmail === ADMIN_EMAIL) && (clanVer === miClan || currentUserEmail === ADMIN_EMAIL);
                 if(panelEditar) {
                     panelEditar.style.display = esLider ? 'block' : 'none';
                     if (esLider && document.getElementById('input-editar-logo-clan')) {
                         document.getElementById('input-editar-logo-clan').value = data.logo || "";
                     }
+                }
+
+                // Mostrar botón abandonar solo si es el clan propio del usuario
+                const btnAbandonar = document.querySelector('#vista-con-clan button[onclick="abandonarClan()"]');
+                if (btnAbandonar) {
+                    btnAbandonar.style.display = (clanVer === miClan) ? 'block' : 'none';
                 }
 
                 const lista = document.getElementById('lista-miembros-clan');
@@ -2883,8 +2890,9 @@ function cargarTopClanes() {
             const xpValor = (data.xp !== undefined && data.xp !== null && !isNaN(data.xp)) ? data.xp : 0;
             const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(nombreEscuadron)}&background=random`;
 
+            const escapedNombre = nombreEscuadron.replace(/'/g, "\\'");
             listaClanes.innerHTML += `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: rgba(5, 8, 15, 0.85); margin-bottom: 12px; border-radius: 12px; border: 1px solid rgba(0,210,255,0.3); ${boxGlow} transition: transform 0.2s;">
+                <div onclick="abrirModalClan('${escapedNombre}')" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: rgba(5, 8, 15, 0.85); margin-bottom: 12px; border-radius: 12px; border: 1px solid rgba(0,210,255,0.3); ${boxGlow} cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
                         <span style="font-weight: 900; font-family: var(--font-heading); font-size: 1.2rem; color: ${colorRank}; min-width: 32px; text-align: center;">${rankBadge}</span>
                         <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid ${colorRank}; box-shadow: 0 0 12px ${colorRank}; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
