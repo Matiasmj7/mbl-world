@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if(userDisplay) {
                         userDisplay.innerText = currentUserName;
-                        userDisplay.href = "#";
+                        userDisplay.removeAttribute('href');
                     }
 
                     document.getElementById('user-greeting').innerText = currentUserName;
@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         cargarListaBorrarTorneosAdmin();
                     }
                 } else {
-                    window.location.hash = "#modal-registro-nick";
+                    abrirModal('modal-registro-nick');
                 }
             });
             escucharNotificaciones();
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserName = "Héroe Anónimo";
             if(userDisplay) {
                 userDisplay.innerText = "Ingresar";
-                userDisplay.href = "#modal-login";
+                userDisplay.onclick = (e) => abrirModal('modal-login', e);
             }
             document.getElementById('btn-notif').style.display = 'none';
         }
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fecha_registro: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("¡Identidad creada! +100 Diamantes de bienvenida.");
-                window.location.hash = "#";
+                cerrarModal('modal-registro-nick');
                 window.location.reload();
             });
         });
@@ -1039,7 +1039,8 @@ window.registrarUsuarioManual = function() {
     const emailFalso = `${user}@mblarg.com`;
     auth.createUserWithEmailAndPassword(emailFalso, pass).then(() => {
         alert("¡Cuenta creada exitosamente!");
-        window.location.hash = "#modal-registro-nick";
+        cerrarModal('modal-login');
+        abrirModal('modal-registro-nick');
     }).catch(err => {
         alert("Error: Es posible que el nombre de usuario ya esté en uso o la clave sea muy débil.");
     });
@@ -1053,7 +1054,7 @@ window.autenticarUsuarioManual = function() {
 
     auth.signInWithEmailAndPassword(emailFalso, pass).then(() => {
         alert("Acceso concedido a la Arena.");
-        window.location.hash = "#";
+        cerrarModal('modal-login');
     }).catch(err => {
         alert("Credenciales incorrectas o el usuario no existe.");
     });
@@ -1897,7 +1898,7 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
 }
 
 window.confirmarCheckIn = async function(torneoId) {
-    if (currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
+    if (currentUserName === "Héroe Anónimo") return abrirModal('modal-login');
 
     const torneoRef = db.collection('torneos').doc(torneoId);
     const torneoSnap = await torneoRef.get();
@@ -1934,7 +1935,7 @@ window.confirmarCheckIn = async function(torneoId) {
 window.unirseTorneo = function(torneoId, estado) {
     if (estado !== "abierto") return;
     if (currentUserName === "Héroe Anónimo") {
-        window.location.hash = "#modal-login";
+        abrirModal('modal-login');
         return;
     }
 
@@ -2166,7 +2167,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
     contenedorText.innerHTML = "<p style='text-align:center; color:white;'>Desenrollando pergaminos...</p>";
     contenedorCampeon.innerHTML = "";
-    window.location.hash = "#modal-llaves";
+    abrirModal('modal-llaves');
 
     db.collection('torneos').doc(torneoId).get().then(async docTorneo => {
         if (!docTorneo.exists) return;
@@ -2752,8 +2753,8 @@ window.reiniciarHallOfFame = async function() {
 // ==========================================
 window.abrirModalClan = function(nombreClanEspecifico) {
     const clanVer = nombreClanEspecifico || miClan;
-    if (!clanVer && currentUserName === "Héroe Anónimo") return window.location.hash = "#modal-login";
-    document.getElementById('modal-clan').style.display = 'flex';
+    if (!clanVer && currentUserName === "Héroe Anónimo") return abrirModal('modal-login');
+    abrirModal('modal-clan');
     if (clanVer) {
         document.getElementById('vista-sin-clan').style.display = 'none';
         document.getElementById('vista-con-clan').style.display = 'block';
@@ -3091,8 +3092,8 @@ window.borrarAnuncioGremio = async function(idAnuncio, event) {
 };
 
 window.abrirModalAnuncio = function() {
-    if (currentUserName === "Héroe Anónimo") { window.location.hash = "#modal-login"; return; }
-    document.getElementById('modal-anuncio').style.display = 'flex';
+    if (currentUserName === "Héroe Anónimo") { abrirModal('modal-login'); return; }
+    abrirModal('modal-anuncio');
 };
 
 // ==========================================
@@ -3197,7 +3198,7 @@ function cargarTopIndividualBingo() {
 
 window.abrirPerfil = async function(nickBuscado) {
     if(!nickBuscado) return;
-    window.location.hash = '#modal-perfil';
+    abrirModal('modal-perfil');
 
     document.getElementById('perfil-nick').innerText = "Buscando chakra...";
     document.getElementById('perfil-bio').innerText = "";
@@ -3987,7 +3988,7 @@ window.generarLlaves = async function(torneoId, torneoNombre) {
 
 window.abrirAdminPartidos = async function(torneoId, torneoNombre, creador, formato) {
     document.getElementById('admin-partidos-titulo').innerText = `Tribunal Kage: ${torneoNombre}`;
-    window.location.hash = "#modal-admin-partidos";
+    abrirModal('modal-admin-partidos');
 
     document.getElementById('input-torneo-manual-id').value = torneoId;
     document.getElementById('input-torneo-manual-formato').value = formato;
@@ -4350,7 +4351,7 @@ window.declararCampeon = async function(torneoId, campeonName) {
     }
 
     alert(`¡${campeonName} HA SIDO CORONADO CAMPEÓN DE LA ARENA!`);
-    window.location.hash = "#";
+    cerrarModal('modal-admin-partidos');
 };
 
 window.reiniciarTemporadaEscuadrones = async function() {
@@ -4787,10 +4788,56 @@ function escucharUsuariosEnLinea() {
 }
 
 // ==========================================
-// UTILIDADES (CERRAR MODALES, SESIÓN)
+// UTILIDADES Y SISTEMA ROBUSTO DE MODALES (SIN JUMP DE SCROLL)
 // ==========================================
-window.cerrarModalPerfil = function(e) { if(e) e.preventDefault(); history.back(); };
+let ultimaPosicionScroll = 0;
+
+window.abrirModal = function(modalId, event) {
+    if (event) event.preventDefault();
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    // Guardar posición de scroll actual si no hay modales activos previamente
+    if (!document.querySelector('.modal.active')) {
+        ultimaPosicionScroll = window.scrollY || window.pageYOffset || 0;
+    }
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+};
+
+window.cerrarModal = function(modalId, event) {
+    if (event) event.preventDefault();
+    const modal = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+
+    // Restaurar posición de scroll suavemente si no quedan otros modales abiertos
+    if (!document.querySelector('.modal.active')) {
+        window.scrollTo({ top: ultimaPosicionScroll, behavior: 'instant' });
+    }
+};
+
+window.cerrarModalPerfil = function(e) {
+    if (e) e.preventDefault();
+    const modalPerfil = document.getElementById('modal-perfil');
+    if (modalPerfil) cerrarModal('modal-perfil', e);
+};
+
 window.cerrarSesion = function() { auth.signOut().then(() => window.location.reload()); };
+
+// Cierre de modales al hacer clic en el backdrop/fondo oscuro
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                e.preventDefault();
+                cerrarModal(modal, e);
+            }
+        });
+    });
+});
 
 // Translucidez y solidez dinámica al scroll para Nexus Store
 window.addEventListener('scroll', () => {
