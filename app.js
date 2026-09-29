@@ -1,4 +1,9 @@
 // ==========================================
+// CONSTANTES Y HELPERS GENERALES
+// ==========================================
+const DEFAULT_AVATAR_ESPORTS = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1528'/><path d='M50 20 A18 18 0 1 0 50 56 A18 18 0 1 0 50 20 Z M22 82 C22 68 34 60 50 60 C66 60 78 68 78 82 Z' fill='%231b2a4a' stroke='%2300ffff' stroke-width='2'/></svg>";
+
+// ==========================================
 // HELPERS: SANITIZACIÓN Y CONVERTIDOR DE ENLACES NUBE
 // ==========================================
 function escapeHTML(str) {
@@ -552,10 +557,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (document.getElementById('mi-avatar-bingo')) {
-                        const avatarSrc = (data.fotoPerfil && data.fotoPerfil !== '') ? getDirectImageUrl(data.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`;
+                        const avatarSrc = (data.fotoPerfil && data.fotoPerfil !== '') ? getDirectImageUrl(data.fotoPerfil) : DEFAULT_AVATAR_ESPORTS;
                         const el = document.getElementById('mi-avatar-bingo');
                         el.src = avatarSrc;
-                        el.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`; };
+                        el.onerror = function() { this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS; };
                     }
 
                     if (document.getElementById('mi-ryos-bingo')) document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
@@ -952,7 +957,7 @@ function cargarProductosNexus() {
             const id = doc.id;
 
             let imgIcon = data.img && data.img !== ""
-                ? `<img src="${getDirectImageUrl(data.img)}" class="nexus-prod-img" alt="${data.nombre}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Item&background=random';">`
+                ? `<img src="${getDirectImageUrl(data.img)}" class="nexus-prod-img" alt="${data.nombre}" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">`
                 : `<i class="fas fa-gem nexus-prod-icon" style="color:#00ffff; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
 
             if (data.tipo === 'pase' && (!data.img || data.img === "")) {
@@ -2337,7 +2342,7 @@ window.verLlaves = function(torneoId, torneoNombre) {
             ninjasSnap.forEach(doc => {
                 const n = doc.data();
                 if (!n.nick) return;
-                fotosPorNick[n.nick] = (n.fotoPerfil && n.fotoPerfil !== "") ? n.fotoPerfil : `https://ui-avatars.com/api/?name=${encodeURIComponent(n.nick)}&background=random`;
+                fotosPorNick[n.nick] = (n.fotoPerfil && n.fotoPerfil !== "") ? n.fotoPerfil : DEFAULT_AVATAR_ESPORTS;
             });
         }
 
@@ -2396,8 +2401,8 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
             const p1Avatar = fotosPorNick[partido.p1] ? getDirectImageUrl(fotosPorNick[partido.p1]) : "";
             const p2Avatar = fotosPorNick[partido.p2] ? getDirectImageUrl(fotosPorNick[partido.p2]) : "";
-            const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p1)}&background=random';">` : "";
-            const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(partido.p2)}&background=random';">` : "";
+            const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">` : "";
+            const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">` : "";
 
             return `
                 <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''} neon-card">
@@ -2722,7 +2727,7 @@ function cargarVideosAbismo() {
 
                     <div class="video-preview-card" id="cont-${id}" onclick="activarVideo('${id}', '${data.url}')">
                         ${btnBorrar}
-                        <img src="${getDirectImageUrl(urlThumbnail)}" class="thumbnail-img" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Video&background=random';">
+                        <img src="${getDirectImageUrl(urlThumbnail)}" class="thumbnail-img" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
                         <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
                     </div>
 
@@ -2853,7 +2858,7 @@ function cargarHallOfFame() {
 }
 
 function crearCartaPodio(ninja, rank) {
-    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? getDirectImageUrl(ninja.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random`;
+    let imgSrc = ninja.fotoPerfil && ninja.fotoPerfil !== "" ? getDirectImageUrl(ninja.fotoPerfil) : DEFAULT_AVATAR_ESPORTS;
     let bordeEstilo = "";
 
     if(ninja.equipado && ninja.equipado.borde) {
@@ -2868,7 +2873,7 @@ function crearCartaPodio(ninja, rank) {
         <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
             <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -32px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; color: gold; filter: drop-shadow(0 0 12px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
             <span class="rank-badge">${badgeText}</span>
-            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ninja.nick)}&background=random';"></div>
+            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;"></div>
             <h5 class="hero-name-glow" style="font-size: 1.2rem; margin: 6px 0;">${ninja.nick}</h5>
             <p style="color: #00d2ff; font-weight: bold;"><i class="fas fa-trophy" style="color: gold;"></i> ${ninja.torneosGanados} Copas</p>
         </div>
@@ -2912,10 +2917,10 @@ window.abrirModalClan = function(nombreClanEspecifico) {
                 document.getElementById('clan-elo-display').innerText = data.elo || ELO_INICIAL;
 
                 const logoImgEl = document.getElementById('clan-logo-display');
-                const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(clanVer)}&background=random`;
+                const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : DEFAULT_AVATAR_ESPORTS;
                 if(logoImgEl) {
                     logoImgEl.src = logoUrl;
-                    logoImgEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(clanVer)}&background=random`; };
+                    logoImgEl.onerror = function() { this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS; };
                 }
 
                 // Mostrar opción de edición de logo si el usuario es el Líder o Admin Supremo
@@ -3058,7 +3063,7 @@ function cargarTopClanes() {
             const nombreEscuadron = data.nombre || doc.id || "Escuadrón";
             const eloValor = (data.elo !== undefined && data.elo !== null && !isNaN(data.elo)) ? data.elo : ELO_INICIAL;
             const xpValor = (data.xp !== undefined && data.xp !== null && !isNaN(data.xp)) ? data.xp : 0;
-            const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : `https://ui-avatars.com/api/?name=${encodeURIComponent(nombreEscuadron)}&background=random`;
+            const logoUrl = data.logo && data.logo !== "" ? getDirectImageUrl(data.logo) : DEFAULT_AVATAR_ESPORTS;
 
             const escapedNombre = nombreEscuadron.replace(/'/g, "\\'");
             listaClanes.innerHTML += `
@@ -3066,7 +3071,7 @@ function cargarTopClanes() {
                     <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
                         <span style="font-weight: 900; font-family: var(--font-heading); font-size: 1.2rem; color: ${colorRank}; min-width: 32px; text-align: center;">${rankBadge}</span>
                         <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid ${colorRank}; box-shadow: 0 0 12px ${colorRank}; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <img src="${logoUrl}" alt="${nombreEscuadron}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nombreEscuadron)}&background=random';">
+                            <img src="${logoUrl}" alt="${nombreEscuadron}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
                         </div>
                         <div style="min-width: 0; overflow: hidden;">
                             <h4 style="margin: 0 0 4px 0; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nombreEscuadron}</h4>
@@ -3368,7 +3373,7 @@ function cargarTopIndividualBingo() {
             const pais = escapeHTML(data.pais || 'Argentina');
             const bandera = data.bandera || (data.pais === 'Chile' ? '🇨🇱' : (data.pais === 'Uruguay' ? '🇺🇾' : (data.pais === 'Perú' ? '🇵🇪' : (data.pais === 'México' ? '🇲🇽' : '🇦🇷'))));
             const escuadron = escapeHTML(data.clan || data.escuadron || 'Nexus Prime');
-            const avatarUrl = getDirectImageUrl(data.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`;
+            const avatarUrl = getDirectImageUrl(data.avatar) || DEFAULT_AVATAR_ESPORTS;
 
             const cardMarkup = `
                 <div class="top-ninja-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(8, 16, 32, 0.85); border: 1.5px solid ${cardColor}; border-radius: 14px; padding: 10px 16px; margin-bottom: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 15px ${rankGlow}; flex-wrap: wrap;" onclick="abrirPerfil('${escapeJS(data.nick)}')">
@@ -3383,7 +3388,7 @@ function cargarTopIndividualBingo() {
 
                         <!-- Avatar -->
                         <div style="position: relative; width: 48px; height: 48px; flex-shrink: 0;">
-                            <img src="${escapeHTML(avatarUrl)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${cardColor}; box-shadow: 0 0 10px ${cardColor};" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random';">
+                            <img src="${escapeHTML(avatarUrl)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${cardColor}; box-shadow: 0 0 10px ${cardColor};" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
                         </div>
 
                         <!-- Name & Subtitle -->
@@ -3512,10 +3517,10 @@ window.abrirPerfil = async function(nickBuscado) {
                 redesCont.innerHTML = "";
             }
 
-            let imgSrc = data.fotoPerfil && data.fotoPerfil !== "" ? getDirectImageUrl(data.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`;
+            let imgSrc = data.fotoPerfil && data.fotoPerfil !== "" ? getDirectImageUrl(data.fotoPerfil) : DEFAULT_AVATAR_ESPORTS;
             const avatarEl = document.getElementById('perfil-avatar');
             avatarEl.src = imgSrc;
-            avatarEl.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`; };
+            avatarEl.onerror = function() { this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS; };
             avatarEl.style = "width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:10px;";
 
             document.getElementById('perfil-pin-container').innerHTML = "";
@@ -4986,11 +4991,11 @@ function escucharUsuariosEnLinea() {
         }
 
         elLista.innerHTML = onlineUsers.map(u => {
-            const img = u.foto && u.foto !== '' ? getDirectImageUrl(u.foto) : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random`;
+            const img = u.foto && u.foto !== '' ? getDirectImageUrl(u.foto) : DEFAULT_AVATAR_ESPORTS;
             return `
                 <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(57, 255, 20, 0.3); padding: 4px 10px; border-radius: 20px; cursor: pointer;" onclick="abrirPerfil('${u.nick}')">
                     <div style="position: relative;">
-                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(u.nick)}&background=random';">
+                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
                         <span style="position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1px solid #000; box-shadow: 0 0 6px var(--green);"></span>
                     </div>
                     <span style="font-size: 0.82rem; color: #fff; font-weight: bold;">${u.nick}</span>

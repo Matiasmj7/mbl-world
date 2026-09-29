@@ -2166,3 +2166,24 @@ strong, b, .text-bold-glow {
   box-shadow: 0 0 10px rgba(225, 48, 108, 0.4);
 }
 
+/* SKELETON LOADER ANIMATIONS */
+@keyframes skeleton-pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.3; }
+}
+
+.skeleton-card {
+  background: rgba(11, 21, 40, 0.7);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.1);
+}
+
+.skeleton-box {
+  background: rgba(0, 210, 255, 0.18);
+  border-radius: 6px;
+}
+
