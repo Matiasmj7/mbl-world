@@ -3310,7 +3310,11 @@ function cargarTopIndividualBingo() {
 
     db.collection('ninjas').orderBy('xp', 'desc').limit(10).onSnapshot(snap => {
         lista.innerHTML = "";
+
+        let top3HTML = "";
+        let restoHTML = "";
         let posicion = 1;
+
         snap.forEach(doc => {
             const data = doc.data();
 
@@ -3366,7 +3370,7 @@ function cargarTopIndividualBingo() {
             const escuadron = escapeHTML(data.clan || data.escuadron || 'Nexus Prime');
             const avatarUrl = getDirectImageUrl(data.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`;
 
-            lista.innerHTML += `
+            const cardMarkup = `
                 <div class="top-ninja-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(8, 16, 32, 0.85); border: 1.5px solid ${cardColor}; border-radius: 14px; padding: 10px 16px; margin-bottom: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 15px ${rankGlow}; flex-wrap: wrap;" onclick="abrirPerfil('${escapeJS(data.nick)}')">
 
                     <!-- Left Section: Rank + Avatar + Name Info -->
@@ -3423,10 +3427,52 @@ function cargarTopIndividualBingo() {
 
                 </div>
             `;
+
+            if (posicion <= 3) {
+                top3HTML += cardMarkup;
+            } else {
+                restoHTML += cardMarkup;
+            }
+
             posicion++;
         });
+
+        let fullContent = top3HTML;
+        if (restoHTML) {
+            fullContent += `
+                <div id="top-ninjas-desplegable" style="display: none; transition: all 0.3s ease;">
+                    ${restoHTML}
+                </div>
+                <div style="text-align: center; margin-top: 12px;">
+                    <button type="button" id="btn-toggle-top-ninjas" onclick="toggleTopNinjasDesplegable()" style="background: linear-gradient(135deg, rgba(0, 210, 255, 0.15), rgba(0, 100, 200, 0.25)); border: 1.5px solid var(--cyan); color: var(--cyan); font-family: var(--font-heading); font-size: 0.85rem; font-weight: bold; padding: 10px 22px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);">
+                        <i class="fas fa-chevron-down" id="icon-toggle-top-ninjas" style="margin-right: 8px;"></i> VER RANKING COMPLETO (4º - 10º)
+                    </button>
+                </div>
+            `;
+        }
+
+        lista.innerHTML = fullContent;
     });
 }
+
+window.toggleTopNinjasDesplegable = function() {
+    const contenedor = document.getElementById('top-ninjas-desplegable');
+    const btn = document.getElementById('btn-toggle-top-ninjas');
+    const icon = document.getElementById('icon-toggle-top-ninjas');
+    if (!contenedor || !btn) return;
+
+    if (contenedor.style.display === 'none' || contenedor.style.display === '') {
+        contenedor.style.display = 'block';
+        btn.innerHTML = `<i class="fas fa-chevron-up" id="icon-toggle-top-ninjas" style="margin-right: 8px;"></i> MOSTRAR MENOS`;
+        btn.style.borderColor = 'gold';
+        btn.style.color = 'gold';
+    } else {
+        contenedor.style.display = 'none';
+        btn.innerHTML = `<i class="fas fa-chevron-down" id="icon-toggle-top-ninjas" style="margin-right: 8px;"></i> VER RANKING COMPLETO (4º - 10º)`;
+        btn.style.borderColor = 'var(--cyan)';
+        btn.style.color = 'var(--cyan)';
+    }
+};
 
 window.abrirPerfil = async function(nickBuscado) {
     if(!nickBuscado) return;
