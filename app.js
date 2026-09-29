@@ -507,16 +507,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     document.getElementById('user-greeting').innerText = currentUserName;
-                    document.getElementById('mi-nick-bingo').innerText = currentUserName;
-                    document.getElementById('mi-rango-bingo').innerText = (data.plan === 'kasekage') ? 'Mítico' : (data.plan === 'jonin' ? 'Épico' : 'Guerrero');
-                    document.getElementById('mi-xp-bingo').innerText = `${data.xp || 0} XP`;
-                    if (document.getElementById('mi-elo-bingo')) document.getElementById('mi-elo-bingo').innerText = `${data.elo || ELO_INICIAL} ELO`;
+                    if (document.getElementById('mi-nick-bingo')) document.getElementById('mi-nick-bingo').innerText = currentUserName;
+                    if (document.getElementById('mi-rango-bingo')) document.getElementById('mi-rango-bingo').innerText = (data.plan === 'kasekage') ? 'Mítico' : (data.plan === 'jonin' ? 'Épico' : 'Guerrero');
+                    if (document.getElementById('mi-xp-bingo')) document.getElementById('mi-xp-bingo').innerText = `${data.xp || 0}`;
+                    if (document.getElementById('mi-elo-bingo')) document.getElementById('mi-elo-bingo').innerText = `${data.elo || ELO_INICIAL}`;
 
                     const pj = data.partidasJugadas || 0;
                     const pg = data.partidasGanadas || 0;
                     const wr = pj > 0 ? Math.round((pg / pj) * 100) : 0;
-                    if (document.getElementById('mi-stats-bingo')) document.getElementById('mi-stats-bingo').innerText = `${pj} PJ / ${pg} PG`;
-                    if (document.getElementById('mi-winrate-bingo')) document.getElementById('mi-winrate-bingo').innerText = `${wr}% WR`;
+                    if (document.getElementById('mi-partidas-bingo')) document.getElementById('mi-partidas-bingo').innerText = `${pj}`;
+                    if (document.getElementById('mi-winrate-bingo')) document.getElementById('mi-winrate-bingo').innerText = `${wr}%`;
+                    if (document.getElementById('mi-campeonatos-bingo')) document.getElementById('mi-campeonatos-bingo').innerText = `${data.torneosGanados || 0}`;
+                    if (document.getElementById('mi-subcampeonatos-bingo')) document.getElementById('mi-subcampeonatos-bingo').innerText = `${data.subcampeonatos || 0}`;
+
+                    const nac = data.nacionalidad || "Argentina";
+                    if (document.getElementById('mi-pais-bingo')) document.getElementById('mi-pais-bingo').innerText = nac;
+                    if (document.getElementById('mi-bandera-bingo')) {
+                        const nacLower = nac.toLowerCase();
+                        let flag = "🇦🇷";
+                        if (nacLower.includes("chile")) flag = "🇨🇱";
+                        else if (nacLower.includes("méxico") || nacLower.includes("mexico")) flag = "🇲🇽";
+                        else if (nacLower.includes("perú") || nacLower.includes("peru")) flag = "🇵🇪";
+                        else if (nacLower.includes("colombia")) flag = "🇨🇴";
+                        else if (nacLower.includes("uruguay")) flag = "🇺🇾";
+                        else if (nacLower.includes("paraguay")) flag = "🇵🇾";
+                        else if (nacLower.includes("bolivia")) flag = "🇧🇴";
+                        else if (nacLower.includes("brasil") || nacLower.includes("brazil")) flag = "🇧🇷";
+                        else if (nacLower.includes("venezuela")) flag = "🇻🇪";
+                        else if (nacLower.includes("españa") || nacLower.includes("espana")) flag = "🇪🇸";
+                        document.getElementById('mi-bandera-bingo').innerText = flag;
+                    }
+
+                    if (document.getElementById('mi-region-bingo')) document.getElementById('mi-region-bingo').innerText = data.region || "LATAM";
+                    if (document.getElementById('mi-clan-bingo')) document.getElementById('mi-clan-bingo').innerText = data.clan || "Sin Clan";
+                    if (document.getElementById('mi-rol-bingo')) document.getElementById('mi-rol-bingo').innerText = data.rolMain || "Guerrero";
+
+                    if (document.getElementById('mi-banner-bingo')) {
+                        const bannerEl = document.getElementById('mi-banner-bingo');
+                        if (data.imagenBanner && data.imagenBanner !== "") {
+                            bannerEl.style.backgroundImage = `url('${getDirectImageUrl(data.imagenBanner)}')`;
+                        } else {
+                            bannerEl.style.backgroundImage = `linear-gradient(135deg, #091224, #1b2845)`;
+                        }
+                    }
+
                     if (document.getElementById('mi-avatar-bingo')) {
                         const avatarSrc = (data.fotoPerfil && data.fotoPerfil !== '') ? getDirectImageUrl(data.fotoPerfil) : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`;
                         const el = document.getElementById('mi-avatar-bingo');
@@ -524,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         el.onerror = function() { this.onerror=null; this.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=random`; };
                     }
 
-                    document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
+                    if (document.getElementById('mi-ryos-bingo')) document.getElementById('mi-ryos-bingo').innerHTML = `<i class="fas fa-gem"></i> ${misRyos} Diamantes`;
                     document.getElementById('tienda-mis-ryos').innerHTML = `${misRyos} Diamantes`;
 
                     document.getElementById('btn-notif').style.display = 'inline-block';
@@ -3403,14 +3437,27 @@ window.abrirModalEditarPerfil = function() {
     document.getElementById('edit-redes').value = miPerfilActual.redSocial || "";
     const fotoUrlInput = document.getElementById('edit-foto-url');
     if (fotoUrlInput) fotoUrlInput.value = miPerfilActual.fotoPerfil || "";
+    const bannerUrlInput = document.getElementById('edit-banner-url');
+    if (bannerUrlInput) bannerUrlInput.value = miPerfilActual.imagenBanner || "";
+    const nacInput = document.getElementById('edit-nacionalidad');
+    if (nacInput) nacInput.value = miPerfilActual.nacionalidad || "Argentina";
+    const regInput = document.getElementById('edit-region');
+    if (regInput) regInput.value = miPerfilActual.region || "LATAM";
+    const rolInput = document.getElementById('edit-rol');
+    if (rolInput) rolInput.value = miPerfilActual.rolMain || "Guerrero";
 };
 
 const formEditarPerfil = document.getElementById('form-editar-perfil');
 if(formEditarPerfil) {
     formEditarPerfil.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const file = document.getElementById('edit-foto-file').files[0];
+        const bannerFile = document.getElementById('edit-banner-file') ? document.getElementById('edit-banner-file').files[0] : null;
+        const bannerUrl = document.getElementById('edit-banner-url') ? document.getElementById('edit-banner-url').value.trim() : "";
+        const fotoFile = document.getElementById('edit-foto-file') ? document.getElementById('edit-foto-file').files[0] : null;
         const fotoUrl = document.getElementById('edit-foto-url') ? document.getElementById('edit-foto-url').value.trim() : "";
+        const nac = document.getElementById('edit-nacionalidad') ? document.getElementById('edit-nacionalidad').value.trim() : "Argentina";
+        const region = document.getElementById('edit-region') ? document.getElementById('edit-region').value : "LATAM";
+        const rolMain = document.getElementById('edit-rol') ? document.getElementById('edit-rol').value : "Guerrero";
         const bio = document.getElementById('edit-bio').value.trim();
         const red = document.getElementById('edit-redes').value.trim();
         const btn = document.getElementById('btn-guardar-perfil');
@@ -3419,11 +3466,28 @@ if(formEditarPerfil) {
         btn.disabled = true;
 
         try {
-            let updateData = { bio: bio, redSocial: red };
+            let updateData = {
+                bio: bio,
+                redSocial: red,
+                nacionalidad: nac || "Argentina",
+                region: region || "LATAM",
+                rolMain: rolMain || "Guerrero"
+            };
 
-            if (file) {
+            // Banner Upload / URL parsing
+            if (bannerFile) {
+                const storageRef = storage.ref(`banners/${currentUserId}_${Date.now()}`);
+                await storageRef.put(bannerFile);
+                const url = await storageRef.getDownloadURL();
+                updateData.imagenBanner = url;
+            } else if (bannerUrl) {
+                updateData.imagenBanner = getDirectImageUrl(bannerUrl);
+            }
+
+            // Avatar Foto Upload / URL parsing
+            if (fotoFile) {
                 const storageRef = storage.ref(`avatars/${currentUserId}_${Date.now()}`);
-                await storageRef.put(file);
+                await storageRef.put(fotoFile);
                 const url = await storageRef.getDownloadURL();
                 updateData.fotoPerfil = url;
             } else if (fotoUrl) {
@@ -3433,7 +3497,6 @@ if(formEditarPerfil) {
             await db.collection('ninjas').doc(currentUserId).update(updateData);
             alert("¡Perfil actualizado correctamente!");
             document.getElementById('modal-editar-perfil').style.display = 'none';
-            abrirPerfil(currentUserName);
         } catch (error) {
             alert("Error al actualizar el perfil.");
             console.error(error);
