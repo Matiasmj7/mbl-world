@@ -3370,10 +3370,11 @@ function cargarTopIndividualBingo() {
             const campeon = data.campeonatos || 0;
             const mvp = data.mvps || 0;
             const racha = data.racha || 0;
-            const pais = escapeHTML(data.pais || 'Argentina');
-            const bandera = data.bandera || (data.pais === 'Chile' ? '🇨🇱' : (data.pais === 'Uruguay' ? '🇺🇾' : (data.pais === 'Perú' ? '🇵🇪' : (data.pais === 'México' ? '🇲🇽' : '🇦🇷'))));
+            const paisNombre = data.nacionalidad || data.pais || 'Argentina';
+            const pais = escapeHTML(paisNombre);
+            const bandera = data.bandera || (paisNombre === 'Chile' ? '🇨🇱' : (paisNombre === 'Uruguay' ? '🇺🇾' : (paisNombre === 'Perú' ? '🇵🇪' : (paisNombre === 'México' ? '🇲🇽' : '🇦🇷'))));
             const escuadron = escapeHTML(data.clan || data.escuadron || 'Nexus Prime');
-            const avatarUrl = getDirectImageUrl(data.avatar) || DEFAULT_AVATAR_ESPORTS;
+            const avatarUrl = getDirectImageUrl(data.fotoPerfil || data.avatar) || DEFAULT_AVATAR_ESPORTS;
 
             const cardMarkup = `
                 <div class="top-ninja-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(8, 16, 32, 0.85); border: 1.5px solid ${cardColor}; border-radius: 14px; padding: 10px 16px; margin-bottom: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 15px ${rankGlow}; flex-wrap: wrap;" onclick="abrirPerfil('${escapeJS(data.nick)}')">
