@@ -2292,9 +2292,9 @@ function generarTextoCompartirCampeon(campeonNombre, torneoNombre, torneoData) {
 
 // wa.me sin número de destino abre el selector de contacto/grupo de
 // WhatsApp con el texto ya cargado, listo para reenviar a cualquier lado.
-function botonCompartirWhatsapp(texto, extraStyle = '') {
+function botonCompartirWhatsapp(texto, extraStyle = '', label = 'COMPARTIR RESULTADO') {
     const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-    return `<a href="${url}" target="_blank" class="btn-secondary" style="width:100%; margin-top:8px; font-size:0.75rem; padding:6px; border-color:#25D366; color:#25D366; text-decoration:none; display:block; text-align:center; ${extraStyle}"><i class="fab fa-whatsapp"></i> COMPARTIR RESULTADO</a>`;
+    return `<a href="${url}" target="_blank" class="btn-secondary" style="width:100%; margin-top:8px; font-size:0.75rem; padding:6px; border-color:#25D366; color:#25D366; text-decoration:none; display:block; text-align:center; ${extraStyle}"><i class="fab fa-whatsapp"></i> ${escapeHTML(label)}</a>`;
 }
 
 let torneoIdActualLlaves = "";
@@ -2360,6 +2360,9 @@ window.verLlaves = function(torneoId, torneoNombre) {
                 const perdedorPartido = (partido.ganador === partido.p1) ? partido.p2 : partido.p1;
                 const textoCompartir = generarTextoCompartir(partido.ganador, perdedorPartido, partido, torneoNombre, torneoData);
                 compartirHtml = botonCompartirWhatsapp(textoCompartir);
+            } else if (!partido.ganador && partido.p2 !== "BYE") {
+                const textoVersus = `⚔️🛡️ La siguiente batalla es entre ${partido.p1} VS ${partido.p2} en ${torneoNombre} 🛡️⚔️`;
+                compartirHtml = botonCompartirWhatsapp(textoVersus, '', 'ANUNCIAR BATALLA');
             }
 
             let soyParticipante = false;
@@ -3748,8 +3751,10 @@ function configurarAdminForms() {
 
             const imagenFondoInput = document.getElementById('t-imagen-fondo')?.value.trim();
 
+            const nombreTorneo = document.getElementById('t-nombre').value.trim();
+
             db.collection('torneos').add({
-                nombre: document.getElementById('t-nombre').value,
+                nombre: nombreTorneo,
                 fecha: document.getElementById('t-fecha').value,
                 fechaISO: document.getElementById('t-fecha').value || null,
                 cuposTotales: parseInt(document.getElementById('t-cupos').value),
@@ -3772,6 +3777,9 @@ function configurarAdminForms() {
             }).then(() => {
                 document.getElementById('form-torneo').reset();
                 alert("¡Evento publicado en el tablón!");
+                if (typeof notificarNuevoTorneo === 'function') {
+                    notificarNuevoTorneo(nombreTorneo);
+                }
             });
         });
     }
@@ -4688,6 +4696,42 @@ function enviarNotificacion(usuario, textoMensaje) {
         leida: false,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
+}
+
+async function notificarNuevoTorneo(nombreTorneo) {
+    if (!nombreTorneo) return;
+    try {
+        const snap = await db.collection('ninjas').get();
+        if (snap.empty) return;
+        const mensaje = `🏆 ¡Nuevo torneo/liga disponible! Inscríbete en "${nombreTorneo}".`;
+
+        let batch = db.batch();
+        let counter = 0;
+
+        for (const doc of snap.docs) {
+            const data = doc.data();
+            const nick = data.nick || data.nombre;
+            if (nick) {
+                const ref = db.collection('notificaciones').doc();
+                batch.set(ref, {
+                    para: nick,
+                    texto: mensaje,
+                    leida: false,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                counter++;
+                if (counter % 400 === 0) {
+                    await batch.commit();
+                    batch = db.batch();
+                }
+            }
+        }
+        if (counter % 400 !== 0) {
+            await batch.commit();
+        }
+    } catch(err) {
+        console.error("Error al notificar nuevo torneo:", err);
+    }
 }
 
 function escucharNotificaciones() {
