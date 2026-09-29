@@ -3313,27 +3313,114 @@ function cargarTopIndividualBingo() {
         let posicion = 1;
         snap.forEach(doc => {
             const data = doc.data();
-            let colorPos = posicion === 1 ? 'gold' : (posicion === 2 ? 'silver' : (posicion === 3 ? '#cd7f32' : 'white'));
+
+            // Color theme according to rank position (matching image.png)
+            let cardColor = "#00d2ff";
+            let crownIcon = "";
+            let rankGlow = "rgba(0, 210, 255, 0.3)";
+
+            if (posicion === 1) {
+                cardColor = "#ffd700";
+                crownIcon = `<i class="fas fa-crown" style="color: #ffd700; font-size: 0.9rem; display: block; margin-bottom: 2px;"></i>`;
+                rankGlow = "rgba(255, 215, 0, 0.5)";
+            } else if (posicion === 2) {
+                cardColor = "#80d8ff";
+                rankGlow = "rgba(128, 216, 255, 0.4)";
+            } else if (posicion === 3) {
+                cardColor = "#ff7043";
+                rankGlow = "rgba(255, 112, 67, 0.4)";
+            } else if (posicion === 4) {
+                cardColor = "#ab47bc";
+                rankGlow = "rgba(171, 71, 188, 0.4)";
+            } else if (posicion === 5) {
+                cardColor = "#29b6f6";
+                rankGlow = "rgba(41, 182, 246, 0.4)";
+            } else if (posicion === 6) {
+                cardColor = "#ec407a";
+                rankGlow = "rgba(236, 64, 122, 0.4)";
+            } else if (posicion === 7) {
+                cardColor = "#26c6da";
+                rankGlow = "rgba(38, 198, 218, 0.4)";
+            } else if (posicion === 8) {
+                cardColor = "#ff4081";
+                rankGlow = "rgba(255, 64, 129, 0.4)";
+            } else if (posicion === 9) {
+                cardColor = "#00e5ff";
+                rankGlow = "rgba(0, 229, 255, 0.4)";
+            } else {
+                cardColor = "#7e57c2";
+                rankGlow = "rgba(126, 87, 194, 0.4)";
+            }
 
             const pj = data.partidasJugadas || 0;
             const pg = data.partidasGanadas || 0;
-            const pp = pj - pg;
+            const pp = pj - pg < 0 ? 0 : pj - pg;
             const winrate = pj > 0 ? Math.round((pg / pj) * 100) : 0;
-            const torneosJugados = data.torneosJugados || 0;
-
-            let rankClass = "player-name-glow";
-            if (posicion === 1) rankClass = "rank-top-1";
-            else if (posicion === 2 || posicion === 3) rankClass = "rank-top-2";
+            const elo = data.elo || ELO_INICIAL;
+            const xp = data.xp || 0;
+            const campeon = data.campeonatos || 0;
+            const mvp = data.mvps || 0;
+            const racha = data.racha || 0;
+            const pais = escapeHTML(data.pais || 'Argentina');
+            const bandera = data.bandera || (data.pais === 'Chile' ? '🇨🇱' : (data.pais === 'Uruguay' ? '🇺🇾' : (data.pais === 'Perú' ? '🇵🇪' : (data.pais === 'México' ? '🇲🇽' : '🇦🇷'))));
+            const escuadron = escapeHTML(data.clan || data.escuadron || 'Nexus Prime');
+            const avatarUrl = getDirectImageUrl(data.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random`;
 
             lista.innerHTML += `
-                <div class="ranking-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid ${colorPos}; transition: background 0.3s;" onclick="abrirPerfil('${data.nick}')">
-                    <div>
-                        <span class="${rankClass}">${posicion}. ${data.nick}</span>
-                        <div style="font-size: 0.72rem; color: #999; margin-top: 3px;">
-                            ${torneosJugados} Torneos · ${pj} PJ · <span class="stat-highlight green">${pg} PG</span> · <span class="stat-highlight red">${pp} PP</span> · <span class="stat-highlight cyan">${winrate}% WR</span> · <span class="stat-highlight red">${data.elo || ELO_INICIAL} ELO</span>
+                <div class="top-ninja-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(8, 16, 32, 0.85); border: 1.5px solid ${cardColor}; border-radius: 14px; padding: 10px 16px; margin-bottom: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 15px ${rankGlow}; flex-wrap: wrap;" onclick="abrirPerfil('${escapeJS(data.nick)}')">
+
+                    <!-- Left Section: Rank + Avatar + Name Info -->
+                    <div style="display: flex; align-items: center; gap: 14px; min-width: 240px; flex: 1;">
+                        <!-- Rank Slot -->
+                        <div style="text-align: center; min-width: 32px;">
+                            ${crownIcon}
+                            <span style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 900; color: ${cardColor}; line-height: 1;">${posicion}</span>
+                        </div>
+
+                        <!-- Avatar -->
+                        <div style="position: relative; width: 48px; height: 48px; flex-shrink: 0;">
+                            <img src="${escapeHTML(avatarUrl)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${cardColor}; box-shadow: 0 0 10px ${cardColor};" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data.nick)}&background=random';">
+                        </div>
+
+                        <!-- Name & Subtitle -->
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <span style="color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; font-weight: bold; letter-spacing: 0.5px;">${escapeHTML(data.nick)}</span>
+                            <div style="display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: #8fa3c0;">
+                                <span>${bandera} ${pais}</span>
+                                <span style="opacity: 0.5;">•</span>
+                                <span><i class="fas fa-shield-alt" style="color: ${cardColor};"></i> Escuadrón: ${escuadron}</span>
+                            </div>
                         </div>
                     </div>
-                    <span class="stat-highlight gold">${data.xp || 0} XP</span>
+
+                    <!-- Middle Section: Detailed Stats Grid matching mockup -->
+                    <div style="display: flex; flex-direction: column; gap: 4px; background: rgba(0, 0, 0, 0.4); padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); min-width: 320px; flex: 1;">
+                        <!-- Row 1 Stats -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.72rem; color: #a0b4d0;">
+                            <div><i class="fas fa-times" style="color: #64b5f6;"></i> <span style="color:#64b5f6;">Partidas</span> <b style="color:#fff;">${pj}</b></div>
+                            <div><i class="fas fa-trophy" style="color: #00e676;"></i> <span style="color:#00e676;">Victorias</span> <b style="color:#fff;">${pg}</b></div>
+                            <div><i class="fas fa-skull" style="color: #ff5252;"></i> <span style="color:#ff5252;">Derrotas</span> <b style="color:#fff;">${pp}</b></div>
+                            <div><i class="fas fa-clock" style="color: #00e5ff;"></i> <span style="color:#00e5ff;">Win Rate</span> <b style="color:#fff;">${winrate}%</b></div>
+                            <div><i class="fas fa-gem" style="color: #d500f9;"></i> <span style="color:#d500f9;">ELO</span> <b style="color:#fff;">${elo}</b></div>
+                        </div>
+                        <!-- Row 2 Stats -->
+                        <div style="display: flex; align-items: center; gap: 18px; font-size: 0.72rem; color: #a0b4d0; margin-top: 2px;">
+                            <div><i class="fas fa-star" style="color: #ffd700;"></i> <b style="color:#fff;">Campeón x${campeon}</b></div>
+                            <div><i class="fas fa-star" style="color: #ffffff;"></i> <b style="color:#fff;">MVP x${mvp}</b></div>
+                            <div><i class="fas fa-scroll" style="color: #ffb74d;"></i> <span style="color:#8fa3c0;">Racha:</span> <b style="color:#fff;">${racha}</b></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: XP Badge -->
+                    <div style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 50, 0.9), rgba(10, 20, 35, 0.95)); border: 1.5px solid ${cardColor}; border-radius: 20px; padding: 6px 16px; min-width: 100px; box-shadow: 0 0 10px ${cardColor};">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="background: ${cardColor}; color: #000; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span style="color: #ffffff; font-family: var(--font-heading); font-size: 1rem; font-weight: bold;">${xp} XP</span>
+                        </div>
+                    </div>
+
                 </div>
             `;
             posicion++;
