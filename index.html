@@ -261,19 +261,105 @@
                 <div class="container-glass glow-hover neon-card neon-gold" style="text-align: center; padding: 2px;">
                     <div class="neon-card-inner">
                         <h3><i class="fas fa-id-card" style="color:var(--blue);"></i> Tu Identidad Ninja</h3>
-                        <div style="margin: 20px 0; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px; border: 1px solid var(--blue); position:relative;">
-                            <img id="mi-avatar-bingo" src="https://ui-avatars.com/api/?name=Ninja&background=random" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blue); margin-bottom: 10px; box-shadow: 0 0 15px rgba(0,210,255,0.4);" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Ninja&background=random';">
-                            <h4 id="mi-nick-bingo" class="player-name-glow" style="color:var(--blue); font-size:1.6rem; font-family: var(--font-heading); letter-spacing: 1px;">Inicia sesión</h4>
-                            <p id="mi-rango-bingo" style="color:#aaa; font-style:italic; font-size:0.9rem; margin-bottom: 10px;">Guerrero</p>
+                        <div class="ninja-card-container" style="margin: 20px 0; background: #080d1a; padding: 15px; border-radius: 16px; border: 1px solid rgba(0,210,255,0.3); position:relative; box-shadow: 0 8px 32px rgba(0,0,0,0.8); text-align: left;">
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;">
-                                <div><strong class="stat-highlight gold" style="font-size:1.1rem;" id="mi-xp-bingo">0 XP</strong><br><small style="color:#888;">Experiencia</small></div>
-                                <div><strong class="stat-highlight red" style="font-size:1.1rem;" id="mi-elo-bingo">1200 ELO</strong><br><small style="color:#888;">Nivel MMR</small></div>
-                                <div><strong class="stat-highlight green" style="font-size:1.1rem;" id="mi-stats-bingo">0 PJ / 0 PG</strong><br><small style="color:#888;">Partidas</small></div>
-                                <div><strong class="stat-highlight cyan" style="font-size:1.1rem;" id="mi-winrate-bingo">0% WR</strong><br><small style="color:#888;">Efectividad</small></div>
+                            <!-- Banner & Avatar Header -->
+                            <div class="ninja-banner-wrapper" style="position: relative; width: 100%; height: 140px; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #091224, #1b2845); border: 1px solid rgba(0,210,255,0.2);">
+                                <div id="mi-banner-bingo" style="width: 100%; height: 100%; background-size: cover; background-position: center; filter: brightness(0.85);"></div>
+                                <button type="button" onclick="abrirModalEditarPerfil()" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.65); border: 1px solid var(--cyan); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-camera"></i> Cambiar banner
+                                </button>
+                                <button type="button" onclick="abrirModalEditarPerfil()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.3); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px);">
+                                    <i class="fas fa-pen" style="font-size: 0.8rem;"></i>
+                                </button>
                             </div>
 
-                            <h3 class="stat-highlight green" style="margin-top: 10px;" id="mi-ryos-bingo"><i class="fas fa-gem"></i> 0 Diamantes</h3>
+                            <!-- Avatar Profile Overlap -->
+                            <div style="position: relative; margin-top: -50px; margin-left: 15px; display: flex; align-items: flex-end; gap: 15px; flex-wrap: wrap;">
+                                <div style="position: relative;">
+                                    <img id="mi-avatar-bingo" src="https://ui-avatars.com/api/?name=Ninja&background=random" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--cyan); box-shadow: 0 0 20px rgba(0,210,255,0.5); background: #000;" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Ninja&background=random';">
+                                </div>
+                                <div style="padding-bottom: 5px; flex: 1; min-width: 160px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <h4 id="mi-nick-bingo" class="player-name-glow" style="color:#fff; font-size:1.5rem; font-family: var(--font-heading); margin: 0; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(0,210,255,0.6);">Inicia sesión</h4>
+                                        <i class="fas fa-check-circle" style="color: var(--blue); font-size: 1rem;" title="Verificado"></i>
+                                    </div>
+                                    <p id="mi-rango-bingo" style="color:#88a0c0; font-size:0.85rem; margin: 2px 0 0 0;">Guerrero</p>
+                                </div>
+                            </div>
+
+                            <!-- Metadata Info Badges Row -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 15px 0 10px 0; background: rgba(10, 20, 40, 0.7); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(0,210,255,0.15);">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="mi-bandera-bingo" style="font-size: 1.3rem;">🇦🇷</span>
+                                    <div>
+                                        <div id="mi-pais-bingo" style="color: #fff; font-weight: bold; font-size: 0.85rem;">Argentina</div>
+                                        <div style="color: #6680a0; font-size: 0.7rem;">País</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-globe" style="color: var(--cyan); font-size: 1.1rem;"></i>
+                                    <div>
+                                        <div id="mi-region-bingo" style="color: #fff; font-weight: bold; font-size: 0.85rem;">LATAM</div>
+                                        <div style="color: #6680a0; font-size: 0.7rem;">Región</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-shield-alt" style="color: var(--blue); font-size: 1.1rem;"></i>
+                                    <div>
+                                        <div id="mi-clan-bingo" style="color: #fff; font-weight: bold; font-size: 0.85rem;">Sin Clan</div>
+                                        <div style="color: #6680a0; font-size: 0.7rem;">Escuadrón</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-crosshairs" style="color: #ff0055; font-size: 1.1rem;"></i>
+                                    <div>
+                                        <div id="mi-rol-bingo" style="color: #fff; font-weight: bold; font-size: 0.85rem;">Guerrero</div>
+                                        <div style="color: #6680a0; font-size: 0.7rem;">Rol</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Main Stats Grid -->
+                            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 10px 0; background: rgba(5, 12, 26, 0.8); padding: 12px 8px; border-radius: 12px; border: 1px solid rgba(0, 210, 255, 0.2); text-align: center;">
+                                <div>
+                                    <i class="fas fa-trophy" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-elo-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">1200</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">ELO</div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-star" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-xp-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">0</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">XP</div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-gamepad" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-partidas-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">0</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">Partidas</div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-chart-line" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-winrate-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">0%</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">WR</div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-award" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-campeonatos-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">0</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">Campeonatos</div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-medal" style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px;"></i>
+                                    <div id="mi-subcampeonatos-bingo" style="color: #fff; font-weight: bold; font-size: 1.05rem;">0</div>
+                                    <div style="color: #6680a0; font-size: 0.68rem; margin-top: 2px;">Subcampeón</div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 0 5px;">
+                                <h3 class="stat-highlight green" style="margin: 0; font-size: 1rem;" id="mi-ryos-bingo"><i class="fas fa-gem"></i> 0 Diamantes</h3>
+                                <button type="button" class="btn-primary" onclick="abrirModalEditarPerfil()" style="border: 2px solid gold; color: gold; background: transparent; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;">
+                                    <i class="fas fa-pen"></i> EDITAR PERFIL
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -840,17 +926,69 @@
 
     <!-- MODAL EDITAR PERFIL -->
     <div id="modal-editar-perfil" class="modal">
-        <div class="modal-box">
+        <div class="modal-box" style="max-width: 500px; text-align: left;">
             <button type="button" class="btn-close" onclick="cerrarModal('modal-editar-perfil', event)" aria-label="Cerrar">&times;</button>
-            <h3 style="margin-bottom: 20px; color: var(--blue);">Personalizar Perfil</h3>
-            <form id="form-editar-perfil">
-                <label style="font-size:0.8rem; color:#aaa; display:block; text-align:left; margin-bottom:4px;">Archivo de foto (opcional):</label>
-                <input type="file" id="edit-foto-file" accept="image/*" style="margin-bottom: 10px; background: #111;">
-                <label style="font-size:0.8rem; color:#aaa; display:block; text-align:left; margin-bottom:4px;">O URL directa de foto (Drive, Dropbox, Imgur, etc.):</label>
-                <input type="url" id="edit-foto-url" placeholder="https://..." style="margin-bottom: 15px;">
-                <textarea id="edit-bio" placeholder="Tu Biografía Ninja" maxlength="100" style="resize: none; height: 80px;"></textarea>
-                <input type="text" id="edit-redes" placeholder="Enlace a tu Instagram o Red Social">
-                <button type="submit" class="btn-save" id="btn-guardar-perfil">GUARDAR CAMBIOS</button>
+            <h3 style="margin-bottom: 20px; color: var(--blue); text-align: center;"><i class="fas fa-user-cog"></i> Personalizar Perfil Ninja</h3>
+            <form id="form-editar-perfil" style="display: flex; flex-direction: column; gap: 12px;">
+
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <label style="font-size:0.85rem; color:var(--cyan); font-weight:bold; display:block; margin-bottom:4px;"><i class="fas fa-image"></i> Imagen Banner (Encabezado):</label>
+                    <label style="font-size:0.75rem; color:#aaa; display:block; margin-bottom:4px;">Subir archivo:</label>
+                    <input type="file" id="edit-banner-file" accept="image/*" style="margin-bottom: 6px; background: #111; width: 100%;">
+                    <label style="font-size:0.75rem; color:#aaa; display:block; margin-bottom:4px;">O URL (Google Drive, Google Fotos, Dropbox, etc.):</label>
+                    <input type="url" id="edit-banner-url" placeholder="https://drive.google.com/... o https://..." style="margin-bottom: 6px;">
+                </div>
+
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <label style="font-size:0.85rem; color:var(--cyan); font-weight:bold; display:block; margin-bottom:4px;"><i class="fas fa-user-circle"></i> Foto de Perfil (Avatar):</label>
+                    <label style="font-size:0.75rem; color:#aaa; display:block; margin-bottom:4px;">Subir archivo:</label>
+                    <input type="file" id="edit-foto-file" accept="image/*" style="margin-bottom: 6px; background: #111; width: 100%;">
+                    <label style="font-size:0.75rem; color:#aaa; display:block; margin-bottom:4px;">O URL (Drive, Dropbox, Imgur, etc.):</label>
+                    <input type="url" id="edit-foto-url" placeholder="https://..." style="margin-bottom: 6px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Nacionalidad / País:</label>
+                        <input type="text" id="edit-nacionalidad" placeholder="Ej. Argentina, Chile, México...">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Región:</label>
+                        <select id="edit-region" style="width:100%; padding: 10px; background: #111; color: #fff; border: 1px solid #333; border-radius: 6px;">
+                            <option value="LATAM">LATAM</option>
+                            <option value="SA (Sudamérica)">SA (Sudamérica)</option>
+                            <option value="NA (Norteamérica)">NA (Norteamérica)</option>
+                            <option value="BR (Brasil)">BR (Brasil)</option>
+                            <option value="EU (Europa)">EU (Europa)</option>
+                            <option value="GLOBAL">GLOBAL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Rol Main Preferido:</label>
+                    <select id="edit-rol" style="width:100%; padding: 10px; background: #111; color: #fff; border: 1px solid #333; border-radius: 6px;">
+                        <option value="Guerrero">Guerrero</option>
+                        <option value="Asesino">Asesino</option>
+                        <option value="Mago">Mago</option>
+                        <option value="Tirador">Tirador</option>
+                        <option value="Soporte">Soporte</option>
+                        <option value="Tanque">Tanque</option>
+                        <option value="Comodín">Comodín / Flex</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Biografía Ninja:</label>
+                    <textarea id="edit-bio" placeholder="Tu Biografía Ninja" maxlength="100" style="resize: none; height: 60px;"></textarea>
+                </div>
+
+                <div>
+                    <label style="font-size:0.8rem; color:#aaa; display:block; margin-bottom:4px;">Red Social / Instagram:</label>
+                    <input type="text" id="edit-redes" placeholder="Enlace a tu Instagram o Red Social">
+                </div>
+
+                <button type="submit" class="btn-save" id="btn-guardar-perfil" style="margin-top: 10px;">GUARDAR CAMBIOS</button>
             </form>
         </div>
     </div>
