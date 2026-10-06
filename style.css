@@ -737,19 +737,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     min-height: 400px;
 }
 
-#nexus-store {
-    background: rgba(5, 10, 20, 0.35) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 255, 255, 0.25);
-    transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
-}
-
-#nexus-store.solid-on-scroll {
-    background: rgba(5, 8, 15, 0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-color: rgba(0, 255, 255, 0.5);
+#modal-nexus-store .modal-box {
+    background: rgba(5, 10, 20, 0.95) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 255, 255, 0.4);
 }
 
 .title-main {
@@ -1564,8 +1556,7 @@ input:focus, select:focus, textarea:focus {
         width: 100%;
     }
 
-    /* NEXUS STORE, TOP RANKING Y SISTEMA KAGE */
-    #nexus-store,
+    /* TOP RANKING Y SISTEMA KAGE */
     #ranking-dinamico,
     #podio-leyendas,
     #admin,
@@ -1654,22 +1645,7 @@ input:focus, select:focus, textarea:focus {
         box-sizing: border-box;
     }
 
-    #nexus-store {
-        background: rgba(5, 10, 20, 0.35);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(0, 255, 255, 0.25);
-        transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
-    }
-
-    #nexus-store.solid-on-scroll {
-        background: rgba(5, 8, 15, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-color: rgba(0, 255, 255, 0.5);
-    }
-
-    #nexus-store, .container-glass {
+    .container-glass {
         transform: translateZ(0);
         width: 100%;
         box-sizing: border-box;

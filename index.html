@@ -69,10 +69,11 @@
                     <a href="#tienda" class="nav-group-label">Tienda <i class="fas fa-chevron-down"></i></a>
                     <ul class="nav-dropdown">
                         <li id="menu-tienda"><a href="#tienda">Mercado</a></li>
-                        <li id="menu-nexus"><a href="#nexus-store" class="pulse-cyan" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;"><i class="fas fa-bolt"></i> Nexus Store</a></li>
+                        <li id="menu-nexus"><a href="javascript:void(0)" onclick="abrirModal('modal-nexus-store', event)" class="pulse-cyan" style="color: #00ffff; text-shadow: 0 0 5px #00ffff;"><i class="fas fa-bolt"></i> Nexus Store</a></li>
                     </ul>
                 </li>
 
+                <li id="menu-trigger-nexus"><a href="javascript:void(0)" id="btn-trigger-nexus-store" onclick="abrirModal('modal-nexus-store', event)" class="pulse-cyan" style="color: #00ffff; text-shadow: 0 0 5px #00ffff; font-weight: bold;"><i class="fas fa-bolt"></i> NEXUS STORE</a></li>
                 <li id="admin-nav" style="display: none;"><a href="#admin" id="btn-admin-nav" class="btn-admin">Kage</a></li>
             </ul>
         </nav>
@@ -113,15 +114,16 @@
             </div>
         </section>
 
-        <!-- NUEVA SECCIÓN NEXUS STORE -->
-        <section id="nexus-store" class="section fade-in" style="position: relative; overflow: hidden; border-radius: 15px; padding: 10px;">
-            <div class="container-glass" style="padding: 30px 20px; border-color: rgba(0, 255, 255, 0.3);">
-                <img id="nexus-bg-image" src="" style="display:none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.3;" loading="lazy" onerror="this.style.display='none';">
+        <!-- MODAL NEXUS STORE (OCULTO POR DEFECTO) -->
+        <div id="modal-nexus-store" class="modal" style="display: none;">
+            <div class="modal-box" style="border-color: #00ffff; max-width: 800px; position: relative; padding: 25px; box-shadow: 0 0 35px rgba(0, 255, 255, 0.25);">
+                <button type="button" class="btn-close" onclick="cerrarModal('modal-nexus-store', event)" aria-label="Cerrar">&times;</button>
+                <img id="nexus-bg-image" src="" style="display:none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.25; border-radius: 12px;" loading="lazy" onerror="this.style.display='none';">
 
                 <div style="text-align: center;">
                     <div class="mbl-badge-title"><span><i class="fas fa-bolt"></i> NEXUS STORE</span></div>
                 </div>
-                <p style="text-align: center; color: #ccc; margin-bottom: 30px; font-size: 1.1rem; font-weight: bold;">Tienda oficial aliada. Recargas 100% seguras y entrega inmediata.</p>
+                <p style="text-align: center; color: #ccc; margin-bottom: 25px; font-size: 1.05rem; font-weight: bold;">Tienda oficial aliada. Recargas 100% seguras y entrega inmediata.</p>
 
                 <div id="lista-productos-nexus" class="torneos-grid">
                     <div class="skeleton-card" style="min-height: 140px; display: flex; flex-direction: column; justify-content: space-between;">
@@ -173,7 +175,7 @@
                     </form>
                 </div>
             </div>
-        </section>
+        </div>
 
         <section id="fama" class="section fade-in">
             <div class="section-head-container"><h2 class="section-head" id="head-fama"><span><i class="fas fa-monument"></i> Salón de la Fama</span></h2></div>
