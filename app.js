@@ -1304,12 +1304,14 @@ function escucharPersonalizacion() {
 
             const secciones = ['stream', 'fama', 'ligas', 'planes', 'torneos', 'bingo', 'comunidades', 'sorteos', 'abismo', 'gremio', 'tienda', 'nexus'];
             secciones.forEach(sec => {
-                const sectionEl = document.getElementById(sec === 'nexus' ? 'nexus-store' : sec);
+                const sectionEl = document.getElementById(sec === 'nexus' ? 'modal-nexus-store' : sec);
                 const menuEl = document.getElementById(`menu-${sec === 'bingo' ? 'registro-bingo' : sec}`);
+                const triggerNexusEl = document.getElementById('menu-trigger-nexus');
                 if (data.visibilidad && typeof data.visibilidad[sec] !== 'undefined') {
                     const isVisible = data.visibilidad[sec];
-                    if (sectionEl) sectionEl.style.display = isVisible ? 'block' : 'none';
+                    if (sectionEl && sec !== 'nexus') sectionEl.style.display = isVisible ? 'block' : 'none';
                     if (menuEl) menuEl.style.display = isVisible ? '' : 'none';
+                    if (sec === 'nexus' && triggerNexusEl) triggerNexusEl.style.display = isVisible ? '' : 'none';
                     const checkAdmin = document.getElementById(`vis-cfg-${sec}`);
                     if (checkAdmin) checkAdmin.checked = isVisible;
                 }
@@ -5121,14 +5123,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Translucidez y solidez dinámica al scroll para Nexus Store
-window.addEventListener('scroll', () => {
-    const nexusEl = document.getElementById('nexus-store');
-    if (nexusEl) {
-        if (window.scrollY > 150) {
-            nexusEl.classList.add('solid-on-scroll');
-        } else {
-            nexusEl.classList.remove('solid-on-scroll');
-        }
-    }
-});
