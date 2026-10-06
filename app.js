@@ -2,6 +2,7 @@
 // CONSTANTES Y HELPERS GENERALES
 // ==========================================
 const DEFAULT_AVATAR_ESPORTS = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b1528'/><path d='M50 20 A18 18 0 1 0 50 56 A18 18 0 1 0 50 20 Z M22 82 C22 68 34 60 50 60 C66 60 78 68 78 82 Z' fill='%231b2a4a' stroke='%2300ffff' stroke-width='2'/></svg>";
+window.DEFAULT_AVATAR_ESPORTS = DEFAULT_AVATAR_ESPORTS;
 
 // ==========================================
 // HELPERS: SANITIZACIÓN Y CONVERTIDOR DE ENLACES NUBE
@@ -741,6 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
     escucharTicker();
     escucharStreamYDiscordGlobal();
     cargarTorneosDesdeNube();
+    cargarHistorialTorneos();
     cargarSorteos();
     cargarHallOfFame();
     cargarVideosAbismo();
@@ -957,7 +959,7 @@ function cargarProductosNexus() {
             const id = doc.id;
 
             let imgIcon = data.img && data.img !== ""
-                ? `<img src="${getDirectImageUrl(data.img)}" class="nexus-prod-img" alt="${data.nombre}" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">`
+                ? `<img src="${getDirectImageUrl(data.img)}" class="nexus-prod-img" alt="${data.nombre}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">`
                 : `<i class="fas fa-gem nexus-prod-icon" style="color:#00ffff; filter: drop-shadow(0 0 10px #00ffff);"></i>`;
 
             if (data.tipo === 'pase' && (!data.img || data.img === "")) {
@@ -1887,7 +1889,66 @@ function cargarTorneosDesdeNube() {
         });
 
         renderizarAgendaProximos(eventos);
+        cargarHistorialTorneos();
     });
+}
+
+function cargarHistorialTorneos() {
+    const cont = document.getElementById('historial-torneos-list');
+    if (!cont) return;
+
+    db.collection('torneos')
+        .where('estado', 'in', ['finalizado', 'cerrado'])
+        .onSnapshot(snap => {
+            cont.innerHTML = '';
+            if (snap.empty) {
+                cont.innerHTML = '<p style="color:#888; font-size:0.85rem; font-style:italic; margin: 5px 0;">Aún no hay torneos finalizados guardados en el historial.</p>';
+                return;
+            }
+
+            const finalizados = [];
+            snap.forEach(doc => {
+                finalizados.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Ordenar por fecha o timestamp descendente si está disponible
+            finalizados.sort((a, b) => {
+                const timeA = a.timestamp?.seconds || 0;
+                const timeB = b.timestamp?.seconds || 0;
+                return timeB - timeA;
+            });
+
+            finalizados.forEach(data => {
+                const nombreTorneo = escapeHTML(data.nombre || 'Torneo Relámpago');
+                const campeon = escapeHTML(data.campeon || data.ganador || 'Sin Campeón Declarado');
+                const creador = escapeHTML(data.creador || 'Kage');
+                const fechaTxt = escapeHTML(data.fecha || (data.fechaISO ? new Date(data.fechaISO).toLocaleDateString('es-AR') : 'Finalizado'));
+                const formato = escapeHTML(data.formato || 'MLBB');
+
+                cont.innerHTML += `
+                    <div class="historial-torneo-row" onclick="abrirLlaves('${data.id}', '${escapeJS(data.nombre || 'Torneo')}')">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;">
+                            <span style="color: var(--blue); font-weight: bold; font-size: 0.8rem; background: rgba(0,210,255,0.15); padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(0,210,255,0.3);">${formato}</span>
+                            <strong style="color: #fff; font-size: 0.95rem;">🏆 ${nombreTorneo}</strong>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <span style="color: var(--gold-2, #ffd700); font-weight: bold; font-size: 0.9rem; background: rgba(255,215,0,0.1); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3);">
+                                👑 Campeón: ${campeon}
+                            </span>
+                            <span style="color: #aaa; font-size: 0.8rem;">
+                                <i class="fas fa-user-shield" style="color: var(--blue);"></i> Creado por: <strong>${creador}</strong>
+                            </span>
+                            <span style="color: #888; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                                <i class="far fa-calendar-alt"></i> ${fechaTxt}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+        }, err => {
+            console.error("Error al cargar historial de torneos:", err);
+            cont.innerHTML = '<p style="color:#888; font-size:0.85rem; font-style:italic; margin: 5px 0;">Aún no hay torneos finalizados guardados en el historial.</p>';
+        });
 }
 
 function obtenerFechaEvento(evento) {
@@ -2401,8 +2462,8 @@ window.verLlaves = function(torneoId, torneoNombre) {
 
             const p1Avatar = fotosPorNick[partido.p1] ? getDirectImageUrl(fotosPorNick[partido.p1]) : "";
             const p2Avatar = fotosPorNick[partido.p2] ? getDirectImageUrl(fotosPorNick[partido.p2]) : "";
-            const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">` : "";
-            const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">` : "";
+            const fotoP1 = p1Avatar ? `<img src="${p1Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">` : "";
+            const fotoP2 = p2Avatar ? `<img src="${p2Avatar}" style="width:26px; height:26px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid #333;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">` : "";
 
             return `
                 <div class="bracket-match ${sinConector ? 'bracket-match-last' : ''} neon-card">
@@ -2727,7 +2788,7 @@ function cargarVideosAbismo() {
 
                     <div class="video-preview-card" id="cont-${id}" onclick="activarVideo('${id}', '${data.url}')">
                         ${btnBorrar}
-                        <img src="${getDirectImageUrl(urlThumbnail)}" class="thumbnail-img" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
+                        <img src="${getDirectImageUrl(urlThumbnail)}" class="thumbnail-img" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">
                         <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
                     </div>
 
@@ -2873,7 +2934,7 @@ function crearCartaPodio(ninja, rank) {
         <div class="podium-spot rank-${rank}" style="position: relative; cursor:pointer;" onclick="abrirPerfil('${ninja.nick}')">
             <div class="crown" style="display: ${rank === 1 ? 'block' : 'none'}; position: absolute; top: -32px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; color: gold; filter: drop-shadow(0 0 12px gold); z-index: 10;"><i class="fas fa-crown"></i></div>
             <span class="rank-badge">${badgeText}</span>
-            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;"></div>
+            <div><img src="${imgSrc}" style="${bordeEstilo}" loading="lazy" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;"></div>
             <h5 class="hero-name-glow" style="font-size: 1.2rem; margin: 6px 0;">${ninja.nick}</h5>
             <p style="color: #00d2ff; font-weight: bold;"><i class="fas fa-trophy" style="color: gold;"></i> ${ninja.torneosGanados} Copas</p>
         </div>
@@ -3071,7 +3132,7 @@ function cargarTopClanes() {
                     <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
                         <span style="font-weight: 900; font-family: var(--font-heading); font-size: 1.2rem; color: ${colorRank}; min-width: 32px; text-align: center;">${rankBadge}</span>
                         <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; border: 2px solid ${colorRank}; box-shadow: 0 0 12px ${colorRank}; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <img src="${logoUrl}" alt="${nombreEscuadron}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
+                            <img src="${logoUrl}" alt="${nombreEscuadron}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">
                         </div>
                         <div style="min-width: 0; overflow: hidden;">
                             <h4 style="margin: 0 0 4px 0; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nombreEscuadron}</h4>
@@ -3389,7 +3450,7 @@ function cargarTopIndividualBingo() {
 
                         <!-- Avatar -->
                         <div style="position: relative; width: 48px; height: 48px; flex-shrink: 0;">
-                            <img src="${escapeHTML(avatarUrl)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${cardColor}; box-shadow: 0 0 10px ${cardColor};" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
+                            <img src="${escapeHTML(avatarUrl)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${cardColor}; box-shadow: 0 0 10px ${cardColor};" loading="lazy" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">
                         </div>
 
                         <!-- Name & Subtitle -->
@@ -4996,7 +5057,7 @@ function escucharUsuariosEnLinea() {
             return `
                 <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(57, 255, 20, 0.3); padding: 4px 10px; border-radius: 20px; cursor: pointer;" onclick="abrirPerfil('${u.nick}')">
                     <div style="position: relative;">
-                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src=DEFAULT_AVATAR_ESPORTS;">
+                        <img src="${img}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR_ESPORTS;">
                         <span style="position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 1px solid #000; box-shadow: 0 0 6px var(--green);"></span>
                     </div>
                     <span style="font-size: 0.82rem; color: #fff; font-weight: bold;">${u.nick}</span>

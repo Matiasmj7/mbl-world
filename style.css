@@ -2219,3 +2219,26 @@ strong, b, .text-bold-glow {
   border-radius: 6px;
 }
 
+/* HISTORIAL DE CAMPEONES (FILAS GLASS) */
+.historial-torneo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface-1, rgba(10, 20, 40, 0.6));
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  backdrop-filter: blur(6px);
+  flex-wrap: wrap;
+}
+
+.historial-torneo-row:hover {
+  background: rgba(20, 35, 65, 0.85);
+  border-color: rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+}
+
