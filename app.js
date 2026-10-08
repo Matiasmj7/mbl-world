@@ -1702,23 +1702,29 @@ function cargarTopComunidades() {
         let comunidades = [];
         snap.forEach(doc => comunidades.push(doc.data()));
 
-        comunidades.sort((a, b) => (b.puntos || b.miembros.length) - (a.puntos || a.miembros.length));
+        comunidades.sort((a, b) => (b.puntos || b.miembros ? b.miembros.length : 0) - (a.puntos || a.miembros ? a.miembros.length : 0));
 
         lista.innerHTML = "";
-        comunidades.slice(0, 5).forEach((com, index) => {
-            let color = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? '#cd7f32' : '#333'));
-            let logoImg = com.logo && com.logo !== "" ? `<img src="${getDirectImageUrl(com.logo)}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid ${color};" onerror="this.style.display='none';">` : '';
+        comunidades.slice(0, 10).forEach((com, index) => {
+            let color = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? '#cd7f32' : 'var(--cyan)'));
+            let logoUrl = com.logo && com.logo !== "" ? getDirectImageUrl(com.logo) : window.DEFAULT_AVATAR_ESPORTS;
+            let logoImg = `<img src="${logoUrl}" style="width:75px; height:75px; border-radius:12px; object-fit:cover; margin-right:12px; border:2px solid ${color}; background:#000; box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onerror="this.src='${window.DEFAULT_AVATAR_ESPORTS}';">`;
+
+            let btnWhatsapp = com.whatsapp ? `<a href="${escapeHTML(com.whatsapp)}" target="_blank" class="btn-secondary" style="margin-top:6px; display:inline-block; padding:4px 10px; font-size:0.75rem; border-color:#25D366; color:#25D366; text-decoration:none;"><i class="fab fa-whatsapp"></i> Unirse a Grupo</a>` : '';
+
             lista.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:10px; margin-bottom:5px; border-left:3px solid ${color};">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.6); padding:12px; margin-bottom:10px; border-left:4px solid ${color}; border-radius:8px; backdrop-filter:blur(5px);">
                     <div style="display:flex; align-items:center;">
                         ${logoImg}
                         <div>
-                            <strong>${index + 1}. ${com.nombre}</strong><br>
-                            <span style="font-size:0.7rem; color:#888;">Líder: ${com.lider} | Pts: ${com.puntos || 0}</span>
+                            <strong style="font-size:1rem; color:white;">${index + 1}. ${escapeHTML(com.nombre)}</strong><br>
+                            <span style="font-size:0.78rem; color:#aaa;">Líder: <strong style="color:var(--cyan);">${escapeHTML(com.lider || 'N/A')}</strong> | Pts: ${com.puntos || 0}</span><br>
+                            ${btnWhatsapp}
                         </div>
                     </div>
-                    <div style="color:var(--purple); font-weight:bold;">
-                        <i class="fas fa-users"></i> ${com.miembros.length}
+                    <div style="color:var(--purple); font-weight:bold; font-size:0.95rem; text-align:right;">
+                        <i class="fas fa-users"></i> ${com.miembros ? com.miembros.length : 0}<br>
+                        <span style="font-size:0.7rem; color:#888;">Miembros</span>
                     </div>
                 </div>
             `;
