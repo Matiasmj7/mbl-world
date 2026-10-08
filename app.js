@@ -582,14 +582,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (esAdmin) {
-                        document.getElementById('vista-sin-comunidad').style.display = 'none';
-                        document.getElementById('vista-con-comunidad').style.display = 'flex';
-                        document.getElementById('nombre-mi-comunidad').innerText = "Vigilancia Creador";
                         document.getElementById('kage-comunidad-selector-container').style.display = 'block';
-                        document.getElementById('btn-abandonar-comunidad').style.display = 'none';
-                        cargarSelectorComunidadesKage();
+                        if (miComunidad !== "") {
+                            document.getElementById('vista-sin-comunidad').style.display = 'none';
+                            document.getElementById('vista-con-comunidad').style.display = 'flex';
+                            document.getElementById('nombre-mi-comunidad').innerText = miComunidad;
+                            escucharChatComunidad(miComunidad);
+                            verificarLiderComunidad(miComunidad);
+                        } else {
+                            document.getElementById('vista-sin-comunidad').style.display = 'none';
+                            document.getElementById('vista-con-comunidad').style.display = 'flex';
+                            document.getElementById('nombre-mi-comunidad').innerText = "Vigilancia Creador";
+                            document.getElementById('btn-abandonar-comunidad').style.display = 'none';
+                            cargarSelectorComunidadesKage();
+                        }
                     } else if (miComunidad !== "") {
                         escucharChatComunidad(miComunidad);
+                        verificarLiderComunidad(miComunidad);
                     }
 
                     const esNexusManager = data.esNexusManager === true;
@@ -1536,6 +1545,74 @@ window.borrarSorteo = function(sorteoId, premioNombre) {
 // ==========================================
 // COMUNIDADES / ALIANZAS
 // ==========================================
+let modoKageVigilancia = false;
+
+window.toggleModoKageComunidad = function() {
+    modoKageVigilancia = !modoKageVigilancia;
+    const txtBtn = document.getElementById('txt-modo-kage-toggle');
+    const panelGestion = document.getElementById('panel-gestion-comunidad');
+    const vistaSinComunidad = document.getElementById('vista-sin-comunidad');
+    const btnAbandonar = document.getElementById('btn-abandonar-comunidad');
+
+    if (modoKageVigilancia) {
+        if (txtBtn) txtBtn.innerText = "Volver a Modo Kage Vigilancia";
+        document.getElementById('nombre-mi-comunidad').innerText = miComunidad || "Sin Alianza";
+        if (panelGestion) panelGestion.style.display = 'none';
+        if (!miComunidad) {
+            vistaSinComunidad.style.display = 'block';
+        }
+        if (btnAbandonar && miComunidad) btnAbandonar.style.display = 'inline-block';
+    } else {
+        if (txtBtn) txtBtn.innerText = "Ir a Mi Comunidad / Crear";
+        document.getElementById('nombre-mi-comunidad').innerText = "Vigilancia Creador";
+        vistaSinComunidad.style.display = 'none';
+        if (btnAbandonar) btnAbandonar.style.display = 'none';
+        cargarSelectorComunidadesKage();
+    }
+};
+
+function verificarLiderComunidad(nombreComunidad) {
+    if (!nombreComunidad) return;
+    const panelGestion = document.getElementById('panel-gestion-comunidad');
+    const inputLogo = document.getElementById('edit-logo-comunidad');
+    const inputWsp = document.getElementById('edit-whatsapp-comunidad');
+    const listaMiembros = document.getElementById('lista-miembros-comunidad');
+    if (!panelGestion) return;
+
+    db.collection('comunidades').doc(nombreComunidad).get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            const esLider = (data.lider === currentUserName || auth.currentUser?.email === ADMIN_EMAIL);
+            if (esLider) {
+                panelGestion.style.display = 'block';
+                if (inputLogo) inputLogo.value = data.logo || '';
+                if (inputWsp) inputWsp.value = data.whatsapp || '';
+                if (listaMiembros && data.miembros) {
+                    listaMiembros.innerHTML = `<strong>Miembros (${data.miembros.length}):</strong> ` + data.miembros.map(m => escapeHTML(m)).join(', ');
+                }
+            } else {
+                panelGestion.style.display = 'none';
+            }
+        }
+    });
+}
+
+window.actualizarDatosComunidad = function() {
+    if (!miComunidad) return;
+    const logo = document.getElementById('edit-logo-comunidad')?.value.trim() || '';
+    const whatsapp = document.getElementById('edit-whatsapp-comunidad')?.value.trim() || '';
+
+    db.collection('comunidades').doc(miComunidad).update({
+        logo: logo,
+        whatsapp: whatsapp
+    }).then(() => {
+        alert("¡Datos de la Alianza actualizados!");
+        cargarTopComunidades();
+    }).catch(err => {
+        alert("Error actualizando alianza: " + err.message);
+    });
+};
+
 window.crearComunidad = function() {
     const nombre = document.getElementById('input-crear-comunidad').value.trim();
     const logo = document.getElementById('input-logo-comunidad')?.value.trim() || "";
