@@ -28,9 +28,10 @@ export default async function handler(req, res) {
         const name = fields.nombre?.stringValue;
         const premio = fields.premio?.stringValue;
         const formato = fields.formato?.stringValue;
+        const reglas = fields.reglas?.stringValue || fields.rules?.stringValue;
         if (name) {
           tournamentTitle = `${name} | MBL Arg`;
-          tournamentDesc = `Formato: ${formato ? formato.toUpperCase() : 'Competitivo'} | Premio: ${premio || 'Gloria y Puntos'}. ¡Sumate a la Arena!`;
+          tournamentDesc = `Formato: ${formato ? formato.toUpperCase() : 'Competitivo'} | Premio: ${premio || 'Gloria y Puntos'}${reglas ? ` | Reglas: ${reglas}` : ''}. ¡Sumate a la Arena!`;
         }
       }
     } catch (e) {

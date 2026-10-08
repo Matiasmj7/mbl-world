@@ -2155,9 +2155,12 @@ function generarTarjetaEventoHTML(data, id, esLiga) {
                 ${data.acceso === 'comunidad' ? `<div style="position:absolute; top:10px; right:10px; color:#ff00ff; font-size:1rem; font-weight:bold; background:rgba(255,0,255,0.15); border:1px solid #ff00ff; padding:2px 8px; border-radius:4px; z-index:3;" title="Exclusivo Comunidad ${data.comunidadExclusiva || ''}"><i class="fas fa-users-slash"></i> EXCLUSIVO ${data.comunidadExclusiva ? data.comunidadExclusiva.toUpperCase() : 'COMUNIDAD'}</div>` : (data.privado ? '<div style="position:absolute; top:10px; right:10px; color:var(--red); font-size:1.2rem; z-index:3;" title="Evento Privado"><i class="fas fa-lock"></i></div>' : '')}
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                    <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
-                        ${data.formato.toUpperCase()}
-                    </span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="color:${bordeColor}; border: 1px solid ${bordeColor}; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; font-weight:bold; letter-spacing:1px;">
+                            ${data.formato.toUpperCase()}
+                        </span>
+                        ${(data.reglas || data.rules) ? `<button type="button" class="btn-secondary" onclick="verReglasTorneo('${escapeJS(data.nombre)}', '${escapeJS(data.reglas || data.rules)}')" title="Ver Reglas del Torneo" style="padding: 2px 8px; font-size: 0.8rem; border-color: #00ffff; color: #00ffff; box-shadow: 0 0 8px rgba(0,255,255,0.4); background: rgba(0,255,255,0.1); cursor: pointer;"><i class="fas fa-book" style="color: gold;"></i> Reglas</button>` : ''}
+                    </div>
                     <span class="${statusClass}">${statusTexto}</span>
                 </div>
 
@@ -2450,6 +2453,14 @@ function botonCompartirWhatsapp(texto, extraStyle = '', label = 'COMPARTIR RESUL
 
 let torneoIdActualLlaves = "";
 let torneoNombreActualLlaves = "";
+
+window.verReglasTorneo = function(torneoNombre, reglasTexto) {
+    const elTitulo = document.getElementById('nombre-torneo-reglas');
+    const elContenido = document.getElementById('contenido-reglas-torneo');
+    if (elTitulo) elTitulo.innerText = torneoNombre ? `Reglas: ${torneoNombre}` : 'Reglas del Torneo';
+    if (elContenido) elContenido.innerText = reglasTexto || 'No hay indicaciones o reglas especiales especificadas para este torneo.';
+    abrirModal('modal-reglas-torneo');
+};
 
 window.verLlaves = function(torneoId, torneoNombre) {
     torneoIdActualLlaves = torneoId;
@@ -4035,6 +4046,7 @@ function configurarAdminForms() {
             }
 
             const imagenFondoInput = document.getElementById('t-imagen-fondo')?.value.trim();
+            const reglasInput = document.getElementById('t-reglas')?.value.trim() || "";
 
             const nombreTorneo = document.getElementById('t-nombre').value.trim();
 
@@ -4051,6 +4063,8 @@ function configurarAdminForms() {
                 privado: (modoAcceso === 'privado'),
                 linkTiktok: document.getElementById('t-tiktok')?.value.trim() || "",
                 imagenFondo: imagenFondoInput || "logo-mblarg.png",
+                reglas: reglasInput,
+                rules: reglasInput,
                 creador: currentUserName,
                 lista_inscriptos: [],
                 lista_equipos: [],
