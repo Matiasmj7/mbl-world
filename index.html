@@ -476,8 +476,22 @@
                     </div>
 
                     <div id="kage-comunidad-selector-container" style="display: none; margin-bottom: 15px; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 5px; border: 1px solid gold;">
-                        <label style="color: gold; font-size: 0.8rem; display: block; margin-bottom: 5px;">Modo Kage (Espiar Alianzas)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <label style="color: gold; font-size: 0.8rem; font-weight: bold;"><i class="fas fa-eye"></i> Modo Vigilancia Kage</label>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.75rem; border-color: gold; color: gold;" onclick="toggleModoKageComunidad()"><i class="fas fa-user-shield"></i> <span id="txt-modo-kage-toggle">Ir a Mi Comunidad / Crear</span></button>
+                        </div>
                         <select id="kage-comunidad-selector" style="width: 100%; padding: 8px; background: #000; border: 1px solid gold; color: gold; border-radius: 4px;" onchange="cambiarChatComunidadKage()"></select>
+                    </div>
+
+                    <!-- Panel de Gestión para Líder de Comunidad -->
+                    <div id="panel-gestion-comunidad" style="display: none; margin-bottom: 15px; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--cyan); padding: 12px; border-radius: 8px;">
+                        <h4 style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 10px;"><i class="fas fa-cog"></i> Panel de Administración de Alianza</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                            <input type="url" id="edit-logo-comunidad" placeholder="Nueva URL Logo de Alianza" style="width: 100%;">
+                            <input type="url" id="edit-whatsapp-comunidad" placeholder="Enlace de Invitación WhatsApp" style="width: 100%;">
+                            <button class="btn-primary" style="background: var(--cyan); color: black; font-weight: bold;" onclick="actualizarDatosComunidad()"><i class="fas fa-save"></i> Guardar Cambios</button>
+                        </div>
+                        <div id="lista-miembros-comunidad" style="font-size: 0.8rem; color: #ccc; max-height: 100px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px;"></div>
                     </div>
 
                     <div id="chat-comunidad-container" style="height: 250px; overflow-y: auto; background: #050508; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;"></div>
